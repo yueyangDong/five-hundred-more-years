@@ -440,6 +440,11 @@ body::before{
 .screen.active .tl-item.hi::before{animation:tlPulse 2.2s ease-in-out infinite}
 @keyframes tlPulse{0%,100%{box-shadow:0 0 0 0 rgba(176,58,46,.35)}50%{box-shadow:0 0 0 5px rgba(176,58,46,0)}}
 
+/* ---------- 方外身份标记 ---------- */
+.monkbadge{display:inline-block;margin-top:2px;padding:2px 9px;border-radius:999px;
+  font-size:11.5px;letter-spacing:.04em;color:#7a5b9e;
+  background:rgba(122,91,158,.10);border:1px solid rgba(122,91,158,.30)}
+
 /* ---------- 减少动效偏好 ---------- */
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
@@ -958,8 +963,42 @@ const YI_JI_WORD = {
 /* 事件类别 ↔ 五行，用于流年宜忌加成 */
 const CAT_WX = {
   '家庭':'土','学业':'木','事业':'金','财富':'金','情感':'水','健康':'土',
-  '机缘':'水','危机':'火','修行':'木','日常':'土','晚年':'土','时代':'火','大限':'土'
+  '机缘':'水','危机':'火','修行':'木','日常':'土','晚年':'土','时代':'火','大限':'土','方外':'木'
 };
+/* 方外身份：sec=在俗，buddha=佛门，tao=道门。
+   心性与耗损机制按路线区分：道门重养生，佛门重功德。 */
+const MONK_LABEL = {buddha:'僧', tao:'道'};
+const MONK_NAME_LABEL = {buddha:'法号', tao:'道号'};
+const MONK_YEARS_LABEL = {buddha:'僧腊', tao:'道龄'};
+const MONK_DEATH = {'寿元耗尽':{buddha:'尘缘尽了', tao:'气数已尽'},
+                    '天年已尽':{buddha:'安然圆寂', tao:'羽化登真'}};
+/* 法号 / 道号：随机组合，并避开真实宗教人物的名号 */
+const MONK_NAME_A = ['慧','净','空','禅','明','觉','寂','清','如','了','澄','照'];
+const MONK_NAME_B = ['空','明','一','尘','缘','心','然','行','舟','月','生','定'];
+const TAO_NAME_A  = ['玄','清','虚','云','冲','太','守','抱','松','素','夷','微'];
+const TAO_NAME_B  = ['真','一','阳','朴','微','尘','之','妙','和','光','常','然'];
+const MONK_NAME_BAN = ['虚云','弘一','太虚','印光','慧能','神秀','张三丰','吕洞宾',
+  '王重阳','丘处机','陶弘景','葛洪','达摩','玄奘','鉴真','济公','寒山','拾得'];
+function makeMonName(path){
+  const A = path === 'buddha' ? MONK_NAME_A : TAO_NAME_A;
+  const B = path === 'buddha' ? MONK_NAME_B : TAO_NAME_B;
+  for(let i = 0; i < 50; i++){
+    const n = pick(A) + pick(B);
+    if(MONK_NAME_BAN.indexOf(n) < 0 && n[0] !== n[1]) return n;
+  }
+  return pick(A) + pick(B);
+}
+/* 方外身份的可读描述 */
+function monkTitle(){
+  if(!G.path || G.path === 'sec') return '';
+  const nm = G.monkName ? G.monkName : '—';
+  const yrs = G.monkYears || 0;
+  return MONK_LABEL[G.path] + ' · ' + nm + '（' + MONK_YEARS_LABEL[G.path] + ' ' + yrs + ' 年）';
+}
+/* 出家人不再经营世俗：这两类事件权重剧降（不是归零，留一丝俗缘）。
+   家庭与情感衰减较轻——俗家的因缘不会因为一身僧衣就断干净。 */
+const MONK_SEC_CATS = ['事业','财富','时代'];
+const MONK_SOFT_CATS = ['情感','家庭'];
 
 /* 十神 */
 function shishen(dayGan, otherGan){
@@ -1916,19 +1955,143 @@ const EVENTS_EXTRA = [
   {t:'两条腿走路，一边守一边试',e:{心智:9,事业:6,财富:5,健康:-3},tg:['双轨'],r:'你没赌，也没等。老本行养着新尝试，慢慢就长起来了。'}
  ]}
 ];
+
+/* ============ 方外：佛道出家线 ============
+   这不是单个事件，而是一条「人生路线」。一旦落发或入道，G.path 切换：
+   世俗事件（事业/财富/情感/家庭/时代）权重剧降，方外与修行类权重上升，
+   年度耗损与自然增减也随之改写。中途可以还俗，代价是本世修行前功尽弃。 */
+const EVENTS_FANGWAI = [
+/* ---- 契机 ---- */
+{id:'mon01',cat:'方外',sub:'call',title:'遁入空门',desc:'这些年你越来越觉得，热闹都是别人的。山门就在前面，门开着，没人拦你。',age:[20,58],w:1.8,cond:{},
+ opts:[
+  {t:'落发，归依佛门',e:{心性:14,功德:12,名望:-7,财富:-9,情感:-6},tg:['归依'],monk:'buddha',r:'剃刀是凉的。头发落在地上，你听见自己松了一口气。师父给你取了个法号。'},
+  {t:'入山，做个道人',e:{心性:11,机缘:12,健康:6,财富:-8,名望:-5},tg:['入道'],monk:'tao',r:'你换了身衣裳，跟着师父上山。晨钟暮鼓之外，还有很多年的山风要听。'},
+  {t:'受个皈依，在家修行',e:{心性:8,功德:6,健康:3,财富:-2},tg:['居士'],r:'你没有离开家。但每天清晨那一炷香，一天也没断过。'},
+  {t:'摇摇头，日子还得过',e:{事业:5,财富:4,心性:-3},tg:['羁绊'],r:'你转身下了山。走到半路回头看了一眼，但还是没停。'}
+ ]},
+/* ---- 佛门 ---- */
+{id:'mon11',cat:'方外',sub:'buddha',title:'受戒',desc:'戒坛搭好了。坛上那几行字，你读过很多遍。',age:[20,62],w:12,cond:{path:'buddha'},
+ opts:[
+  {t:'受具足戒',e:{心性:14,功德:10,健康:-5,情感:-4},tg:['受戒'],r:'香烧到手臂的时候你没动。那几道疤留了一辈子。'},
+  {t:'先受个五戒',e:{心性:7,功德:5,健康:-1},tg:['五戒'],r:'你受了五戒。少了几分庄严，也少了几分紧张。'},
+  {t:'再想一想',e:{心智:5,心性:3,机缘:-3},tg:['再等等'],r:'你想了三年。坛拆了又搭，你还站在门外。'}
+ ]},
+{id:'mon12',cat:'方外',sub:'buddha',title:'托钵',desc:'这条街上，你一家一家地走。有的门开，有的门不开。',age:[20,76],w:11,cond:{path:'buddha'},
+ opts:[
+  {t:'一天走完七个村子',e:{功德:9,心性:9,健康:-5,寿元:-1},tg:['苦行'],r:'你的脚磨破了。走到第七个村子时，一个小孩把半块饼塞给你。'},
+  {t:'就近，够吃就回',e:{功德:5,心性:4},tg:['随缘'],r:'你托了半个上午。回来路上，顺手把挡路的石头挪开了。'},
+  {t:'不去，留在寺里抄经',e:{心性:7,学识:7,名望:-2},tg:['安分'],r:'你把经抄了一遍又一遍。字比刚来时稳了很多。'}
+ ]},
+{id:'mon13',cat:'方外',sub:'buddha',title:'闭关',desc:'门从外面锁上。他们说，三个月后来开。',age:[24,70],w:10,cond:{path:'buddha'},
+ opts:[
+  {t:'三年不出',e:{心性:20,功德:12,健康:-9,寿元:-3,名望:6},tg:['闭关'],r:'门开那天你走出来，瘦得只剩一双眼睛是亮的。'},
+  {t:'三个月就好',e:{心性:11,健康:-3},tg:['小闭关'],r:'你出来了。屋子还是那么大，人还是那么吵，但你不那么烦了。'},
+  {t:'第五十天自己开了门',e:{心性:4,健康:2,名望:-4},tg:['半途'],r:'你自己走出来的。之后再没人提过让你闭关的事。'}
+ ]},
+{id:'mon14',cat:'方外',sub:'buddha',title:'升座讲经',desc:'下面坐满了人，还有几个是从很远的地方赶来的。',age:[28,80],w:11,cond:{path:'buddha'},
+ opts:[
+  {t:'讲，讲最难的',e:{学识:13,名望:12,心性:8,功德:7},tg:['讲经'],r:'讲到一半你停了一下。下面很安静，连咳嗽声都没有。'},
+  {t:'只讲怎么过日子',e:{功德:11,名望:8,情感:5,心性:6},tg:['白话'],r:'你说：饭要好好吃，人要好好待。底下有人当场就哭了。'},
+  {t:'推了，让别人讲',e:{心性:6,名望:-4,功德:3},tg:['不争'],r:'你坐在最后一排听着。有人讲偏了地方，你没作声。'}
+ ]},
+{id:'mon15',cat:'方外',sub:'buddha',title:'这场水灾',desc:'山下淹了一半。寺里的粮，够吃三个月。',age:[26,82],w:12,cond:{path:'buddha'},
+ opts:[
+  {t:'开仓，全放出去',e:{功德:22,名望:12,财富:-14,心性:10},tg:['济众'],r:'粥棚支了四十天。寺里自己后来喝了半个月稀的。'},
+  {t:'放一半，留一手',e:{功德:12,名望:6,财富:-7,心智:6},tg:['量力'],r:'你放了一半。有人骂你小气，你听着，没解释。'},
+  {t:'关上山门，先保自己',e:{功德:-12,心性:-8,财富:4},tg:['自保'],r:'山门关上了。你在里面听了很多天的雨声。'}
+ ]},
+{id:'mon16',cat:'方外',sub:'buddha',title:'寺里的位置',desc:'老住持快不行了。几个人都在看你。',age:[32,74],w:9,cond:{path:'buddha'},
+ opts:[
+  {t:'接下这一摊',e:{名望:14,事业:12,心性:-6,功德:5},tg:['住持'],r:'你当了二十年家。香火旺了，你睡得少了。'},
+  {t:'推给别人，自己清修',e:{心性:12,功德:8,名望:-8},tg:['让贤'],r:'你把钥匙交了，搬去后山那间小屋。'},
+  {t:'走，这里不必有我',e:{机缘:12,心性:10,名望:-6,功德:4},tg:['一走了之'],r:'第二天早上，你那间屋子空得像从来没人住过。'}
+ ]},
+/* ---- 道门 ---- */
+{id:'tao11',cat:'方外',sub:'tao',title:'起炉',desc:'药材都齐了。师父说过，这炉东西，急了会走火。',age:[22,72],w:11,cond:{path:'tao'},
+ opts:[
+  {t:'守着，七天七夜不离人',e:{心性:12,健康:6,寿元:4,学识:7},tg:['丹道'],r:'第七天早上，炉里响了一声。你挖出来三粒，自己吃了两粒。'},
+  {t:'按古法，慢慢来',e:{学识:10,心性:7,寿元:2},tg:['古法'],r:'你用了三年。得的不多，但每一步都清楚是为了什么。'},
+  {t:'觉得是骗人的，撤了火',e:{心智:9,学识:6,机缘:-5},tg:['不信'],r:'你把药材还给了药铺。老了以后，偶尔还会想起那炉没烧完的火。'}
+ ]},
+{id:'tao12',cat:'方外',sub:'tao',title:'入山采药',desc:'崖上那味药，只有这个季节有，也只在那个位置长。',age:[18,70],w:11,cond:{path:'tao'},
+ opts:[
+  {t:'上去，绳子系好',e:{机缘:12,健康:6,学识:8,寿元:3},tg:['采药'],r:'你在崖上待了半日。下来时背篓满了，手心也破了。'},
+  {t:'找个猎户一起去',e:{机缘:8,情感:7,健康:4,财富:-3},tg:['结伴'],r:'他替你把住了绳子。后来他儿子生病，是你给看好的。'},
+  {t:'不冒这个险',e:{心性:6,机缘:-4},tg:['惜身'],r:'你站在崖下看了很久，然后下山了。'}
+ ]},
+{id:'tao13',cat:'方外',sub:'tao',title:'吐纳',desc:'天没亮。山里的空气凉得像水。',age:[16,92],w:12,cond:{path:'tao'},
+ opts:[
+  {t:'每日不辍，四十年',e:{健康:18,寿元:12,心性:12},tg:['导引'],r:'你活了很久。有人问你吃了什么，你说什么都没吃，就是每天早起。'},
+  {t:'练了几年，放下了',e:{健康:7,心性:5},tg:['半途'],r:'你练了五年，后来忙别的事就断了。身子倒是比同龄人好一些。'},
+  {t:'把这个教给别人',e:{功德:12,名望:8,健康:8,学识:6},tg:['传法'],r:'县里后来有几十个人跟着你练。你一分钱没收过。'}
+ ]},
+{id:'tao14',cat:'方外',sub:'tao',title:'观星',desc:'夜里没云。天上那几颗的位置，好像和书里写的差了一点。',age:[20,82],w:11,cond:{path:'tao'},
+ opts:[
+  {t:'自己排一套看看',e:{学识:14,心智:11,机缘:9},tg:['推演'],r:'你算了大半辈子。算对的没说，算错的也认了。'},
+  {t:'告诉山下今年有旱',e:{功德:14,名望:11,学识:8,业力:-4},tg:['预知'],r:'村里提前蓄了水。那年确实旱，但没人渴死。'},
+  {t:'只是看，不推',e:{心性:12,心智:6,机缘:4},tg:['纯观'],r:'你看了一夜星星，什么也没算。天亮的时候，你觉得很满。'}
+ ]},
+{id:'tao15',cat:'方外',sub:'tao',title:'结庐',desc:'这处地方背风，有水，走三里能见人，走十里没人。',age:[24,78],w:10,cond:{path:'tao'},
+ opts:[
+  {t:'就这儿了，盖起来',e:{心性:14,健康:10,机缘:8,财富:-8,名望:-6},tg:['结庐'],r:'你搭了间屋子，一住三十年。门口的石头被你坐出了一个凹。'},
+  {t:'太偏，还是住镇上',e:{情感:8,财富:4,心性:4},tg:['入世修'],r:'你在镇上有个小院。街坊都知道你，有事会来敲门。'},
+  {t:'住一季就走',e:{机缘:13,心性:9,情感:-6,健康:4},tg:['四海为家'],r:'你换过七八处地方。每一处都住得像个过客，也像个主人。'}
+ ]},
+{id:'tao16',cat:'方外',sub:'tao',title:'有人要拜师',desc:'一个十七八岁的孩子，在你门口跪了三天。',age:[35,82],w:10,cond:{path:'tao'},
+ opts:[
+  {t:'收下，倾囊相授',e:{功德:14,名望:10,情感:8,心性:6},tg:['传法'],r:'你教了他十二年。你走以后，他接着在这儿扫地。'},
+  {t:'收，但只教一半',e:{名望:5,学识:4,业力:6,心性:-5},tg:['留一手'],r:'他后来出去自立门户。有人说他走的时候带走了一本册子。'},
+  {t:'不收，让他回去读书',e:{心性:9,功德:7,情感:-3},tg:['不纳'],r:'你给了他一包药和一张字条。他哭着走了，后来考上了。'}
+ ]},
+/* ---- 方外共通 ---- */
+{id:'mon21',cat:'方外',sub:'call',title:'山下的消息',desc:'有人上山来找你。说家里的事，说外面已经变了。',age:[26,74],w:10,cond:{path:'out'},
+ opts:[
+  {t:'下山一趟，把事办了',e:{情感:10,财富:5,心性:-4,业力:-3},tg:['暂出'],r:'你回去了一趟。事情办完，你又上了山。'},
+  {t:'托人带话，自己不去',e:{心性:6,情感:-6,功德:2},tg:['托付'],r:'你写了一封信。那封信被人念了三遍。'},
+  {t:'还俗，回去过',e:{情感:14,财富:8,心性:-12,功德:-8,名望:-8},tg:['还俗'],leave:true,r:'你把僧衣叠好，放在蒲团上。走出山门的时候，没有人送你。'},
+  {t:'不见，请他回去',e:{心性:8,情感:-10,名望:-4},tg:['断绝'],r:'你在屋里没出来。他在门外站到天黑。'}
+ ]},
+{id:'mon22',cat:'方外',sub:'call',title:'行脚',desc:'听说南边有位老修行，一辈子没出过山。',age:[24,70],w:11,cond:{path:'out'},
+ opts:[
+  {t:'走了两千里去见他',e:{机缘:13,心性:11,学识:10,健康:-8},tg:['行脚'],r:'他到门口就出来了，说：你来啦。好像早就认识你。'},
+  {t:'半路折回',e:{健康:3,机缘:-3},tg:['折返'],r:'走了三百里你就病了。回来以后，你再没提过这件事。'},
+  {t:'去，但带着一队人',e:{名望:9,学识:8,机缘:6,功德:5,财富:-4},tg:['结队'],r:'你们六个人一起走。路上有人吵，也有人在夜里讲故事。'}
+ ]},
+{id:'mon23',cat:'方外',sub:'call',title:'布施',desc:'今年收成好。有人往功德箱里放了一大袋铜钱。',age:[22,82],w:10,cond:{path:'out'},
+ opts:[
+  {t:'全拿去修桥铺路',e:{功德:16,名望:9,财富:-5},tg:['修桥'],r:'桥修了两年。过桥的人不知道是谁出的钱，你也不需要他们知道。'},
+  {t:'拿去接济这几家穷户',e:{功德:13,情感:7,名望:4},tg:['济贫'],r:'你亲自送上门。有一家把最后一只鸡杀了，留你吃饭。'},
+  {t:'存起来，以备不时',e:{心智:8,财富:6,功德:-5},tg:['积蓄'],r:'你把钱锁进柜子。后来确实用上了，但那次你犹豫了很久。'}
+ ]},
+{id:'mon31',cat:'方外',sub:'call',title:'自知时至',desc:'你能感觉到，时候快到了。窗外那棵树，今年开得特别好。',age:[62,120],w:6,cond:{path:'out',require:{lowLife:true}},
+ opts:[
+  {t:'净身，等着',e:{心性:16,功德:10},tg:['善终'],die:{buddha:'安然圆寂',tao:'羽化登真'},r:'你洗了手脸，换了干净衣裳，坐在蒲团上。天亮之前，你走了。'},
+  {t:'把该交代的交代完',e:{功德:14,情感:10,学识:8},tg:['嘱托'],die:'寿终正寝',r:'你把弟子都叫来，一件一件地说完。说完就闭上了眼。'},
+  {t:'再撑一撑，还有事没做完',e:{心性:8,功德:7,寿元:4},tg:['不肯走'],r:'你又撑了两年。那两年里，你做成了一件一直想做的事。'}
+ ]}
+];
 EVENTS.push.apply(EVENTS, EVENTS_EXTRA);
+EVENTS.push.apply(EVENTS, EVENTS_FANGWAI);
 
 /* ------------------------------------------------------------------ 3. 结局与评分 */
 const ENDING_RULES = [
   {id:'e_break', name:'打破命簿', desc:'五千年的账，被你在这一世翻了过去。', test:g=>g.meta.totalLife >= 500 || g.score >= 100 && g.life >= 100},
+  /* 方外两途的极果，各自要求一条路走到尽头 */
+  {id:'e_ascend', name:'白日飞升', desc:'山中无岁月。等你再下山时，山下已换了几代人。', test:g=>g.path === 'tao' && g.attrs['心性'] >= 94 && g.attrs['机缘'] >= 86 && g.life >= 88},
+  {id:'e_arhat', name:'肉身菩萨', desc:'你走之后，那间屋子据说还有香气。信的人说你不曾真的走。', test:g=>g.path === 'buddha' && g.attrs['功德'] >= 95 && g.life >= 82},
   {id:'e_early', name:'早逝天才', desc:'来过，亮过，然后太早地走了。', test:g=>g.life < 34 && g.attrs['学识'] >= 84 && g.attrs['心智'] >= 78},
+  /* 出家路线：以僧腊/道龄 + 本门所长定名分，优先于世俗成就结局 */
+  {id:'e_monk',  name:'一代高僧', desc:'你没做过一件大事，但很多人的一辈子因为你改了个方向。', test:g=>g.path === 'buddha' && (g.monkYears || 0) >= 22 && g.attrs['功德'] >= 86 && g.attrs['心性'] >= 80},
+  {id:'e_taoist',name:'得道真人', desc:'没人见你显过什么本事，只是方圆百里的人都活得很长。', test:g=>g.path === 'tao' && (g.monkYears || 0) >= 22 && g.attrs['心性'] >= 84 && g.attrs['机缘'] >= 76},
   {id:'e_power', name:'权倾朝野', desc:'一句话，可以让半座城的人等着。', test:g=>g.attrs['事业'] >= 95 && g.attrs['名望'] >= 92},
   {id:'e_rich',  name:'富甲一方', desc:'你没能带走什么，但你把什么都留下了。', test:g=>g.attrs['财富'] >= 92 && g.life >= 48},
   {id:'e_glory', name:'名垂青史', desc:'你的名字比你的身子活得久。', test:g=>g.attrs['名望'] >= 90 && g.attrs['功德'] >= 85},
   {id:'e_grace', name:'德被苍生', desc:'你没留下名字，但很多人因为你活下去了。', test:g=>g.attrs['功德'] >= 98},
-  {id:'e_saint', name:'隐居悟道', desc:'你从人间退了出去，然后才真正进了人间。', test:g=>g.attrs['心性'] >= 98 && g.attrs['功德'] >= 94 && g.attrs['财富'] < 72},
+  {id:'e_saint', name:'隐居悟道', desc:'你从人间退了出去，然后才真正进了人间。', test:g=>g.attrs['心性'] >= 96 && g.attrs['功德'] >= 92 && g.attrs['财富'] < 72},
   {id:'e_wander',name:'江湖散人', desc:'没有归处，也就处处是归处。', test:g=>g.attrs['机缘'] >= 93 && g.attrs['情感'] >= 70},
-  {id:'e_karma', name:'业火焚身', desc:'你算得很准，只是少算了人心。', test:g=>g.attrs['业力'] >= 66},
+  {id:'e_karma', name:'业火焚身', desc:'你算得很准，只是少算了人心。', test:g=>g.attrs['业力'] >= 74},
+  /* 出家兜底：走过这条路，就不该再被算作「孤苦终老」或「平凡一生」 */
+  {id:'e_hermit',name:'青灯古佛', desc:'一盏灯，一本经，一个下午。这样过了几十年。', test:g=>g.path !== 'sec' && (g.monkYears || 0) >= 8},
   {id:'e_alone', name:'孤苦终老', desc:'你活了很久，只是没人陪你到最后。', test:g=>g.attrs['情感'] <= 35 && g.attrs['财富'] <= 56},
   {id:'e_full',  name:'大限圆满', desc:'寿、德、名、财，你要的都拿到了，也没亏欠什么。', test:g=>g.life >= 74 && g.score >= 68},
   {id:'e_common',name:'平凡一生', desc:'来过了，也好好地过了。', test:g=>true}
@@ -2020,7 +2183,8 @@ function saveRun(){
   if(!G.bazi || !G.attrs || G.died) return false;
   // 节流：状态无实质变化就不重复写盘（renderLife 会被高频调用）
   const sig = G.age + '|' + G.pidx + '|' + (G.choosing ? 1 : 0) + '|' + G.chosenOpt
-            + '|' + Math.round(G.attrs['寿元']) + '|' + G.tags.length + '|' + G.timeline.length;
+            + '|' + Math.round(G.attrs['寿元']) + '|' + G.tags.length + '|' + G.timeline.length
+            + '|' + G.path + (G.monkName || '') + (G.monkYears || 0) + (G.leaves || 0);
   if(sig === _runSig) return true;
   _runSig = sig;
   try{
@@ -2036,6 +2200,9 @@ function saveRun(){
       chosenOpt: (G.chosenOpt === undefined ? null : G.chosenOpt),
       forceDeath: G.forceDeath || null,
       ambitionId: G.ambitionId,
+      path: G.path || 'sec', monkName: G.monkName || null,
+      monkYears: G.monkYears || 0, monkAge: (G.monkAge === undefined ? null : G.monkAge),
+      leaves: G.leaves || 0,
       attrBase: G.attrBase, cap: G.cap, lastDecay: G.lastDecay || 0
     }));
     return true;
@@ -2074,6 +2241,11 @@ function restoreRun(s){
   G.forceDeath = s.forceDeath || null;
   G.ambitionId = s.ambitionId || 'a_rich';
   G.ambition = AMBITIONS.find(a=>a.id === G.ambitionId) || AMBITIONS[0];
+  G.path = s.path || 'sec';
+  G.monkName = s.monkName || null;
+  G.monkYears = s.monkYears || 0;
+  G.monkAge = (s.monkAge === undefined ? null : s.monkAge);
+  G.leaves = s.leaves || 0;
   G.attrBase = s.attrBase || JSON.parse(JSON.stringify(G.attrs));
   G.cap = s.cap || buildCaps();
   G.lastDecay = s.lastDecay || 0;
@@ -2101,7 +2273,7 @@ const AMBITIONS = [
   {id:'a_fame', name:'求声名', desc:'你想被人记住，哪怕只在一个很小的圈子里。',
    cats:['学业','事业','时代'], keys:['名望','学识'], icon:'名'},
   {id:'a_free', name:'求自在', desc:'不受管，不欠人，走到哪儿算哪儿。',
-   cats:['机缘','修行','日常'], keys:['心性','机缘'], icon:'游'},
+   cats:['机缘','修行','日常','方外'], keys:['心性','机缘'], icon:'游'},
   {id:'a_kind', name:'求心安', desc:'你只想做个能让人放心的人。',
    cats:['家庭','情感','修行'], keys:['功德','情感'], icon:'德'}
 ];
@@ -2144,8 +2316,10 @@ const TAG_NEG = ['踩坑','越界','挪用','带客户','硬撑','无视','回�
   '争宠','疏离','寸土必争','慕强','官迷','后知后觉','投机','以牙还牙','撕破','走捷径','断腕','旁观',
   '无感','独悼','偏心','客气','不争','暗恋','拖延','避让','溺爱','丁克','放任'];
 const TAG_RARE = ['遇贵人','大难不死','重生','留洋','夺魁','下海','第一批','风口','加杠杆','自媒体',
-  '传承','行脚','清修','初恋','挚友','知己','四海为家','带队','破局'];
-const TAG_LEGEND = ['打破命簿','大限圆满','善终','自去','德被苍生'];
+  '传承','行脚','清修','初恋','挚友','知己','四海为家','带队','破局',
+  '归依','入道','受戒','闭关','丹道','导引','结庐','传法','苦行','济众','预知','善终'];
+const TAG_LEGEND = ['打破命簿','大限圆满','善终','自去','德被苍生',
+  '白日飞升','肉身菩萨','一代高僧','得道真人','青灯古佛'];
 function tagCls(t){
   if(TAG_LEGEND.indexOf(t) >= 0) return 'black';
   if(TAG_RARE.indexOf(t) >= 0) return 'purple';
@@ -2187,6 +2361,12 @@ function realmTags(){
   if(a['情感'] <= 26) out.push('孑然一身');
   if(a['健康'] <= 26) out.push('病骨支离');
   if(a['财富'] <= 24) out.push('囊中羞涩');
+  // 方外身份的境界称号
+  if(G.path && G.path !== 'sec'){
+    const yrs = G.monkYears || 0;
+    if(yrs >= 30) out.push(G.path === 'buddha' ? '僧腊已深' : '道行深厚');
+    else if(yrs >= 12) out.push(G.path === 'buddha' ? '长斋绣佛' : '山中岁月');
+  }
   return out;
 }
 /* 标签池：把标签按级别分组统计 */
@@ -2205,7 +2385,8 @@ const G = {
   life:0, score:0, ending:null, died:false,
   startInfo:null, fast:false, fastTimer:null,
   attrSnapshot:null, lastYearLog:0,
-  ambition:null, ambitionId:'a_rich', snapshots:[], peak:{}
+  ambition:null, ambitionId:'a_rich', snapshots:[], peak:{},
+  path:'sec', monkName:null, monkYears:0, monkAge:null, leaves:0
 };
 
 /* ------------------------------------------------------------------ 7. 工具 */
@@ -2372,6 +2553,11 @@ function weightOf(ev){
   if(ev.cond && ev.cond.require){
     if(ev.cond.require.lowLife && G.attrs['寿元'] > 12) return 0;
   }
+  // 方外路线：身份过滤。path:'out' 表示任一出家身份，具体值表示指定路线
+  const cp = ev.cond && ev.cond.path;
+  if(cp === 'out'){ if(G.path === 'sec') return 0; }
+  else if(cp){ if(G.path !== cp) return 0; }
+  else if(ev.cat === '方外' && G.path !== 'sec') return 0;   // 已经出世，不会再遇到「遁入空门」
   // 时代事件：按公历年份开窗（出生年 + 当前年龄）
   if(ev.cond && ev.cond.yearRange){
     const yy = (G.birthYear || G.bazi.y) + G.age;
@@ -2403,7 +2589,8 @@ function weightOf(ev){
   if(G.curDayun){
     const s = shishen(G.bazi.dayGan, G.curDayun.gan);
     if(s === '七杀' && (ev.cat === '危机' || ev.cat === '事业')) w += 8;
-    if(s === '正印' && (ev.cat === '学业' || ev.cat === '修行')) w += 8;
+    if(s === '正印' && (ev.cat === '学业' || ev.cat === '修行' || ev.cat === '方外')) w += 8;
+    if(s === '偏印' && (ev.cat === '修行' || ev.cat === '方外')) w += 6;
     if(s === '偏财' && (ev.cat === '财富' || ev.cat === '事业')) w += 8;
     if(s === '伤官' && (ev.cat === '事业' || ev.cat === '情感')) w += 6;
     if(s === '正官' && ev.cat === '事业') w += 8;
@@ -2420,6 +2607,27 @@ function weightOf(ev){
   if(G.attrs['财富'] < 25 && (ev.cat === '财富')) w += 8;
   if(G.attrs['功德'] > 70 && ev.cat === '修行') w += 8;
   if(G.attrs['业力'] > 65 && ev.cat === '危机') w += 8;
+
+  // 方外路线：出世之后，人间那套账不再按月结算
+  if(G.path !== 'sec'){
+    if(MONK_SEC_CATS.indexOf(ev.cat) >= 0) w *= 0.10;      // 事业/财富/时代：近乎绝缘
+    else if(MONK_SOFT_CATS.indexOf(ev.cat) >= 0) w *= 0.35; // 情感/家庭：俗缘未断，但淡了
+    if(ev.cat === '方外') w *= 1.6;
+    else if(ev.cat === '修行') w *= 1.3;
+    else if(ev.cat === '危机') w *= 0.65;                   // 山中少有大起大落
+    else if(ev.cat === '日常' || ev.cat === '晚年' || ev.cat === '健康') w *= 1.15;
+  }
+  // 生出世之念的倾向：心厚、德深、业重、身边无人，都更容易走进山门。
+  // 不看总和，只看最突出的那一项——出家从来是被某一种东西推着走的，不是被平均分推着走。
+  if(ev.cat === '方外' && G.path === 'sec'){
+    const a = G.attrs;
+    const pull = Math.max((a['心性'] - 60) / 5, (a['功德'] - 60) / 6,
+                          (a['业力'] - 48) / 5, (34 - a['情感']) / 5);
+    const topWx = Object.keys(G.bazi.pct).sort((x,y)=>G.bazi.pct[y]-G.bazi.pct[x])[0];
+    const wxPull = (topWx === '木' || topWx === '水') ? 3 : 0;
+    // 留意到山门的人本来就不多，但不是零；还俗过的人，再回头更难
+    w = Math.max(1.2, (ev.w || 4) + pull + wxPull) + (G.leaves ? -3 : 0);
+  }
 
   // 流年宜忌：流年五行落喜用为吉年（顺势事多、风险少），落忌神为凶年（风险上扬）
   const cw = CAT_WX[ev.cat];
@@ -2738,6 +2946,10 @@ function renderResumeCard(){
     + '已活到 <b>' + s.age + '</b> 岁　已记事 <b>' + ((s.timeline || []).length) + '</b> 件'
     + '　寿数上限 <b>' + s.maxAge + '</b> 岁<br/>'
     + (amb ? '本世志向 <b>' + amb.name + '</b><br/>' : '')
+    + (s.path && s.path !== 'sec'
+        ? '<span class="monkbadge">' + MONK_LABEL[s.path] + ' · ' + (s.monkName || '—')
+          + '（' + MONK_YEARS_LABEL[s.path] + ' ' + (s.monkYears || 0) + ' 年）</span><br/>'
+        : '')
     + '<span style="color:var(--ink3);font-size:12.5px">' + fmtRunTime(s.ts) + ' 暂离于此</span>';
 }
 
@@ -2870,6 +3082,8 @@ function startGame(bz){
   G.choosing = false;
   G.chosenOpt = null;
   G.score = 0;
+  // 新的一世从在俗状态开始（方外路线需在人生中自行选择）
+  G.path = 'sec'; G.monkName = null; G.monkYears = 0; G.monkAge = null; G.leaves = 0;
   G.ending = null;
   G.birthYear = bz.y;
   G.maxAge = clamp(Math.round(G.attrs['寿元'] * 1.25) + 8, 32, 116);
@@ -2920,6 +3134,9 @@ function yearlyDecay(){
   d *= 1 + (a['业力'] - 35) / 280;
   d *= 1 - (a['功德'] - 40) / 360;
   d *= 1 - (a['心性'] - 50) / 950;
+  // 方外：粗茶淡饭、作息不争，耗损明显更慢。道门重养生，更甚于佛门。
+  if(G.path === 'buddha') d *= 0.86;
+  else if(G.path === 'tao') d *= 0.76;
   return clamp(d, 0.35, 2.6);
 }
 /* 年龄带来的自然增减：让属性成为动态平衡，而不是单调涨到顶 */
@@ -2954,6 +3171,32 @@ function yearlyRegression(){
   return r;
 }
 
+/* 方外岁月：出家人不事生产，财富名望自然流失，换来的是心性与功德。
+   增益随僧腊/道龄递减——头几年最猛，久了趋于平缓。 */
+function monasticDrift(){
+  if(!G.path || G.path === 'sec') return {};
+  const d = {};
+  const yrs  = G.monkYears || 0;
+  const soft = clamp(1 - yrs / 42, 0.32, 1);
+  if(G.path === 'buddha'){
+    d['功德'] = 1.6 * soft;
+    d['心性'] = 1.3 * soft;
+    d['健康'] = 0.3 * soft;
+    d['财富'] = -1.5;
+    d['名望'] = -0.7;
+    d['情感'] = -0.5;
+  }else{
+    d['心性'] = 0.9 * soft;
+    d['健康'] = 0.7 * soft;
+    d['机缘'] = 0.6 * soft;
+    d['学识'] = 0.3 * soft;
+    d['财富'] = -1.2;
+    d['名望'] = -0.4;
+    d['情感'] = -0.6;
+  }
+  return d;
+}
+
 function beginYear(){
   G.curDayun = curDayunAt(G.age);
   G.liunian  = liunianAt(G.age, G.birthYear);
@@ -2981,6 +3224,7 @@ function renderLife(){
     meta += '未 起 运';
   }
   meta += '<br/>寿元 <b>' + Math.round(G.attrs['寿元']) + '</b>';
+  if(G.path !== 'sec') meta += '<br/><span class="monkbadge">' + monkTitle() + '</span>';
   $('lifeMeta').innerHTML = meta;
 
   // 志向进度
@@ -3032,7 +3276,7 @@ function renderLife(){
   });
 
   wrap.innerHTML = '<div class="event">'
-    + '<div class="scene">' + sceneSVG(ev.cat) + '</div>'
+    + '<div class="scene">' + sceneSVG(ev.cat, ev.sub) + '</div>'
     + '<div class="etop">'
     + '<div class="cat">' + ev.cat + '</div>'
     + '<h3>' + ev.title + '</h3>'
@@ -3054,13 +3298,32 @@ function scheduleFast(fn){
 
 function doChoose(ev, o){
   const deltas = applyEffect(o.e);
-  if(o.tg) o.tg.forEach(t=>{ if(G.tags.indexOf(t) < 0) G.tags.push(t); });
+  const pushTag = t=>{ if(G.tags.indexOf(t) < 0) G.tags.push(t); };
+  if(o.tg) o.tg.forEach(pushTag);
+  // 出世：切换方外身份，取法号/道号，记下出家年龄（僧腊由此派生）
+  if(o.monk){
+    G.path = o.monk;
+    G.monkName = makeMonName(o.monk);
+    G.monkAge = G.age;
+    G.monkYears = 0;
+  }
+  // 还俗：回到在俗。属性代价已由选项本身扣掉，这里只做状态与标签
+  if(o.leave && G.path !== 'sec'){
+    G.path = 'sec';
+    G.leaves = (G.leaves || 0) + 1;
+    G.monkName = null;
+    pushTag('退转');
+  }
   G.usedAt[ev.id] = G.age;
   META.events[ev.id] = 1;
   const rec = {age:G.age, cat:ev.cat, title:ev.title, choice:o.t, r:o.r, deltas};
+  if(o.monk) rec.monk = o.monk;   // 时间线里标记这一年的身份转折
   G.timeline.push(rec);
   G.log.push(rec);
-  if(o.die) G.forceDeath = o.die;
+  // die 支持两种写法：字符串，或按路线取值的映射（如 {buddha:'安然圆寂',tao:'羽化登真'}）
+  if(o.die){
+    G.forceDeath = (typeof o.die === 'string') ? o.die : (o.die[G.path] || '坐化');
+  }
   return rec;
 }
 
@@ -3134,8 +3397,10 @@ function nextYear(){
   const all = {};
   const drift = yearlyDrift();
   const reg = yearlyRegression();
+  const mon = monasticDrift();
   Object.keys(drift).forEach(k=>{ all[k] = (all[k] || 0) + drift[k]; });
   Object.keys(reg).forEach(k=>{ all[k] = (all[k] || 0) + reg[k]; });
+  Object.keys(mon).forEach(k=>{ all[k] = (all[k] || 0) + mon[k]; });
   const deltas = {'寿元': -Math.round(dec * 10) / 10};
   G.attrs['寿元'] = clamp(G.attrs['寿元'] - dec, -60, 240);
   Object.keys(all).forEach(k=>{
@@ -3148,6 +3413,10 @@ function nextYear(){
   updatePeak();
   if(G.attrs['寿元'] <= 0) return endLife('寿元耗尽');
   G.age++;
+  // 僧腊/道龄由出家年龄派生，避免与年龄不同步
+  if(G.path !== 'sec' && G.monkAge !== null && G.monkAge !== undefined){
+    G.monkYears = Math.max(0, G.age - G.monkAge);
+  }
   if(G.age > G.maxAge){
     G.age--;
     return endLife('天年已尽');
@@ -3244,7 +3513,12 @@ function makeEpitaph(reason){
     'e_full':'该拿的拿了，该还的还了，走得干净。',
     'e_common':'来过，忙过，也就这样了。',
     'e_early':'太亮了，亮得烧得太快。',
-    'e_break':'这一世的账，他翻过去了。'
+    'e_break':'这一世的账，他翻过去了。',
+    'e_monk':'他那件僧衣补了十几次，一直没舍得换。',
+    'e_taoist':'他走的时候很轻，像山里的风，没留下什么痕迹。',
+    'e_hermit':'灯还亮着，只是再没人来添油了。',
+    'e_arhat':'那间屋子后来没人敢住，说是还留着他的气息。',
+    'e_ascend':'最后一次有人看见他，是在半山腰，那天有云。'
   }[G.ending ? G.ending.id : 'e_common'] || '来过，好好地过了。';
 
   return first + ' — ' + last + '，' + reason + '，享年 ' + G.life + '。<br/>'
@@ -3255,6 +3529,10 @@ function makeEpitaph(reason){
 function endLife(reason){
   if(G.died) return;
   G.died = true;
+  // 出家人的终局有各自的说法：寿尽不叫寿尽，叫尘缘尽了
+  if(G.path !== 'sec' && MONK_DEATH[reason] && MONK_DEATH[reason][G.path]){
+    reason = MONK_DEATH[reason][G.path];
+  }
   G.deathReason = reason;
   clearTimeout(G.fastTimer);
   G.life = G.age;
@@ -3299,7 +3577,8 @@ function endLife(reason){
   if(META.totalLife >= 500) META.brokeBook = true;
 
   G.agg = ag;   // 供结算页与诊断使用（终值与峰值的合并视图）
-  const gg = {attrs:ag, life:G.life, score:G.score, tags:G.tags, meta:META, broke:firstBreak};
+  const gg = {attrs:ag, life:G.life, score:G.score, tags:G.tags, meta:META, broke:firstBreak,
+              path:G.path, monkYears:G.monkYears || 0, leaves:G.leaves || 0};
   if(firstBreak){
     G.ending = ENDING_RULES[0];
   }else{
@@ -3324,7 +3603,8 @@ function endLife(reason){
 function renderSettle(reason){
   const a = G.attrs;
   const sc = grade(G.score);
-  $('stSub').textContent = reason + ' · 终 年 ' + G.life;
+  $('stSub').textContent = reason + ' · 终 年 ' + G.life
+    + (G.path !== 'sec' ? ' · ' + monkTitle() : '');
 
   // 结局称号：逐字揭示 + 落印
   const titleEl = $('stTitle');
@@ -3350,8 +3630,18 @@ function renderSettle(reason){
     + (G.ambition ? '<br/>志向 <b>' + G.ambition.name + '</b> · '
         + ambitionLabel(ap) + '（' + (ap*100).toFixed(0) + '%）' : '');
 
-  $('stReview').innerHTML =
-      '命盘：' + G.bazi.yearGz + ' ' + G.bazi.monthGz + ' ' + G.bazi.dayGz + ' ' + G.bazi.hourGz
+  let monkLine = '';
+  if(G.path !== 'sec'){
+    monkLine = '方外身份 <b style="color:var(--gold)">' + monkTitle() + '</b>　入山年岁 '
+      + (G.monkAge === null || G.monkAge === undefined ? '—' : G.monkAge) + ' 岁'
+      + (G.leaves ? '　<span style="color:var(--ink3)">此前还俗过 ' + G.leaves + ' 次</span>' : '')
+      + '<br/>';
+  }else if(G.leaves && G.monkYears){
+    monkLine = '曾入空门 <b>' + G.monkYears + '</b> 年，后还俗<br/>';
+  }
+
+  $('stReview').innerHTML = monkLine
+    + '命盘：' + G.bazi.yearGz + ' ' + G.bazi.monthGz + ' ' + G.bazi.dayGz + ' ' + G.bazi.hourGz
     + '　日主 <b>' + G.bazi.dayGan + '</b>　' + G.bazi.gender + '命<br/>'
     + '日主 <b>' + G.bazi.strength.level + '</b>　喜用神 <b style="color:var(--green)">'
     + G.bazi.fav.use + '</b>　忌神 ' + G.bazi.fav.avoid + '<br/>'
@@ -3703,7 +3993,7 @@ function floatNum(x, y, text, up){
 }
 
 /* ---------- 事件场景意境插画（按事件类别生成 SVG） ---------- */
-function sceneSVG(cat){
+function sceneSVG(cat, sub){
   const ink = '#5e564b', red = '#b03a2e', gold = '#b8902c', green = '#4a7c59',
         blue = '#3c6e9e', purple = '#7a5b9e';
   const far =
@@ -3770,6 +4060,54 @@ function sceneSVG(cat){
       fg = '<path d="M196,16 L168,62 L188,62 L164,104 L214,56 L190,56 L214,16 Z" fill="'+red+'" opacity=".6"/>'
          + '<path d="M96,104 L114,80 L130,92 L148,66 L166,104" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".65"/>'
          + '<path d="M236,104 L252,84 L268,96 L288,72" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".5"/>';
+      break;
+    case '方外':
+      if(sub === 'buddha'){
+        // 佛塔 + 莲台 + 念珠
+        fg = '<circle cx="180" cy="60" r="42" fill="'+gold+'" opacity=".09"/>'
+           + '<rect x="154" y="86" width="52" height="8" fill="#efe6d2" stroke="'+ink+'" stroke-width="1.8"/>'
+           + '<rect x="162" y="62" width="36" height="24" fill="#f7efdd" stroke="'+ink+'" stroke-width="2"/>'
+           + '<rect x="170" y="72" width="20" height="14" fill="'+gold+'" opacity=".22" stroke="'+ink+'" stroke-width="1.2"/>'
+           + '<path d="M180,32 L160,62 L200,62 Z" fill="#f2e7cf" stroke="'+ink+'" stroke-width="2" stroke-linejoin="round"/>'
+           + '<line x1="180" y1="24" x2="180" y2="32" stroke="'+ink+'" stroke-width="2"/>'
+           + '<line x1="172" y1="40" x2="188" y2="40" stroke="'+gold+'" stroke-width="1.6"/>'
+           + '<line x1="168" y1="48" x2="192" y2="48" stroke="'+gold+'" stroke-width="1.6"/>'
+           + '<ellipse cx="180" cy="98" rx="30" ry="6" fill="'+gold+'" opacity=".16"/>'
+           + '<path d="M150,98 C156,92 164,92 170,98 Z" fill="#f7efdd" stroke="'+ink+'" stroke-width="1.2"/>'
+           + '<path d="M190,98 C196,92 204,92 210,98 Z" fill="#f7efdd" stroke="'+ink+'" stroke-width="1.2"/>'
+           + '<circle cx="266" cy="70" r="4" fill="#f7efdd" stroke="'+ink+'" stroke-width="1.2"/>'
+           + '<circle cx="276" cy="76" r="4" fill="#f7efdd" stroke="'+ink+'" stroke-width="1.2"/>'
+           + '<circle cx="282" cy="86" r="4" fill="#f7efdd" stroke="'+ink+'" stroke-width="1.2"/>'
+           + '<circle cx="280" cy="96" r="4" fill="#f7efdd" stroke="'+ink+'" stroke-width="1.2"/>';
+      }else if(sub === 'tao'){
+        // 太极 + 丹炉 + 云气
+        fg = '<circle cx="138" cy="68" r="27" fill="#fdf8ec" stroke="'+ink+'" stroke-width="2"/>'
+           + '<path d="M138,41 a27,27 0 0,1 0,54 a13.5,13.5 0 0,1 0,-27 a13.5,13.5 0 0,0 0,-27 Z" fill="'+ink+'" opacity=".82"/>'
+           + '<circle cx="138" cy="54.5" r="4.2" fill="#fdf8ec"/>'
+           + '<circle cx="138" cy="81.5" r="4.2" fill="'+ink+'" opacity=".82"/>'
+           + '<path d="M208,72 L238,72 L232,102 L214,102 Z" fill="#efe6d2" stroke="'+ink+'" stroke-width="2" stroke-linejoin="round"/>'
+           + '<rect x="202" y="64" width="42" height="9" rx="2" fill="#f7efdd" stroke="'+ink+'" stroke-width="2"/>'
+           + '<circle cx="220" cy="82" r="6" fill="'+red+'" opacity=".3"/>'
+           + '<path d="M214,60 C210,50 220,46 216,36" fill="none" stroke="'+ink+'" stroke-width="1.6" opacity=".42"/>'
+           + '<path d="M228,60 C234,50 224,46 230,34" fill="none" stroke="'+ink+'" stroke-width="1.6" opacity=".32"/>'
+           + '<path d="M52,80 C66,72 78,84 92,76" fill="none" stroke="'+ink+'" stroke-width="1.5" opacity=".3"/>'
+           + '<path d="M252,44 C266,36 278,48 292,40" fill="none" stroke="'+ink+'" stroke-width="1.5" opacity=".3"/>';
+      }else{
+        // 山门：两扇门、出檐、石阶与上山的路
+        fg = '<path d="M140,46 L180,28 L220,46 Z" fill="#efe6d2" stroke="'+ink+'" stroke-width="2" stroke-linejoin="round"/>'
+           + '<rect x="142" y="46" width="76" height="9" fill="#f7efdd" stroke="'+ink+'" stroke-width="2"/>'
+           + '<rect x="150" y="55" width="26" height="47" fill="#f2e7cf" stroke="'+ink+'" stroke-width="1.8"/>'
+           + '<rect x="184" y="55" width="26" height="47" fill="#f2e7cf" stroke="'+ink+'" stroke-width="1.8"/>'
+           + '<line x1="176" y1="55" x2="176" y2="102" stroke="'+ink+'" stroke-width="1.6"/>'
+           + '<line x1="184" y1="55" x2="184" y2="102" stroke="'+ink+'" stroke-width="1.6"/>'
+           + '<circle cx="170" cy="70" r="2.6" fill="'+gold+'" opacity=".7"/>'
+           + '<circle cx="190" cy="70" r="2.6" fill="'+gold+'" opacity=".7"/>'
+           + '<path d="M118,102 L242,102" stroke="'+ink+'" stroke-width="2.4" opacity=".7"/>'
+           + '<path d="M132,110 L228,110" stroke="'+ink+'" stroke-width="2" opacity=".5"/>'
+           + '<path d="M180,102 C176,112 172,116 160,120" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".45"/>'
+           + '<path d="M180,102 C184,112 190,116 202,120" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".45"/>'
+           + '<circle cx="62" cy="66" r="16" fill="'+gold+'" opacity=".14"/>';
+      }
       break;
     case '修行':
       fg = '<ellipse cx="180" cy="100" rx="36" ry="8" fill="'+purple+'" opacity=".12"/>'
