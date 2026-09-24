@@ -466,6 +466,15 @@ body::before{
         <div class="sub">八 字 轮 回 · 人 生 模 拟</div>
         <div class="line"></div>
       </div>
+
+      <div class="card tight" id="resumeCard" style="display:none">
+        <div class="sec-title" style="margin-top:0">未 了 之 世</div>
+        <div id="resumeInfo" style="font-size:13px;color:var(--ink2);line-height:1.9"></div>
+        <button class="btn gold mt12" id="btnResume">继 续 这 一 世</button>
+        <button class="btn ghost mt8" id="btnDiscardRun">放 弃 此 世 · 重 新 投 胎</button>
+        <div class="hint">存档只在本机浏览器里，不上传任何服务器。</div>
+      </div>
+
       <div class="card">
         <div class="seal">命<br/>簿</div>
         <div class="sec-title" style="margin-top:0">投 胎 处</div>
@@ -553,6 +562,7 @@ body::before{
 
       <button class="btn" id="btnToLife">入 世 · 开 始 人 生</button>
       <div class="hint">初始属性由五行分布、日主强弱、十神倾向加权生成，纯属游戏化设定。</div>
+      <button class="btn ghost mt8" id="btnChartBack">重 选 生 辰 · 回 首 页</button>
     </section>
 
     <!-- ================= 人生页 ================= -->
@@ -568,6 +578,7 @@ body::before{
         <button class="btn ghost" id="btnSkipYear">跳过今年</button>
         <button class="btn ghost" id="btnAttrPanel">属性面板</button>
       </div>
+      <button class="btn ghost mt8" id="btnPause">暂 离 · 存 档 并 回 首 页</button>
       <div id="lifeLogWrap" class="mt8" style="display:none">
         <div class="sec-title" style="margin-top:4px">人 生 记 事</div>
         <div class="log" id="lifeLog"></div>
@@ -2000,6 +2011,87 @@ function fragNeed(id){
   return t.cost[lv];
 }
 
+/* ------------------------------------------------------------------ 5a. 本世进度存档
+   入世之后可以「暂离」——把这一世存进本机，下次接着活。
+   事件只存 id、结局只存 id，恢复时反查，避免把函数和冗余文案塞进存档。 */
+const RUN_KEY = 'hxz500_run_v1';
+let _runSig = '';
+function saveRun(){
+  if(!G.bazi || !G.attrs || G.died) return false;
+  // 节流：状态无实质变化就不重复写盘（renderLife 会被高频调用）
+  const sig = G.age + '|' + G.pidx + '|' + (G.choosing ? 1 : 0) + '|' + G.chosenOpt
+            + '|' + Math.round(G.attrs['寿元']) + '|' + G.tags.length + '|' + G.timeline.length;
+  if(sig === _runSig) return true;
+  _runSig = sig;
+  try{
+    localStorage.setItem(RUN_KEY, JSON.stringify({
+      v: 1, ts: Date.now(),
+      bazi: G.bazi, attrs: G.attrs,
+      age: G.age, maxAge: G.maxAge, birthYear: G.birthYear,
+      tags: G.tags, timeline: G.timeline, log: G.log,
+      snapshots: G.snapshots, peak: G.peak, usedAt: G.usedAt,
+      pendingIds: (G.pending || []).map(e=>e.id),
+      pidx: G.pidx,
+      choosing: !!G.choosing,
+      chosenOpt: (G.chosenOpt === undefined ? null : G.chosenOpt),
+      forceDeath: G.forceDeath || null,
+      ambitionId: G.ambitionId,
+      attrBase: G.attrBase, cap: G.cap, lastDecay: G.lastDecay || 0
+    }));
+    return true;
+  }catch(e){ return false; }   // 隐私模式 / 配额满：静默降级，不影响游戏
+}
+function peekRun(){
+  try{
+    const raw = localStorage.getItem(RUN_KEY);
+    if(!raw) return null;
+    const o = JSON.parse(raw);
+    if(!o || o.v !== 1 || !o.bazi || !o.attrs || o.died) return null;
+    return o;
+  }catch(e){ return null; }
+}
+function clearRun(){
+  _runSig = '';
+  try{ localStorage.removeItem(RUN_KEY); }catch(e){}
+}
+/* 存档写回 G：事件与结局都按 id 反查 */
+function restoreRun(s){
+  G.bazi = s.bazi;
+  G.attrs = s.attrs;
+  G.age = s.age || 0;
+  G.maxAge = s.maxAge || 100;
+  G.birthYear = s.birthYear || s.bazi.y;
+  G.tags = s.tags || [];
+  G.timeline = s.timeline || [];
+  G.log = s.log || [];
+  G.snapshots = s.snapshots || [];
+  G.peak = s.peak || {};
+  G.usedAt = s.usedAt || {};
+  G.pending = (s.pendingIds || []).map(id=>EVENTS.find(e=>e.id === id)).filter(Boolean);
+  G.pidx = s.pidx || 0;
+  G.choosing = !!s.choosing;
+  G.chosenOpt = (s.chosenOpt === undefined ? null : s.chosenOpt);
+  G.forceDeath = s.forceDeath || null;
+  G.ambitionId = s.ambitionId || 'a_rich';
+  G.ambition = AMBITIONS.find(a=>a.id === G.ambitionId) || AMBITIONS[0];
+  G.attrBase = s.attrBase || JSON.parse(JSON.stringify(G.attrs));
+  G.cap = s.cap || buildCaps();
+  G.lastDecay = s.lastDecay || 0;
+  G.score = 0; G.life = 0; G.ending = null; G.died = false; G.deathReason = null;
+  G.fast = false; G.fastTimer = null;
+  // 恢复后必须自洽：renderLife 与 weightOf 都直接读这两个值
+  G.dayun = (s.bazi && s.bazi.dayun) || [];
+  G.curDayun = curDayunAt(G.age);
+  G.liunian  = liunianAt(G.age, G.birthYear);
+}
+function fmtRunTime(ts){
+  if(!ts) return '';
+  const d = new Date(ts);
+  const p = n => (n < 10 ? '0' : '') + n;
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate())
+       + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+
 /* ------------------------------------------------------------------ 5b. 本世志向（双轨目标）
    借鉴同类人生模拟器的设计：本局有一条自己选的「志向」，
    志向达成度会影响事件倾向与最终评级上限。 */
@@ -2628,6 +2720,89 @@ function renderHome(){
   $('hProgress').innerHTML = META.brokeBook
     ? '你已经打破过一次命簿。'
     : '目标：累计活满 <b>五百</b> 年。当前进度 <b>' + p.toFixed(1) + '%</b>（' + Math.round(META.totalLife) + ' / 500 年）';
+  renderResumeCard();
+}
+
+/* 首页「未了之世」：只有存在未完成的存档时才出现 */
+function renderResumeCard(){
+  const card = $('resumeCard');
+  if(!card) return;
+  const s = peekRun();
+  if(!s){ card.style.display = 'none'; return; }
+  const bz = s.bazi;
+  const amb = AMBITIONS.find(a=>a.id === s.ambitionId);
+  card.style.display = '';
+  $('resumeInfo').innerHTML =
+      '命盘 <b>' + bz.yearGz + ' ' + bz.monthGz + ' ' + bz.dayGz + ' ' + bz.hourGz + '</b>　'
+    + bz.gender + '命<br/>'
+    + '已活到 <b>' + s.age + '</b> 岁　已记事 <b>' + ((s.timeline || []).length) + '</b> 件'
+    + '　寿数上限 <b>' + s.maxAge + '</b> 岁<br/>'
+    + (amb ? '本世志向 <b>' + amb.name + '</b><br/>' : '')
+    + '<span style="color:var(--ink3);font-size:12.5px">' + fmtRunTime(s.ts) + ' 暂离于此</span>';
+}
+
+/* 暂离：存档并回首页，下次接着活 */
+function pauseRun(){
+  if(G.died) return;
+  clearTimeout(G.fastTimer);
+  G.fast = false; toggleFastOff();
+  const ok = saveRun();
+  renderHome();
+  show('home');
+  if(ok){
+    toastModal('已 暂 离',
+      '这一世已存进本机浏览器。<br/><br/>'
+      + '下次打开页面，首页会出现「未了之世」卡片，点它就能接着往下活。<br/><br/>'
+      + '<span style="color:var(--ink3)">存档只在本机，不上传任何服务器。清除浏览器站点数据会一并清掉存档。</span>');
+  }else{
+    toastModal('暂 离 失 败',
+      '本机浏览器拒绝写入存档（常见于无痕模式或存储配额已满）。<br/><br/>'
+      + '<span style="color:var(--ink3)">这一世还留在刚才的页面上，请不要关闭标签页。</span>');
+  }
+}
+
+/* 续上一世 */
+function resumeRun(){
+  const s = peekRun();
+  if(!s){ renderHome(); toastModal('没有存档', '本机没有未完成的人生存档。'); return; }
+  restoreRun(s);
+  G.curDayun = curDayunAt(G.age);
+  G.liunian  = liunianAt(G.age, G.birthYear);
+  // 兜底：存档若落在年份交界而待办事件缺失，就地重抽这一年
+  if(!G.pending.length){
+    G.pending = rollEvents(2 + rnd(2));
+    if(!G.pending.length) G.pending = [pick(EVENTS.filter(e=>e.cat === '日常'))];
+    G.pidx = 0;
+  }
+  G.fast = false; toggleFastOff();
+  show('life');
+  renderLife();
+  updateLog();
+  // 存档停在"已选但没点继续"时，把结果区一起还原
+  if(G.choosing && G.chosenOpt !== null && G.chosenOpt !== undefined) restoreChosenUI(G.chosenOpt);
+}
+
+/* 还原「已选未继续」的结果界面 */
+function restoreChosenUI(idx){
+  const ev = G.pending[G.pidx];
+  if(!ev || !ev.opts || !ev.opts[idx]) return;
+  const o = ev.opts[idx];
+  const rec = G.timeline[G.timeline.length - 1];
+  const useRec = (rec && rec.age === G.age && rec.cat === ev.cat && rec.choice === o.t)
+    ? rec : {deltas: {}};
+  renderResult(ev, o, useRec, true);   // 静默：不重播浮动数字动画
+}
+
+/* 放弃这一世（破坏性操作，必须二次确认） */
+function discardRun(){
+  const s = peekRun();
+  if(!s){ renderHome(); return; }
+  if(!window.confirm('放弃这一世？\n\n当前进度：' + s.age + ' 岁，已记事 ' + ((s.timeline || []).length) + ' 件。\n'
+    + '进度会被删除，且不可恢复。\n\n账本里的命魂、天赋碎片与图鉴不受影响。')) return;
+  clearRun();
+  renderHome();
+  toastModal('已 放 弃', '这一世的进度已删除。<br/><br/>'
+    + '<span style="color:var(--ink3)">账本里的命魂、天赋碎片与图鉴都还在，可以重新投胎。</span>');
 }
 
 /* ------------------------------------------------------------------ 14. 开局 */
@@ -2674,6 +2849,7 @@ function startGame(bz){
   if(!bz) bz = buildFromForm();
   if(!bz) return;
   G.bazi = bz;
+  G.dayun = bz.dayun || [];   // 大运表来自命盘；不接上它 curDayunAt() 会永远返回 null
   G.attrs = makeAttrs(bz);
   G.age = 0;
   G.tags = [];
@@ -2682,11 +2858,17 @@ function startGame(bz){
   G.snapshots = [];
   G.peak = {};
   G.usedAt = {};
+  G.pending = [];    // 必须清空：否则上一世遗留的待办事件会被这一世接着执行
+  G.pidx = 0;
+  G.curDayun = null;
+  G.liunian = null;
+  _runSig = '';
   G.ambition = AMBITIONS.find(a=>a.id === G.ambitionId) || AMBITIONS[0];
   G.ambitionId = G.ambition.id;
   G.forceDeath = null;
   G.died = false;
   G.choosing = false;
+  G.chosenOpt = null;
   G.score = 0;
   G.ending = null;
   G.birthYear = bz.y;
@@ -2783,10 +2965,12 @@ function beginYear(){
   }
   G.pidx = 0;
   G.choosing = false;
-  renderLife();
+  G.chosenOpt = null;
+  renderLife();   // 落盘由 renderLife 统一负责
 }
 
 function renderLife(){
+  saveRun();   // 状态一变就落盘：年份推进、事件切换都在这里统一处理
   $('lifeAge').textContent = G.age;
   const dy = G.curDayun;
   let meta = '流年 <b>' + G.liunian.gz + '</b>（' + G.liunian.wx + '）<br/>';
@@ -2887,21 +3071,23 @@ function chooseOption(i){
   const o = ev.opts[i];
   if(!o) return;
   G.choosing = true;
+  G.chosenOpt = i;          // 记录已选项，供「已选未继续」时还原界面
   clearTimeout(G.fastTimer);
   const rec = doChoose(ev, o);
   renderResult(ev, o, rec);
   updateLog();
+  saveRun();                // 选择即落盘：随时可以暂离或直接关页面
   if(G.fast) scheduleFast(advanceEvent);
 }
 
-function renderResult(ev, o, rec){
+function renderResult(ev, o, rec, silent){
   const el = document.querySelector('#lifeEventWrap .event');
   if(!el){ renderLife(); return; }
   const rect = el.getBoundingClientRect();
   const optsEl = el.querySelector('.opts');
   if(optsEl) optsEl.style.display = 'none';
   let dl = '';
-  Object.keys(rec.deltas).forEach(k=>{
+  Object.keys(rec.deltas || {}).forEach(k=>{
     const v = rec.deltas[k];
     if(!v) return;
     const good = (v > 0) === (NEG_ATTRS.indexOf(k) < 0);
@@ -2914,9 +3100,11 @@ function renderResult(ev, o, rec){
     + '<button class="btn mt8" onclick="advanceEvent()">继 续</button>';
   el.appendChild(div);
 
+  if(silent) return;   // 还原存档时静默：不重播浮动数字动画
+
   // 属性浮动数字：让增减被"看见"
   let fi = 0;
-  Object.keys(rec.deltas).forEach(k=>{
+  Object.keys(rec.deltas || {}).forEach(k=>{
     const v = rec.deltas[k];
     if(!v) return;
     const good = (v > 0) === (NEG_ATTRS.indexOf(k) < 0);
@@ -3127,6 +3315,7 @@ function endLife(reason){
   if(META.history.length > 60) META.history = META.history.slice(-60);
   saveMeta();
 
+  clearRun();        // 这一世已了结，清掉暂离存档
   renderSettle(reason);
   show('settle');
   drawLifeChart();   // 页面可见后按真实宽度重绘一次
@@ -3746,6 +3935,10 @@ function init(){
   $('btnSettleCycle').addEventListener('click', ()=>{ renderCycle(); show('cycle'); });
   $('btnNextLife').addEventListener('click', backToHomeForNext);
   $('btnCycleBack').addEventListener('click', ()=>{ renderHome(); show('home'); });
+  $('btnResume').addEventListener('click', resumeRun);
+  $('btnDiscardRun').addEventListener('click', discardRun);
+  $('btnPause').addEventListener('click', pauseRun);
+  $('btnChartBack').addEventListener('click', ()=>{ G.fast = false; toggleFastOff(); renderHome(); show('home'); });
   $('btnShareBack').addEventListener('click', ()=> show(G.died ? 'settle' : 'home'));
   $('btnSavePoster').addEventListener('click', savePoster);
   $('btnCopyText').addEventListener('click', copyShare);
