@@ -1,0 +1,3776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
+<meta name="theme-color" content="#f7f2e7"/>
+<meta name="description" content="还想再活五百年 · 八字轮回人生模拟器（娱乐模拟，不构成任何建议）"/>
+<title>还想再活五百年 · 八字轮回人生模拟器</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f7f2e7;--bg2:#efe6d3;--card:#fffdf8;--ink:#2c2823;--ink2:#6b6257;--ink3:#948a7a;
+  --line:#ded3bd;--line2:#ece3d2;--red:#b03a2e;--red2:#d4574a;--gold:#b8902c;--green:#4a7c59;
+  --blue:#3c6e9e;--purple:#7a5b9e;--shadow:0 2px 10px rgba(90,68,36,.08);
+}
+html,body{margin:0;padding:0;min-height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:
+    radial-gradient(900px 420px at 50% -8%,#fffdf7 0%,rgba(255,253,247,0) 62%),
+    linear-gradient(180deg,#f9f5ec 0%,#f0e8d7 100%);
+  background-attachment:fixed;
+  color:var(--ink);font-size:15px;line-height:1.65;
+  padding-bottom:74px;-webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:repeating-linear-gradient(0deg,rgba(140,115,70,.025) 0 1px,transparent 1px 3px),
+                   repeating-linear-gradient(90deg,rgba(140,115,70,.02) 0 1px,transparent 1px 4px);
+}
+.app{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:0 12px}
+
+/* ---------- top ---------- */
+.topbar{padding:14px 4px 6px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{display:flex;align-items:baseline;gap:8px;min-width:0}
+.brand h1{
+  font-family:"Songti SC","STSong","SimSun",serif;font-size:19px;margin:0;letter-spacing:2px;
+  font-weight:700;color:var(--ink);white-space:nowrap;
+}
+.brand .sub{font-size:11px;color:var(--ink3);white-space:nowrap}
+.tbtn{
+  border:1px solid var(--line);background:var(--card);color:var(--ink2);border-radius:999px;
+  padding:5px 11px;font-size:12px;cursor:pointer;white-space:nowrap;
+}
+.tbtn:active{transform:scale(.97)}
+.tbtn.on{background:var(--red);color:#fff;border-color:var(--red)}
+
+/* ---------- screens ---------- */
+.screen{display:none;animation:fade .28s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- cards ---------- */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:14px;margin:10px 0;box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.card.tight{padding:11px 12px}
+.sec-title{
+  display:flex;align-items:center;gap:8px;margin:16px 2px 6px;
+  font-family:"Songti SC","STSong","SimSun",serif;font-size:14px;letter-spacing:2px;color:var(--ink2);
+}
+.sec-title::before{content:"";width:3px;height:14px;background:var(--red);border-radius:2px}
+.sec-title::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+
+/* ---------- form ---------- */
+.field{display:flex;align-items:center;gap:10px;margin:9px 0}
+.field label{width:56px;flex:none;font-size:13px;color:var(--ink2)}
+.field input,.field select{
+  flex:1;min-width:0;border:1px solid var(--line);background:#fffefb;border-radius:9px;
+  padding:9px 10px;font-size:15px;color:var(--ink);font-family:inherit;outline:none;
+  appearance:none;-webkit-appearance:none;
+}
+.field select{background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 50%),linear-gradient(135deg,var(--ink3) 50%,transparent 50%);
+  background-position:calc(100% - 16px) 18px,calc(100% - 11px) 18px;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.field input:focus,.field select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(176,58,46,.08)}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2);margin:9px 0 0 66px;cursor:pointer;user-select:none}
+.chk input{width:16px;height:16px;accent-color:var(--red)}
+
+.btn{
+  display:block;width:100%;border:none;border-radius:11px;padding:13px;font-size:16px;font-family:inherit;
+  background:linear-gradient(180deg,var(--red2),var(--red));color:#fff;cursor:pointer;font-weight:600;
+  letter-spacing:1px;box-shadow:0 3px 0 rgba(140,40,32,.35);margin:8px 0;
+}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(140,40,32,.35)}
+.btn.ghost{background:var(--card);color:var(--ink2);border:1px solid var(--line);box-shadow:none;font-weight:500}
+.btn.ghost:active{background:var(--bg2)}
+.btn.gold{background:linear-gradient(180deg,#d8b04a,var(--gold));box-shadow:0 3px 0 rgba(140,105,20,.3);color:#fff}
+.btn:disabled{opacity:.45;pointer-events:none}
+.row2{display:flex;gap:10px}
+.row2 .btn{flex:1}
+
+/* ---------- pills ---------- */
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;line-height:18px;
+  background:var(--bg2);color:var(--ink2);border:1px solid var(--line);margin:2px 4px 2px 0;white-space:nowrap}
+.pill.red{background:rgba(176,58,46,.1);color:var(--red);border-color:rgba(176,58,46,.28)}
+.pill.gold{background:rgba(184,144,44,.12);color:#8a6a12;border-color:rgba(184,144,44,.3)}
+.pill.green{background:rgba(74,124,89,.12);color:var(--green);border-color:rgba(74,124,89,.3)}
+.pill.blue{background:rgba(60,110,158,.12);color:var(--blue);border-color:rgba(60,110,158,.3)}
+.pill.purple{background:rgba(122,91,158,.12);color:var(--purple);border-color:rgba(122,91,158,.3)}
+
+/* ---------- 四柱 ---------- */
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:4px 0 2px}
+.pillar{
+  background:linear-gradient(180deg,#fffefb,#f8f2e5);border:1px solid var(--line);
+  border-radius:11px;padding:9px 4px;text-align:center;position:relative;
+}
+.pillar .lbl{font-size:11px;color:var(--ink3);letter-spacing:2px;margin-bottom:4px}
+.pillar .gz{font-family:"Songti SC","STSong","SimSun",serif;font-size:23px;line-height:1.15;font-weight:700;letter-spacing:1px}
+.pillar .gz .g{color:var(--red)}
+.pillar .gz .z{color:var(--ink)}
+.pillar .wx{font-size:10px;color:var(--ink3);margin-top:3px}
+.pillar .ss{font-size:11px;color:var(--purple);margin-top:2px}
+.pillar .hid{font-size:10px;color:var(--ink3);margin-top:1px;letter-spacing:1px}
+
+/* ---------- 属性 ---------- */
+.grp{margin:8px 0 4px;font-size:12px;color:var(--ink3);letter-spacing:2px}
+.bar{margin:6px 0}
+.bar .h{display:flex;justify-content:space-between;font-size:12.5px;color:var(--ink2);margin-bottom:3px}
+.bar .h b{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.track{height:7px;border-radius:6px;background:#efe7d7;overflow:hidden;position:relative}
+.fill{height:100%;border-radius:6px;transition:width .5s cubic-bezier(.2,.8,.3,1)}
+.flash-up{animation:fu .9s ease}
+.flash-dn{animation:fd .9s ease}
+@keyframes fu{0%{background:#e8dcc2}50%{background:#bfe6c8}100%{background:#efe7d7}}
+@keyframes fd{0%{background:#e8dcc2}50%{background:#f3c3bc}100%{background:#efe7d7}}
+
+/* ---------- 大运 ---------- */
+.dayun-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:none}
+.dayun-strip::-webkit-scrollbar{display:none}
+.dayun-item{flex:none;min-width:74px;border:1px solid var(--line);border-radius:10px;background:#fffefb;
+  padding:8px 6px;text-align:center}
+.dayun-item.cur{border-color:var(--red);background:rgba(176,58,46,.06);box-shadow:0 0 0 2px rgba(176,58,46,.12)}
+.dayun-item .dg{font-family:"Songti SC",serif;font-size:17px;font-weight:700;color:var(--ink)}
+.dayun-item .dn{font-size:10.5px;color:var(--purple);margin-top:2px}
+.dayun-item .da{font-size:10px;color:var(--ink3)}
+
+/* ---------- 事件 ---------- */
+.lifehead{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 2px 4px}
+.lifehead .age{font-family:"Songti SC",serif;font-size:26px;font-weight:700;color:var(--red);line-height:1}
+.lifehead .age span{font-size:12px;color:var(--ink3);font-weight:400;margin-left:4px;letter-spacing:1px}
+.lifehead .meta{text-align:right;font-size:11.5px;color:var(--ink2);line-height:1.5}
+.lifehead .meta b{color:var(--ink);font-weight:600}
+
+.event{border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden;
+  box-shadow:var(--shadow);animation:fade .3s ease}
+.event .etop{padding:12px 14px 8px;border-bottom:1px dashed var(--line2)}
+.event .cat{font-size:11px;color:var(--gold);letter-spacing:2px}
+.event h3{margin:3px 0 6px;font-family:"Songti SC","STSong","SimSun",serif;font-size:18px;letter-spacing:1px}
+.event .desc{font-size:14px;color:var(--ink2);line-height:1.7}
+.opts{padding:8px 12px 12px}
+.opt{
+  display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fffefb;border-radius:11px;
+  padding:11px 12px;margin:7px 0;font-size:14.5px;color:var(--ink);font-family:inherit;cursor:pointer;
+  line-height:1.5;transition:.15s;
+}
+.opt:active{background:#f7f1e4;transform:scale(.995)}
+.opt .eff{display:block;font-size:11.5px;color:var(--ink3);margin-top:4px}
+.opt .eff i{font-style:normal;margin-right:7px}
+.opt .eff .u{color:var(--green)}
+.opt .eff .d{color:var(--red)}
+.result{padding:12px 14px;background:linear-gradient(180deg,rgba(184,144,44,.07),transparent);
+  border-top:1px dashed var(--line2);font-size:14px;color:var(--ink);line-height:1.75;animation:fade .25s}
+.result .dl{margin-top:8px;font-size:12.5px}
+.result .dl span{margin-right:9px;font-variant-numeric:tabular-nums}
+.result .dl .u{color:var(--green);font-weight:600}
+.result .dl .d{color:var(--red);font-weight:600}
+
+/* ---------- 日志 ---------- */
+.log{max-height:210px;overflow-y:auto;font-size:12.5px;color:var(--ink2);line-height:1.8;
+  background:#fffefb;border:1px solid var(--line2);border-radius:10px;padding:8px 10px}
+.log .age{color:var(--gold);font-weight:600}
+
+/* ---------- 时间线 ---------- */
+.tl{position:relative;padding-left:16px;margin-top:6px}
+.tl::before{content:"";position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:var(--line)}
+.tl-item{position:relative;margin:9px 0;font-size:13px;color:var(--ink2)}
+.tl-item::before{content:"";position:absolute;left:-15px;top:7px;width:7px;height:7px;border-radius:50%;
+  background:var(--card);border:2px solid var(--line)}
+.tl-item.hi::before{background:var(--red);border-color:var(--red)}
+.tl-item .a{color:var(--gold);font-weight:600;margin-right:6px;font-variant-numeric:tabular-nums}
+.tl-item .g{color:var(--ink3);font-size:11.5px;margin-right:6px}
+
+/* ---------- 结算 ---------- */
+.big-title{
+  font-family:"Songti SC","STSong","SimSun",serif;font-size:34px;letter-spacing:6px;text-align:center;
+  color:var(--red);margin:6px 0 2px;text-shadow:0 2px 0 rgba(176,58,46,.08);
+}
+.big-sub{text-align:center;font-size:12px;color:var(--ink3);letter-spacing:3px}
+.score-ring{display:flex;align-items:center;justify-content:center;gap:16px;margin:12px 0 4px}
+.score-ring .num{font-family:"Songti SC",serif;font-size:46px;font-weight:700;color:var(--gold);line-height:1}
+.score-ring .txt{font-size:12px;color:var(--ink3);line-height:1.7}
+.epitaph{
+  font-family:"Songti SC","STSong","SimSun",serif;font-size:15px;line-height:2;color:var(--ink);
+  background:linear-gradient(180deg,rgba(184,144,44,.08),rgba(184,144,44,.02));
+  border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:11px 13px;letter-spacing:.5px;
+}
+.kv{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2);padding:5px 0;border-bottom:1px dashed var(--line2)}
+.kv:last-child{border-bottom:none}
+.kv b{color:var(--ink);font-weight:600}
+
+/* ---------- 天赋 ---------- */
+.tal{display:flex;gap:10px;align-items:center;border:1px solid var(--line);background:#fffefb;
+  border-radius:11px;padding:10px;margin:7px 0}
+.tal .tx{flex:1;min-width:0}
+.tal .tn{font-size:14px;font-weight:600;color:var(--ink)}
+.tal .td{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.tal .lv{display:flex;gap:3px;margin-top:4px}
+.tal .lv i{width:16px;height:5px;border-radius:3px;background:#e8dfcd;display:block}
+.tal .lv i.on{background:var(--gold)}
+.tal button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:7px 10px;
+  font-size:12px;color:var(--red);font-family:inherit;cursor:pointer;white-space:nowrap}
+.tal button:disabled{color:var(--ink3);opacity:.5}
+.tal button:not(:disabled):active{background:var(--bg2)}
+
+/* ---------- 图鉴 ---------- */
+.codex{display:flex;flex-wrap:wrap;gap:6px}
+.codex .c{border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:12px;background:#fffefb;color:var(--ink3)}
+.codex .c.got{border-color:var(--gold);color:#8a6a12;background:rgba(184,144,44,.08);font-weight:600}
+
+/* ---------- 分享 ---------- */
+.poster{width:100%;border-radius:12px;border:1px solid var(--line);display:block;background:#fff}
+.share-txt{
+  font-size:13px;line-height:1.9;color:var(--ink);background:#fffefb;border:1px dashed var(--line);
+  border-radius:11px;padding:12px;white-space:pre-wrap;word-break:break-word;
+}
+
+/* ---------- modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(40,32,20,.42);display:none;align-items:center;justify-content:center;
+  z-index:60;padding:20px;backdrop-filter:blur(2px)}
+.mask.on{display:flex}
+.modal{background:var(--card);border-radius:16px;padding:18px;max-width:400px;width:100%;
+  border:1px solid var(--line);box-shadow:0 12px 40px rgba(50,35,10,.25);max-height:80vh;overflow-y:auto}
+.modal h3{margin:0 0 10px;font-family:"Songti SC",serif;font-size:19px;letter-spacing:2px;text-align:center}
+
+/* ---------- footer ---------- */
+.compliance{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:linear-gradient(180deg,rgba(247,242,231,.7),rgba(247,242,231,.98));
+  border-top:1px solid var(--line);padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  text-align:center;font-size:11px;color:var(--ink3);line-height:1.5;backdrop-filter:blur(6px);
+}
+.compliance b{color:var(--red);font-weight:600}
+.hint{font-size:11.5px;color:var(--ink3);text-align:center;margin:6px 0 2px;line-height:1.7}
+.center{text-align:center}
+.mt8{margin-top:8px}.mt12{margin-top:12px}
+.stat-line{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+.stat-line b{color:var(--gold);font-size:15px;font-variant-numeric:tabular-nums}
+.blank-note{font-size:12px;color:var(--ink3);text-align:center;padding:12px}
+
+/* =========================================================================
+   v2 视觉增强层：以下规则覆盖或补充上面的基础样式
+   ========================================================================= */
+
+/* ---------- 背景浮尘粒子 ---------- */
+#bgFx{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* ---------- 屏幕切换：卷轴展开 ---------- */
+.screen.active{animation:scrollOpen .52s cubic-bezier(.2,.85,.25,1) both}
+@keyframes scrollOpen{
+  0%{opacity:0;transform:translateY(14px) scaleY(.95);filter:blur(4px)}
+  60%{opacity:1;filter:blur(0)}
+  100%{opacity:1;transform:none;filter:blur(0)}
+}
+
+/* ---------- 卡片错峰入场 ---------- */
+.screen.active .card{animation:cardIn .5s cubic-bezier(.2,.85,.25,1) both}
+.screen.active .card:nth-child(1){animation-delay:.03s}
+.screen.active .card:nth-child(2){animation-delay:.09s}
+.screen.active .card:nth-child(3){animation-delay:.15s}
+.screen.active .card:nth-child(4){animation-delay:.21s}
+.screen.active .card:nth-child(5){animation-delay:.27s}
+.screen.active .card:nth-child(6){animation-delay:.33s}
+.screen.active .card:nth-child(7){animation-delay:.39s}
+.screen.active .card:nth-child(8){animation-delay:.45s}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ---------- 纸张质感 ---------- */
+.card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:14px;
+  background-image:repeating-linear-gradient(90deg,rgba(150,125,80,.02) 0 1px,transparent 1px 5px);
+}
+.card{border-radius:16px}
+
+/* ---------- 印章（朱印） ---------- */
+.seal{
+  position:absolute;right:12px;top:12px;width:46px;height:46px;border-radius:7px;
+  border:2px solid rgba(176,58,46,.5);color:rgba(176,58,46,.72);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  font-family:"Songti SC","STSong",serif;font-size:12px;line-height:1.1;letter-spacing:1px;
+  transform:rotate(-6deg);opacity:.85;pointer-events:none;
+  background:rgba(176,58,46,.05);
+}
+.stamp{
+  position:absolute;right:16px;bottom:14px;width:58px;height:58px;
+  border:2.5px solid rgba(176,58,46,.7);border-radius:9px;color:rgba(176,58,46,.82);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  font-family:"Songti SC","STSong",serif;font-size:13px;line-height:1.15;letter-spacing:1px;
+  transform:rotate(-8deg) scale(2.6);opacity:0;
+  animation:stampDown .55s .85s cubic-bezier(.3,1.6,.5,1) forwards;
+}
+@keyframes stampDown{to{transform:rotate(-8deg) scale(1);opacity:.88}}
+
+/* ---------- 四柱翻牌 + 纳音 ---------- */
+.pillar .ny{font-size:9.5px;color:var(--gold);margin-top:3px;letter-spacing:.3px;white-space:nowrap}
+.screen.active .pillar{animation:flipIn .55s cubic-bezier(.3,.8,.3,1) both}
+.screen.active .pillar:nth-child(1){animation-delay:.06s}
+.screen.active .pillar:nth-child(2){animation-delay:.14s}
+.screen.active .pillar:nth-child(3){animation-delay:.22s}
+.screen.active .pillar:nth-child(4){animation-delay:.30s}
+@keyframes flipIn{
+  0%{opacity:0;transform:perspective(420px) rotateX(-72deg) translateY(6px)}
+  100%{opacity:1;transform:none}
+}
+
+/* ---------- 五行雷达生长 ---------- */
+#radar svg .data{transform-origin:50% 50%;animation:radarGrow .85s cubic-bezier(.2,.85,.3,1) both}
+@keyframes radarGrow{from{opacity:0;transform:scale(.15)}to{opacity:1;transform:none}}
+#radar svg .rnode{animation:nodePulse 2.6s ease-in-out infinite}
+@keyframes nodePulse{0%,100%{opacity:.85}50%{opacity:1}}
+
+/* ---------- 本世志向卡 ---------- */
+.amb{
+  display:flex;gap:10px;width:100%;align-items:flex-start;text-align:left;
+  border:1px solid var(--line);background:#fffefb;border-radius:12px;padding:11px;margin:7px 0;
+  font-family:inherit;cursor:pointer;transition:.18s;
+}
+.amb:active{transform:scale(.99)}
+.amb.on{
+  border-color:var(--gold);
+  background:linear-gradient(180deg,rgba(184,144,44,.10),rgba(184,144,44,.02));
+  box-shadow:0 0 0 3px rgba(184,144,44,.10);
+}
+.ambicon{
+  flex:none;width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-family:"Songti SC","STSong",serif;font-size:16px;color:#fff;
+  background:linear-gradient(180deg,#c9a94a,#a8862a);transition:.25s;
+}
+.amb.on .ambicon{background:linear-gradient(180deg,#c0432f,#9c3125);box-shadow:0 0 12px rgba(176,58,46,.35)}
+.ambbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.amb .an{font-size:14.5px;font-weight:600;color:var(--ink)}
+.amb .ad{font-size:12px;color:var(--ink2);line-height:1.5}
+.amb .ak{font-size:10.5px;color:var(--ink3);letter-spacing:.4px}
+
+/* ---------- 志向进度条 ---------- */
+.ambbar{display:flex;align-items:center;gap:8px;padding:0 2px 6px}
+.ambname{font-size:11.5px;color:var(--ink2);white-space:nowrap}
+.ambtrack{flex:1;height:5px;border-radius:4px;background:#e8dfcd;overflow:hidden;position:relative}
+.ambtrack i{
+  display:block;height:100%;border-radius:4px;
+  background:linear-gradient(90deg,#e0bd58,#b8902c);
+  box-shadow:0 0 8px rgba(184,144,44,.55);
+  transition:width .6s cubic-bezier(.2,.8,.3,1);
+}
+.ambpct{font-size:11px;color:var(--gold);font-variant-numeric:tabular-nums;min-width:32px;text-align:right}
+
+/* ---------- 流年宜忌 ---------- */
+.yijiline{
+  display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:0 2px 10px;
+  font-size:11.5px;color:var(--ink2);line-height:1.6;
+}
+.yjtag{
+  font-family:"Songti SC","STSong",serif;font-size:13px;font-weight:700;flex:none;
+  width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+}
+.yjtag.good{background:rgba(74,124,89,.14);color:var(--green);border:1px solid rgba(74,124,89,.3)}
+.yjtag.bad{background:rgba(176,58,46,.12);color:var(--red);border:1px solid rgba(176,58,46,.3)}
+.yjtag.flat{background:var(--bg2);color:var(--ink3);border:1px solid var(--line)}
+.yjyi{color:var(--green)}
+.yjji{color:var(--red)}
+
+/* ---------- 事件卡：场景插画与入场 ---------- */
+.scene{
+  width:100%;height:116px;display:block;overflow:hidden;
+  background:linear-gradient(180deg,#fdfaf3,#f1e8d6);
+  border-bottom:1px solid var(--line2);
+}
+.scene svg{width:100%;height:100%;display:block}
+.screen.active .event{animation:eventIn .45s cubic-bezier(.2,.85,.25,1) both}
+@keyframes eventIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+
+/* ---------- 选项光泽 ---------- */
+.opt{position:relative;overflow:hidden}
+.opt::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:3px;opacity:0;transition:.2s;
+  background:linear-gradient(180deg,var(--gold),rgba(184,144,44,0));
+}
+.opt:hover::before,.opt:active::before{opacity:1}
+.opt:hover{border-color:var(--gold);box-shadow:0 2px 12px rgba(184,144,44,.14)}
+
+/* ---------- 浮动增减数字 ---------- */
+.floatnum{
+  position:fixed;z-index:80;pointer-events:none;font-weight:700;font-size:15px;
+  font-variant-numeric:tabular-nums;text-shadow:0 1px 3px rgba(255,255,255,.95);
+  animation:floatUp 1.15s cubic-bezier(.2,.8,.3,1) forwards;
+}
+.floatnum.up{color:var(--green)}
+.floatnum.dn{color:var(--red)}
+@keyframes floatUp{
+  0%{opacity:0;transform:translateY(6px) scale(.8)}
+  18%{opacity:1;transform:translateY(-6px) scale(1.18)}
+  100%{opacity:0;transform:translateY(-46px) scale(1)}
+}
+
+/* ---------- 结算标题 ---------- */
+.big-title{position:relative}
+.big-title.play{animation:titleReveal 1.15s cubic-bezier(.2,.85,.25,1) both}
+@keyframes titleReveal{
+  0%{opacity:0;letter-spacing:20px;filter:blur(9px)}
+  55%{opacity:1;filter:blur(0)}
+  100%{opacity:1;letter-spacing:6px;filter:blur(0)}
+}
+.score-ring .num{animation:numPop .9s .25s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes numPop{0%{opacity:0;transform:scale(.5)}100%{opacity:1;transform:none}}
+
+/* ---------- 生命轨迹曲线 ---------- */
+.chartwrap{
+  position:relative;background:linear-gradient(180deg,#fffefb,#f8f3e8);
+  border:1px solid var(--line2);border-radius:12px;padding:10px 8px 6px;
+}
+.chartwrap canvas{width:100%;display:block;border-radius:8px}
+.legend{display:flex;gap:14px;justify-content:center;font-size:11px;color:var(--ink2);margin-top:6px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:4px;vertical-align:middle}
+
+/* ---------- pill 补充色 ---------- */
+.pill.black{background:rgba(44,40,35,.88);color:#f6ecd6;border-color:rgba(44,40,35,.92);font-weight:600}
+.pill.blue{background:rgba(60,110,158,.10);color:var(--blue);border-color:rgba(60,110,158,.28)}
+
+/* ---------- 首页标题 ---------- */
+.hero{position:relative;text-align:center;padding:14px 0 4px}
+.hero h2{
+  font-family:"Songti SC","STSong","SimSun",serif;font-size:28px;letter-spacing:8px;margin:0;
+  color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.85);
+}
+.hero .sub{font-size:11.5px;color:var(--ink3);letter-spacing:4px;margin-top:6px}
+.hero .line{height:1px;margin:12px auto 0;width:62%;
+  background:linear-gradient(90deg,transparent,var(--line),transparent)}
+
+/* ---------- 时间线节点呼吸 ---------- */
+.screen.active .tl-item.hi::before{animation:tlPulse 2.2s ease-in-out infinite}
+@keyframes tlPulse{0%,100%{box-shadow:0 0 0 0 rgba(176,58,46,.35)}50%{box-shadow:0 0 0 5px rgba(176,58,46,0)}}
+
+/* ---------- 减少动效偏好 ---------- */
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+<canvas id="bgFx"></canvas>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <h1>还想再活五百年</h1>
+      <span class="sub">八字轮回 · 人生模拟</span>
+    </div>
+    <button class="tbtn" id="btnFast">极速模式 关</button>
+  </div>
+
+  <main id="screens">
+
+    <!-- ================= 首页 ================= -->
+    <section id="screen-home" class="screen active">
+      <div class="hero">
+        <h2>还想再活五百年</h2>
+        <div class="sub">八 字 轮 回 · 人 生 模 拟</div>
+        <div class="line"></div>
+      </div>
+      <div class="card">
+        <div class="seal">命<br/>簿</div>
+        <div class="sec-title" style="margin-top:0">投 胎 处</div>
+        <div class="field"><label>出生年</label><input id="inY" type="number" inputmode="numeric" min="1900" max="2025" placeholder="1990"/></div>
+        <div class="field"><label>月</label>
+          <select id="inM"></select></div>
+        <div class="field"><label>日</label>
+          <select id="inD"></select></div>
+        <div class="field"><label>时辰</label>
+          <select id="inH"></select></div>
+        <div class="field"><label>性别</label>
+          <select id="inG"><option value="男">男</option><option value="女">女</option></select></div>
+        <label class="chk"><input type="checkbox" id="inUnknown"/>时辰未知（按随机时辰起盘）</label>
+        <div class="hint" style="text-align:left;margin-left:66px">出生信息仅在本机浏览器内计算，不上传任何服务器。</div>
+        <button class="btn" id="btnStart">开 始 这 一 世</button>
+        <div class="row2">
+          <button class="btn ghost" id="btnRandom">随机命盘</button>
+          <button class="btn ghost" id="btnHistory">历史命盘</button>
+        </div>
+      </div>
+
+      <div class="card tight">
+        <div class="sec-title" style="margin-top:0">账 本</div>
+        <div class="stat-line">
+          <div>命魂 <b id="hSoul">0</b></div>
+          <div>天赋碎片 <b id="hFrag">0</b></div>
+          <div>累计寿命 <b id="hLife">0</b></div>
+          <div>轮回 <b id="hLives">0</b> 世</div>
+        </div>
+        <div class="hint" id="hProgress">目标：累计活满 <b>五百</b> 年，或打破命簿。</div>
+        <button class="btn gold mt8" id="btnCycleHome">进入轮回 · 天赋与图鉴</button>
+      </div>
+
+      <div class="card tight">
+        <div class="sec-title" style="margin-top:0">玩 法</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.85">
+          输入生辰 → 生成命盘角色卡 → 逐年推进，每年 2~3 个事件、每个事件 2~4 个选项 → 寿元耗尽即结算 → 保留命魂与天赋碎片，再活一世。<br/>
+          目标是累计活满五百年，或找出打破命簿的那一世。
+        </div>
+      </div>
+
+      <div class="hint">
+        本作品为<b>娱乐向虚构模拟</b>，命理规则经过大幅简化与游戏化改编，<b>并非真实排盘</b>。<br/>
+        不提供任何真实预测、算命服务，不涉及医疗、投资、法律建议。
+      </div>
+    </section>
+
+    <!-- ================= 命盘页 ================= -->
+    <section id="screen-chart" class="screen">
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">四 柱 命 盘</div>
+        <div class="pillars" id="pillars"></div>
+        <div class="hint" id="chartBasic"></div>
+        <div class="mt8" id="chartTags"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">五 行 雷 达</div>
+        <div id="radar" class="center"></div>
+        <div id="wxList" style="margin-top:6px"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">日 主 与 十 神</div>
+        <div id="dayMasterBox" style="font-size:13.5px;color:var(--ink2);line-height:1.85"></div>
+        <div class="mt8" id="ssBox"></div>
+        <div class="mt8" id="cxBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">大 运 时 间 轴</div>
+        <div class="dayun-strip" id="dayunStrip"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">角 色 卡 · 初 始 属 性</div>
+        <div id="attrInit"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">本 世 志 向</div>
+        <div id="ambitionList"></div>
+        <div class="hint">志向只影响事件倾向与评级上限，不改变命盘本身。</div>
+      </div>
+
+      <button class="btn" id="btnToLife">入 世 · 开 始 人 生</button>
+      <div class="hint">初始属性由五行分布、日主强弱、十神倾向加权生成，纯属游戏化设定。</div>
+    </section>
+
+    <!-- ================= 人生页 ================= -->
+    <section id="screen-life" class="screen">
+      <div class="lifehead">
+        <div class="age"><span id="lifeAge">0</span><span>岁</span></div>
+        <div class="meta" id="lifeMeta"></div>
+      </div>
+      <div class="ambbar" id="ambBar"></div>
+      <div class="yijiline" id="yijiLine"></div>
+      <div id="lifeEventWrap"></div>
+      <div class="row2 mt8">
+        <button class="btn ghost" id="btnSkipYear">跳过今年</button>
+        <button class="btn ghost" id="btnAttrPanel">属性面板</button>
+      </div>
+      <div id="lifeLogWrap" class="mt8" style="display:none">
+        <div class="sec-title" style="margin-top:4px">人 生 记 事</div>
+        <div class="log" id="lifeLog"></div>
+      </div>
+    </section>
+
+    <!-- ================= 结算页 ================= -->
+    <section id="screen-settle" class="screen">
+      <div class="card">
+        <div class="stamp" id="stStamp">已<br/>终</div>
+        <div class="big-sub" id="stSub">终 年</div>
+        <div class="big-title" id="stTitle">—</div>
+        <div class="score-ring">
+          <div><div class="num" id="stScore">0</div><div class="center" style="font-size:11px;color:var(--ink3)">评分</div></div>
+          <div class="txt" id="stScoreTxt"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">命 理 复 盘</div>
+        <div id="stReview" style="font-size:13.5px;color:var(--ink2);line-height:1.9"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">最 终 属 性</div>
+        <div id="stAttrs"></div>
+        <div class="hint">此处为临终时的数值；结局称号的评定参考的是一生达到过的峰值。</div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">成 就 标 签</div>
+        <div id="stTags"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">墓 志 铭</div>
+        <div class="epitaph" id="stEpitaph"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">人 生 轨 迹</div>
+        <div class="chartwrap">
+          <canvas id="lifeChart" width="640" height="248"></canvas>
+          <div class="legend">
+            <span><i style="background:#b03a2e"></i>身心状态</span>
+            <span><i style="background:#b8902c"></i>余寿</span>
+            <span><i style="background:#4a7c59"></i>功德</span>
+            <span><i style="background:#7a5b9e"></i>业力</span>
+          </div>
+        </div>
+        <div class="hint">曲线为本世逐年模拟结果，仅作娱乐展示。</div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">人 生 时 间 线</div>
+        <div class="tl" id="stTimeline"></div>
+      </div>
+
+      <div class="row2">
+        <button class="btn ghost" id="btnSettleShare">分 享 海 报</button>
+        <button class="btn" id="btnSettleCycle">再 活 一 世</button>
+      </div>
+    </section>
+
+    <!-- ================= 轮回页 ================= -->
+    <section id="screen-cycle" class="screen">
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">命 魂</div>
+        <div class="stat-line">
+          <div>命魂 <b id="cySoul">0</b></div>
+          <div>碎片 <b id="cyFrag">0</b></div>
+          <div>累计寿命 <b id="cyLife">0</b></div>
+          <div>轮回 <b id="cyLives">0</b></div>
+        </div>
+        <div class="hint" id="cyProgress"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">天 赋 树</div>
+        <div id="talentList"></div>
+        <div class="hint">天赋永久生效，作用于之后每一世的初始属性。</div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">结 局 图 鉴</div>
+        <div class="codex" id="codexEnding"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">事 件 图 鉴</div>
+        <div class="codex" id="codexEvent"></div>
+      </div>
+
+      <button class="btn gold" id="btnNextLife">再 活 一 世</button>
+      <button class="btn ghost" id="btnCycleBack">返回首页</button>
+      <div class="hint">累计寿命满 500 年，或达成「打破命簿」条件，本模拟器抵达终点。</div>
+    </section>
+
+    <!-- ================= 分享页 ================= -->
+    <section id="screen-share" class="screen">
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">命 盘 海 报</div>
+        <img id="posterImg" class="poster" alt="命盘海报"/>
+        <div class="row2 mt8">
+          <button class="btn ghost" id="btnSavePoster">保存图片</button>
+          <button class="btn ghost" id="btnCopyText">复制文案</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-title" style="margin-top:0">分 享 文 案</div>
+        <div class="share-txt" id="shareText"></div>
+      </div>
+
+      <button class="btn ghost" id="btnShareBack">返 回</button>
+      <div class="hint">分享内容包含命盘与人生时间线，均为虚构模拟结果，不含任何真实预测。</div>
+    </section>
+
+  </main>
+</div>
+
+<div class="compliance">
+  <b>娱乐模拟，不构成任何建议。</b> 本作品为虚构游戏，命理规则经简化改编，非真实排盘。<br/>
+  不提供真实预测/算命服务，不涉及医疗、投资、法律建议。
+</div>
+
+<div class="mask" id="mask"><div class="modal" id="modal"></div></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   还想再活五百年 · 单文件八字轮回人生模拟器（娱乐）
+   离线运行 / 无后端 / 数据仅存本地 localStorage
+   ========================================================================= */
+
+/* ------------------------------------------------------------------ 0. 常量 */
+const TG = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const DZ = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const TG_WX = ['木','木','火','火','土','土','金','金','水','水'];
+const TG_YY = [1,0,1,0,1,0,1,0,1,0];
+const DZ_WX = ['水','土','木','木','土','火','火','土','金','金','土','水'];
+const DZ_YY = [1,0,1,0,1,0,1,0,1,0,1,0];
+const WX = ['金','木','水','火','土'];
+
+const HIDE = {
+  '子':[['癸',1]],
+  '丑':[['己',0.6],['癸',0.25],['辛',0.15]],
+  '寅':[['甲',0.6],['丙',0.25],['戊',0.15]],
+  '卯':[['乙',1]],
+  '辰':[['戊',0.6],['乙',0.25],['癸',0.15]],
+  '巳':[['丙',0.6],['庚',0.25],['戊',0.15]],
+  '午':[['丁',0.7],['己',0.3]],
+  '未':[['己',0.6],['丁',0.25],['乙',0.15]],
+  '申':[['庚',0.6],['壬',0.25],['戊',0.15]],
+  '酉':[['辛',1]],
+  '戌':[['戊',0.6],['辛',0.25],['丁',0.15]],
+  '亥':[['壬',0.7],['甲',0.3]]
+};
+
+const SHENG = {'木':'火','火':'土','土':'金','金':'水','水':'木'};
+const KE    = {'木':'土','土':'水','水':'火','火':'金','金':'木'};
+const BEI_SHENG = {'火':'木','土':'火','金':'土','水':'金','木':'水'};
+const BEI_KE    = {'土':'木','水':'土','火':'水','金':'火','木':'金'};
+
+const LIU_HE  = ['子丑','寅亥','卯戌','辰酉','巳申','午未'];
+const LIU_CHONG = ['子午','丑未','寅申','卯酉','辰戌','巳亥'];
+const LIU_HAI = ['子未','丑午','寅巳','卯辰','申亥','酉戌'];
+const SAN_XING = [['寅','巳','申'],['丑','戌','未'],['子','卯']];
+const ZI_XING = ['辰','午','酉','亥'];
+
+const ATTRS = ['寿元','健康','心智','学识','财富','事业','名望','情感','机缘','功德','业力','心性'];
+const ATTR_GROUPS = [
+  {name:'生 存', list:['寿元','健康']},
+  {name:'天 资', list:['心智','学识']},
+  {name:'世 俗', list:['财富','事业','名望']},
+  {name:'关 系', list:['情感','机缘']},
+  {name:'修 行', list:['功德','业力','心性']}
+];
+const ATTR_COLOR = {
+  '寿元':'#b03a2e','健康':'#4a7c59','心智':'#3c6e9e','学识':'#3c6e9e',
+  '财富':'#b8902c','事业':'#b8902c','名望':'#b8902c',
+  '情感':'#c56a8a','机缘':'#7a5b9e',
+  '功德':'#4a7c59','业力':'#8a4a3a','心性':'#7a5b9e'
+};
+const NEG_ATTRS = ['业力']; // 越高越坏
+
+const WX_ATTR = {
+  '金':['财富','事业'],
+  '木':['学识','心性'],
+  '水':['心智','情感'],
+  '火':['名望','机缘'],
+  '土':['健康','功德']
+};
+const WX_DESC = {
+  '金':'决断 · 规则 · 财富','木':'成长 · 学习 · 仁心','水':'智慧 · 流动 · 情感',
+  '火':'行动 · 名声 · 热情','土':'稳定 · 健康 · 包容'
+};
+const SS_DESC = {
+  '正印':'学习 / 贵人','偏印':'玄学 / 冷门','正官':'体制 / 责任','七杀':'竞争 / 危机',
+  '正财':'稳定收入','偏财':'投资 / 社交','食神':'才艺 / 福气','伤官':'创新 / 叛逆',
+  '比肩':'自我 / 合作','劫财':'冒险 / 破财'
+};
+const SS_ATTR = {
+  '正印':{'学识':4,'心性':3},'偏印':{'心智':3,'机缘':2},'正官':{'事业':3,'名望':3},
+  '七杀':{'事业':4,'健康':-2},'正财':{'财富':4},'偏财':{'财富':3,'机缘':3},
+  '食神':{'健康':2,'名望':2},'伤官':{'名望':3,'学识':2},'比肩':{'心性':3,'健康':1},
+  '劫财':{'财富':-3,'机缘':2}
+};
+const SS_DAYUN_NAME = {
+  '正官':'正官大运','七杀':'七杀大运','正财':'正财大运','偏财':'偏财大运',
+  '食神':'食神大运','伤官':'伤官大运','比肩':'比肩大运','劫财':'劫财大运',
+  '正印':'正印大运','偏印':'偏印大运'
+};
+const SS_DAYUN_DESC = {
+  '正官':'体制、责任、名分','七杀':'竞争、危机、高压','正财':'稳定收入、持家',
+  '偏财':'投资、社交、横财','食神':'才艺、口福、闲适','伤官':'创新、叛逆、锋芒',
+  '比肩':'自我、伙伴、竞争','劫财':'冒险、破财、变动','正印':'学习、贵人、庇护',
+  '偏印':'玄学、冷门、孤思'
+};
+
+/* ------------------------------------------------------------------ 1. 排盘 */
+function jdn(y,m,d){
+  const a = Math.floor((14-m)/12);
+  const yy = y + 4800 - a;
+  const mm = m + 12*a - 3;
+  return d + Math.floor((153*mm+2)/5) + 365*yy + Math.floor(yy/4)
+       - Math.floor(yy/100) + Math.floor(yy/400) - 32045;
+}
+function gzName(i){ i = ((i%60)+60)%60; return TG[i%10] + DZ[i%12]; }
+function gzIndex(gan, zhi){
+  const g = TG.indexOf(gan), z = DZ.indexOf(zhi);
+  for(let i=0;i<60;i++){ if(i%10===g && i%12===z) return i; }
+  return 0;
+}
+
+/* ---------- 精确节气：太阳视黄经（Meeus 近似，1900-2100 精度约 ±1 分钟） ----------
+   算法思路参考开源项目 6tail/lunar-javascript（MIT）所采用的节气求法：
+   不查固定日期表，而是求解「太阳视黄经到达 15° 整数倍」的真实时刻，
+   再换算成北京时间。这样年柱（立春）与月柱（十二节）的换柱点才准确。 */
+function jdOfUT(y, m, d, h){
+  // 北京时间 → 儒略日（UT）
+  return (Date.UTC(y, m-1, d, h||0, 0, 0) - 8*3600*1000) / 86400000 + 2440587.5;
+}
+function sunLon(jd){
+  const T  = (jd - 2451545.0) / 36525;
+  const L0 = 280.46646 + 36000.76983*T + 0.0003032*T*T;
+  const M  = (357.52911 + 35999.05029*T - 0.0001537*T*T) * Math.PI / 180;
+  const C  = (1.914602 - 0.004817*T - 0.000014*T*T) * Math.sin(M)
+           + (0.019993 - 0.000101*T) * Math.sin(2*M)
+           + 0.000289 * Math.sin(3*M);
+  const om = (125.04 - 1934.136*T) * Math.PI / 180;
+  const lam = L0 + C - 0.00569 - 0.00478 * Math.sin(om);
+  return ((lam % 360) + 360) % 360;
+}
+function norm180(v){ return ((v + 180) % 360 + 360) % 360 - 180; }
+/* 求某年太阳视黄经等于 deg 的儒略日 */
+function termJD(year, deg){
+  const jd0 = jdOfUT(year, 1, 1, 0);
+  let prev = norm180(sunLon(jd0) - deg);
+  for(let i = 1; i <= 380; i++){
+    const cur = norm180(sunLon(jd0 + i) - deg);
+    if(prev < 0 && cur >= 0){
+      let lo = jd0 + i - 1, hi = jd0 + i;
+      for(let k = 0; k < 42; k++){
+        const mid = (lo + hi) / 2;
+        if(norm180(sunLon(mid) - deg) < 0) lo = mid; else hi = mid;
+      }
+      return (lo + hi) / 2;
+    }
+    prev = cur;
+  }
+  return null;
+}
+/* 十二节：太阳黄经 → 月支 */
+const JIE_DEF = [
+  {deg:315, m:2,  name:'立春', zhi:2},
+  {deg:345, m:3,  name:'惊蛰', zhi:3},
+  {deg:15,  m:4,  name:'清明', zhi:4},
+  {deg:45,  m:5,  name:'立夏', zhi:5},
+  {deg:75,  m:6,  name:'芒种', zhi:6},
+  {deg:105, m:7,  name:'小暑', zhi:7},
+  {deg:135, m:8,  name:'立秋', zhi:8},
+  {deg:165, m:9,  name:'白露', zhi:9},
+  {deg:195, m:10, name:'寒露', zhi:10},
+  {deg:225, m:11, name:'立冬', zhi:11},
+  {deg:255, m:12, name:'大雪', zhi:0},
+  {deg:285, m:1,  name:'小寒', zhi:1}
+];
+const JIE_NAMES = JIE_DEF.map(d=>d.name);
+const _jieCache = {};
+function jieTerms(year){
+  if(_jieCache[year]) return _jieCache[year];
+  const list = JIE_DEF.map(d=>({name:d.name, deg:d.deg, zhi:d.zhi, y:year, jd:termJD(year, d.deg)}))
+                      .filter(x=>x.jd !== null);
+  list.sort((a,b)=>a.jd - b.jd);
+  _jieCache[year] = list;
+  return list;
+}
+/* 出生时刻紧邻在前的那一个「节」 */
+function jieBefore(y, m, d, h){
+  const bj = jdOfUT(y, m, d, h||0);
+  let best = null;
+  [y-1, y, y+1].forEach(yy=>{
+    jieTerms(yy).forEach(t=>{
+      if(t.jd <= bj && (!best || t.jd > best.jd)) best = t;
+    });
+  });
+  if(!best) return null;
+  return {name:best.name, jd:best.jd, zhi:best.zhi, y:best.y, days: bj - best.jd};
+}
+/* 年柱：以真实立春时刻为界（走节气缓存，避免重复求解） */
+function yearPillar(y,m,d,h){
+  const bj = jdOfUT(y, m, d, h||0);
+  let lc = null;
+  jieTerms(y).forEach(t=>{ if(t.name === '立春') lc = t; });
+  let yy = y;
+  if(lc && bj < lc.jd) yy = y - 1;
+  return ((yy - 4) % 60 + 60) % 60;
+}
+/* 月支 offset（0=寅月），按真实节气 */
+function monthOffset(y,m,d,h){
+  const j = jieBefore(y, m, d, h);
+  if(!j) return 10;
+  return ((j.zhi - 2) % 12 + 12) % 12;
+}
+/* 月柱：五虎遁 */
+function monthPillar(y,m,d,h){
+  const yIdx = yearPillar(y,m,d,h);
+  const yGan = yIdx % 10;
+  const off = monthOffset(y,m,d,h);
+  const gan = ((yGan % 5) * 2 + 2 + off) % 10;
+  const zhi = (off + 2) % 12;
+  return gzIndex(TG[gan], DZ[zhi]);
+}
+/* 日柱：以 JDN 推算，23:00 后算次日 */
+function dayPillar(y,m,d,h){
+  let j = jdn(y,m,d);
+  if(typeof h === 'number' && h >= 23) j += 1;
+  return ((j + 49) % 60 + 60) % 60;
+}
+/* 时柱：五鼠遁 */
+function hourPillar(dayIdx, h){
+  const dGan = dayIdx % 10;
+  const zhi = Math.floor(((h + 1) % 24) / 2);
+  const gan = ((dGan % 5) * 2 + zhi) % 10;
+  return gzIndex(TG[gan], DZ[zhi]);
+}
+
+function pillarOf(idx){
+  const g = TG[idx % 10], z = DZ[idx % 12];
+  return {idx, gan:g, zhi:z, ganWx:TG_WX[TG.indexOf(g)], zhiWx:DZ_WX[DZ.indexOf(z)], hide:HIDE[z]};
+}
+
+/* 六十甲子纳音（每两个干支共用一个纳音） */
+const NAYIN = ['海中金','炉中火','大林木','路旁土','剑锋金','山头火','涧下水','城头土','白蜡金','杨柳木',
+               '泉中水','屋上土','霹雳火','松柏木','长流水','沙中金','山下火','平地木','壁上土','金箔金',
+               '覆灯火','天河水','大驿土','钗钏金','桑柘木','大溪水','沙中土','天上火','石榴木','大海水'];
+function nayinOf(idx){ idx = ((idx%60)+60)%60; return NAYIN[Math.floor(idx/2)]; }
+
+/* 生肖 / 星座 */
+const SHENGXIAO = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+function shengxiaoOf(idx){ return SHENGXIAO[((idx%12)+12)%12]; }
+const ZUO = ['摩羯','水瓶','双鱼','白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯'];
+const ZUO_DAY = [20,19,21,20,21,22,23,23,23,24,23,22];
+function xingzuoOf(m, d){
+  return d < ZUO_DAY[m-1] ? ZUO[m-1] : ZUO[m];
+}
+
+/* 流年宜忌：由流年五行与命局喜忌推出（游戏化简化） */
+const YI_JI_WORD = {
+  '金':{yi:'立约 · 决断 · 清账 · 正名', ji:'争强 · 借贷 · 硬撑'},
+  '木':{yi:'求学 · 谋远 · 栽种 · 结交', ji:'急躁 · 冒进 · 拔苗'},
+  '水':{yi:'远行 · 交流 · 变通 · 静养', ji:'固执 · 憋闷 · 贪多'},
+  '火':{yi:'声名 · 开创 · 行动 · 完婚', ji:'拖延 · 口舌 · 熬夜'},
+  '土':{yi:'置业 · 守成 · 调理 · 安家', ji:'迁徙 · 轻信 · 铺张'}
+};
+/* 事件类别 ↔ 五行，用于流年宜忌加成 */
+const CAT_WX = {
+  '家庭':'土','学业':'木','事业':'金','财富':'金','情感':'水','健康':'土',
+  '机缘':'水','危机':'火','修行':'木','日常':'土','晚年':'土','时代':'火','大限':'土'
+};
+
+/* 十神 */
+function shishen(dayGan, otherGan){
+  const di = TG_WX[TG.indexOf(dayGan)], oi = TG_WX[TG.indexOf(otherGan)];
+  const same = TG_YY[TG.indexOf(dayGan)] === TG_YY[TG.indexOf(otherGan)];
+  if(di === oi) return same ? '比肩' : '劫财';
+  if(SHENG[di] === oi) return same ? '食神' : '伤官';
+  if(KE[di] === oi) return same ? '偏财' : '正财';
+  if(KE[oi] === di) return same ? '七杀' : '正官';
+  if(SHENG[oi] === di) return same ? '偏印' : '正印';
+  return '比肩';
+}
+
+/* 五行力量 */
+function wuxingScores(pillars){
+  const sc = {'金':0,'木':0,'水':0,'火':0,'土':0};
+  pillars.forEach((p,i)=>{
+    const isMonth = (i === 1);
+    sc[p.ganWx] += isMonth ? 1.25 : 1.0;
+    p.hide.forEach(([g,w])=>{
+      sc[TG_WX[TG.indexOf(g)]] += w * (isMonth ? 2.1 : 1.15);
+    });
+  });
+  return sc;
+}
+function normalize(sc){
+  const total = WX.reduce((a,k)=>a+sc[k],0) || 1;
+  const out = {};
+  WX.forEach(k=>out[k] = sc[k] / total);
+  return out;
+}
+/* 日主强弱 */
+function dayStrength(dayGan, pct, monthZhi){
+  const me = TG_WX[TG.indexOf(dayGan)];
+  const yin = BEI_SHENG[me];
+  let ratio = pct[me] + pct[yin];
+  const mWx = DZ_WX[DZ.indexOf(monthZhi)];
+  if(mWx === me || mWx === yin) ratio += 0.13;
+  else if(mWx === SHENG[me] || mWx === KE[me]) ratio -= 0.09;
+  else ratio -= 0.03;
+  let level, desc;
+  if(ratio >= 0.60){ level = '极强'; desc = '自我极重，主动出击方能成事，也易刚折。'; }
+  else if(ratio >= 0.50){ level = '偏强'; desc = '身强能任事，宜主动经营，忌一味守成。'; }
+  else if(ratio >= 0.42){ level = '中和'; desc = '五行流通，进退有余，命局最贵在平衡。'; }
+  else if(ratio >= 0.32){ level = '偏弱'; desc = '身弱需借势，贵人、平台、团体比单打独斗重要。'; }
+  else { level = '极弱'; desc = '根基浅薄，一生多依附他人，宜守不宜攻。'; }
+  return {ratio, level, desc};
+}
+/* 喜用神 */
+function favorable(dayGan, pct, strong){
+  const me = TG_WX[TG.indexOf(dayGan)];
+  const guan = BEI_KE[me], cai = KE[me], shi = SHENG[me], yin = BEI_SHENG[me];
+  if(strong === '偏强' || strong === '极强'){
+    const cand = [guan, cai, shi].slice().sort((a,b)=>pct[a]-pct[b]);
+    return {use:cand[0], like:cand[1], avoid:yin, reason:'日主偏强，宜泄宜克：官杀立规矩、财星接地气、食伤开出口。'};
+  }
+  if(strong === '中和'){
+    const cand = WX.slice().sort((a,b)=>pct[a]-pct[b]);
+    return {use:cand[0], like:cand[1], avoid:cand[4], reason:'日主中和，取最不足者为用，补齐短板即是补运。'};
+  }
+  const cand = [yin, me].slice().sort((a,b)=>pct[a]-pct[b]);
+  return {use:cand[0], like:cand[1], avoid:guan, reason:'日主偏弱，宜生宜扶：印星通关生身，比劫并肩分忧。'};
+}
+/* 刑冲合害 */
+function relations(pillars){
+  const zs = pillars.map(p=>p.zhi);
+  const found = [];
+  for(let i=0;i<zs.length;i++){
+    for(let j=i+1;j<zs.length;j++){
+      const a = zs[i], b = zs[j], pair = a+b, pair2 = b+a;
+      if(LIU_HE.indexOf(pair)>=0 || LIU_HE.indexOf(pair2)>=0) found.push({type:'六合', a, b, good:true, txt:a+'合'+b+'，有贵人牵线、有缘分黏合'});
+      if(LIU_CHONG.indexOf(pair)>=0 || LIU_CHONG.indexOf(pair2)>=0) found.push({type:'六冲', a, b, good:false, txt:a+'冲'+b+'，动荡迁徙、奔波难停'});
+      if(LIU_HAI.indexOf(pair)>=0 || LIU_HAI.indexOf(pair2)>=0) found.push({type:'相害', a, b, good:false, txt:a+'害'+b+'，关系暗损、口舌是非'});
+    }
+  }
+  SAN_XING.forEach(g=>{
+    const c = g.filter(z=>zs.indexOf(z)>=0).length;
+    if(c >= 2) found.push({type:'相刑', a:g[0], b:g[1], good:false, txt:'命带'+g.join('')+'之刑，纠缠反复、暗伤难愈'});
+  });
+  ZI_XING.forEach(z=>{
+    if(zs.filter(x=>x===z).length >= 2) found.push({type:'自刑', a:z, b:z, good:false, txt:z+z+'自刑，内耗自困、心结难解'});
+  });
+  return found;
+}
+/* 大运 */
+function buildDayun(yIdx, monthIdx, yGan, gender, startAge){
+  const yang = TG_YY[yGan] === 1;
+  const male = gender === '男';
+  const forward = (yang && male) || (!yang && !male);
+  const list = [];
+  let cur = monthIdx;
+  for(let i=1;i<=9;i++){
+    cur = ((cur + (forward ? 1 : -1)) % 60 + 60) % 60;
+    const p = pillarOf(cur);
+    list.push({
+      index: i,
+      gz: gzName(cur),
+      gan: p.gan, zhi: p.zhi, wx: p.ganWx,
+      from: startAge + (i-1)*10,
+      to: startAge + i*10 - 1
+    });
+  }
+  return list;
+}
+
+/* ------------------------------------------------------------------ 2. 事件库 */
+const EVENTS = [
+/* ============ 家庭 ============ */
+{id:'fam01',cat:'家庭',title:'抓周',desc:'周岁宴上，桌上摆满物件。满屋人的目光都落在你的小手上。',age:[1,1],w:60,
+ cond:{wuxing:['木','金','土']},
+ opts:[
+  {t:'抓起毛笔',e:{学识:7,名望:2},tg:['书香'],r:'你攥着笔不肯撒手。外公捋须大笑：这孩子是个读书的种。'},
+  {t:'抓起算盘',e:{财富:6,事业:3},tg:['精算'],r:'你把算盘摇得哗哗响，母亲脸上的笑僵了一瞬，随即又展开。'},
+  {t:'抓起印章',e:{名望:4,事业:4,业力:2},tg:['官迷'],r:'父亲连夜把印章擦了三遍，说要供起来。'},
+  {t:'谁都不抓，抓了块点心',e:{健康:5,心性:5,机缘:3},tg:['随性'],r:'满堂哄笑。祖母说：这娃有福气，不争才有福。'}
+ ]},
+{id:'fam02',cat:'家庭',title:'夜里的争吵',desc:'你被吵醒。父母房门缝里透出光，声音一高一低，像两把钝刀在磨。',age:[3,14],w:16,cond:{},
+ opts:[
+  {t:'蒙头装睡',e:{心性:6,情感:-5},tg:['早熟'],r:'你学会了把耳朵关起来。这个本领你会用一辈子。'},
+  {t:'推门进去大哭',e:{情感:4,心智:-3,健康:-2},tg:[],r:'争吵停了。你被抱起来哄，可你知道，那只是停了。'},
+  {t:'第二天悄悄问母亲',e:{心智:6,情感:3},tg:['贴心'],r:'母亲摸摸你的头说，大人的事小孩别管。你记住了她红着的眼眶。'}
+ ]},
+{id:'fam03',cat:'家庭',title:'长辈病重',desc:'家里忽然安静下来，来人脚步都放得很轻。桌上多了一碗没动过的药。',age:[4,18],w:12,cond:{},
+ opts:[
+  {t:'日夜守在床边',e:{功德:8,情感:5,健康:-6,学识:-3},tg:['至孝'],r:'你握着那只枯瘦的手，第一次知道人是会凉的。'},
+  {t:'照常上学，把思念压在心里',e:{学识:6,心性:5,情感:-4},tg:['隐忍'],r:'你在课上走神，被叫起来回答问题，答得满分。'},
+  {t:'四处打听偏方',e:{机缘:4,功德:4,财富:-5,心智:2},tg:['执拗'],r:'偏方没管用，但家里人都记得你跑过的那些路。'}
+ ]},
+{id:'fam04',cat:'家庭',title:'举家远迁',desc:'父亲说要去很远的地方谋生，你转学去的学校，同学说话都带口音。',age:[6,16],w:14,cond:{},
+ opts:[
+  {t:'积极融入新环境',e:{情感:6,心智:5,学识:-2},tg:['四海为家'],r:'半年后你学会了一口当地话，没人听得出你是外来的。'},
+  {t:'把自己关起来',e:{心性:6,学识:5,情感:-7},tg:['孤僻'],r:'你在课本边角画满了小人，那是你自己的世界。'},
+  {t:'带头打架立威',e:{名望:5,健康:-4,业力:6},tg:['刺头'],r:'你打赢了，也挨了处分。但没人再叫你外地佬。'}
+ ]},
+{id:'fam05',cat:'家庭',title:'家中添丁',desc:'弟弟或妹妹出生了。所有人的注意力忽然都转向了那张小床。',age:[2,16],w:14,cond:{},
+ opts:[
+  {t:'主动帮着照看',e:{情感:7,心性:4,学识:-2},tg:['长兄如父'],r:'你学会了换尿布，也学会了什么叫责任先来。'},
+  {t:'故意闹一场',e:{情感:-5,名望:2,心性:-3},tg:['争宠'],r:'你挨了骂。但那天晚上，母亲还是来亲了你一下。'},
+  {t:'沉默地看着',e:{心智:6,心性:3,情感:-3},tg:['旁观者'],r:'你忽然懂了，爱不是平均分的。'}
+ ]},
+{id:'fam06',cat:'家庭',title:'家训',desc:'长辈把你叫到堂前，说有一句话，要你记一辈子。',age:[5,16],w:12,
+ cond:{dayMaster:['甲','丙','戊','庚','壬']},
+ opts:[
+  {t:'"不占人便宜"',e:{功德:8,心性:6,财富:-3},tg:['清白'],r:'你把这句话刻进了骨头。后来你因此穷过，也因此睡得好。'},
+  {t:'"有本事才有理"',e:{事业:7,学识:5,情感:-4},tg:['慕强'],r:'你从此信服力量，也学会了在人前低头、在人后磨刀。'},
+  {t:'"活着比什么都强"',e:{寿元:5,健康:6,名望:-3},tg:['保命要紧'],r:'你学会了在危险来之前先退一步，这救了你好几回。'}
+ ]},
+{id:'fam07',cat:'家庭',title:'说媒',desc:'家里替你相看了一门亲事，对方家底殷实，只是你从未见过。',age:[17,30],w:13,cond:{tags:['官迷','书香','清白']},
+ opts:[
+  {t:'应下这门亲事',e:{财富:9,事业:6,情感:-4},tg:['联姻'],r:'婚事办得风光。你与人相敬如宾，只是夜里常常醒。'},
+  {t:'当面拒绝',e:{情感:5,心性:8,业力:3,名望:-4},tg:['自主'],r:'家里三个月没跟你说话。你也没后悔。'},
+  {t:'先相处看看',e:{心智:5,情感:6,机缘:3},tg:['务实'],r:'你们处了半年，居然还算合得来。日子就是这样过起来的。'}
+ ]},
+{id:'fam08',cat:'家庭',title:'赡养之责',desc:'父母老了。药钱、照护、兄弟姐妹之间的推诿，一起压到你面前。',age:[28,55],w:16,cond:{},
+ opts:[
+  {t:'一力承担',e:{功德:10,财富:-9,健康:-5,名望:5},tg:['担当'],r:'你咬牙扛了下来。账上见空，可你没让二老受一天委屈。'},
+  {t:'兄弟姐妹分摊',e:{财富:-3,情感:4,心智:5},tg:['周全'],r:'家里为一笔药钱吵了三次，但最终各自认了份。'},
+  {t:'躲开，只出钱不出人',e:{财富:-6,功德:-6,心性:-4,事业:4},tg:['疏离'],r:'你付了钱，买了心安，也买断了某些东西。'}
+ ]},
+{id:'fam09',cat:'家庭',title:'遗产风波',desc:'老人去了。留下的东西不多，但足够让一家人反目。',age:[33,62],w:13,cond:{},
+ opts:[
+  {t:'主动让出份额',e:{功德:9,名望:5,财富:-8,情感:4},tg:['让利'],r:'你签了字。多年后有人提起，都说你厚道。'},
+  {t:'据理力争',e:{财富:10,情感:-8,业力:5,事业:3},tg:['寸土必争'],r:'你赢了。那份文件你收得很好，再没拿出来看过。'},
+  {t:'找族中长辈调解',e:{心智:6,机缘:4,财富:3,情感:2},tg:['借力'],r:'长辈拍了桌子，事情分了个七七八八，谁也不算太亏。'}
+ ]},
+{id:'fam10',cat:'家庭',title:'子女叛逆',desc:'孩子把房门摔上，隔着门喊：你根本不懂我。',age:[33,58],w:15,cond:{},
+ opts:[
+  {t:'硬碰硬，压到底',e:{名望:3,事业:2,情感:-9,心性:-3},tg:['严父'],r:'孩子服了，但也关了心门。你们用了一辈子才重新说上话。'},
+  {t:'退一步，先听他说',e:{情感:9,心性:7,名望:-2},tg:['慈爱'],r:'你坐在门口地上听了两个小时。有些结，那晚解开了。'},
+  {t:'随他去吧',e:{心性:5,机缘:4,情感:-6},tg:['放养'],r:'孩子后来自己撞得头破血流，也自己爬了起来。'}
+ ]},
+/* ============ 学业 ============ */
+{id:'stu01',cat:'学业',title:'开蒙',desc:'先生把一本册子放在你面前，说：从今天起，你是读书人了。',age:[5,9],w:26,cond:{},
+ opts:[
+  {t:'日夜苦读',e:{学识:9,健康:-3,心智:3},tg:['勤勉'],r:'你把书翻烂了三本，先生第一次在人前夸了你。'},
+  {t:'读得进去就够',e:{学识:4,健康:4,心性:3},tg:['中庸'],r:'你不算最拔尖，但从没被罚过站。'},
+  {t:'偷着去看杂书',e:{心智:6,机缘:5,学识:-2},tg:['杂学'],r:'你读了半本刻本怪谈，从此对世界的另一面起了兴趣。'}
+ ]},
+{id:'stu02',cat:'学业',title:'同窗之谊',desc:'一个同学把自己的笔记塞给你，说：你上次帮我，这是还你的。',age:[7,18],w:14,cond:{},
+ opts:[
+  {t:'结为挚友',e:{情感:9,学识:4,机缘:4},tg:['知己'],r:'这份交情延续了几十年，在你最难的时候拉了你一把。'},
+  {t:'淡淡收下',e:{学识:5,情感:-3},tg:[],r:'你们一直客客气气，直到毕业也没再深交。'},
+  {t:'拉他一起做买卖',e:{财富:7,学识:-3,情感:4,业力:2},tg:['早经商'],r:'你们倒卖文具赚了第一笔钱，被先生发现后罚抄了三百遍。'}
+ ]},
+{id:'stu03',cat:'学业',title:'科考',desc:'考场的门在你身后关上。这一场，决定接下来几年你走哪条路。',age:[15,26],w:20,
+ cond:{dayMaster:['甲','乙','丙','丁'],shishen:['正印','正官','偏印']},
+ opts:[
+  {t:'稳扎稳打，答完即止',e:{学识:6,心智:4,名望:4},tg:['稳中'],r:'你不多写一个字。放榜那日，名字在中间偏上的位置。'},
+  {t:'押一注险题，全力发挥',e:{学识:8,名望:8,机缘:4,健康:-4},tg:['险中求胜'],r:'要么一鸣惊人，要么一败涂地。你赌了，结果你清楚。'},
+  {t:'场中通融关节',e:{名望:9,业力:12,学识:-4},tg:['取巧'],r:'名次来得太快，你此后每次被夸，心里都要跳一下。'}
+ ]},
+{id:'stu04',cat:'学业',title:'落榜',desc:'名字刷了三遍，都没有你。回家的路上，天阴得厉害。',age:[16,30],w:16,cond:{},
+ opts:[
+  {t:'再来一次',e:{学识:8,心性:6,健康:-4,寿元:-1},tg:['屡败屡战'],r:'你把落榜的纸贴在床头，第二年换成了喜报。'},
+  {t:'弃文从商',e:{财富:8,事业:5,学识:-3},tg:['识时务'],r:'你把书箱锁了，第二天就跟着商队出了城。'},
+  {t:'闭门三年不出',e:{学识:10,心智:7,情感:-8,健康:-5},tg:['孤学'],r:'三年后你的文章名动一方，但你已经不太会跟人说话了。'}
+ ]},
+{id:'stu05',cat:'学业',title:'名师点拨',desc:'一位老先生看了你的东西，说了三个字：路子偏了。',age:[12,26],w:13,
+ cond:{shishen:['正印','偏印','食神']},
+ opts:[
+  {t:'拜入门下，推倒重来',e:{学识:10,心智:6,财富:-5},tg:['得师承'],r:'你从头练起。两年后回头看，才知道那三个字值多少钱。'},
+  {t:'坚持自己的路子',e:{心性:8,名望:4,学识:2,机缘:-3},tg:['自成一家'],r:'你走了一条没人走的路，走得慢，但那是你自己的。'},
+  {t:'把他的批注抄下来反复琢磨',e:{学识:6,心智:5,健康:-2},tg:['好问'],r:'那本批注你留了一辈子，书页都翻成了软的。'}
+ ]},
+{id:'stu06',cat:'学业',title:'游学远方',desc:'有一支队伍要远行，路上能见到你说不出名字的东西。',age:[17,30],w:12,
+ cond:{wuxing:['水','火'],dayMaster:['丙','丁','壬','癸']},
+ opts:[
+  {t:'随行远游',e:{心智:8,机缘:8,学识:5,财富:-6},tg:['行万里路'],r:'你见了海，见了雪，见了从没见过的人。回来后整个人宽了一圈。'},
+  {t:'留在本地深耕',e:{学识:7,事业:4,心性:3},tg:['守土'],r:'你把一门手艺练到了骨子里，方圆百里没人比得过。'},
+  {t:'边游边记，写成书稿',e:{学识:9,名望:7,健康:-4},tg:['著书'],r:'那本册子后来被人翻印了好几次，只是名字不太有人记得。'}
+ ]},
+{id:'stu07',cat:'学业',title:'偏科',desc:'先生说你：一门极好，其余皆废。问你要不要改。',age:[10,20],w:12,cond:{},
+ opts:[
+  {t:'把偏的那门做到极致',e:{学识:7,名望:5,心智:-2},tg:['专才'],r:'你成了这一门里最锋利的那把刀，但别的刀你都不太会使。'},
+  {t:'咬牙补齐短板',e:{学识:6,心智:6,健康:-3},tg:['通才'],r:'你样样都到了七分，一辈子没拿过第一，也没被淘汰过。'},
+  {t:'什么也不改',e:{心性:6,学识:-4,机缘:3},tg:['认命'],r:'你觉得自己这辈子就这样了，结果还真就这样了。'}
+ ]},
+/* ============ 事业 ============ */
+{id:'car01',cat:'事业',title:'创业风口',desc:'朋友拉你入伙，说这个项目能改变命运，就差你这一份本钱。',age:[22,42],w:18,
+ cond:{dayMaster:['丙','戊','庚'],shishen:['偏财','七杀','伤官'],wuxing:['火','土']},
+ opts:[
+  {t:'辞职创业',e:{财富:30,事业:20,寿元:-2,健康:-5,业力:5},tg:['创业者'],r:'你把全部身家压了上去。第一个月烧光了钱，第三个月来了第一笔单。'},
+  {t:'稳守本职',e:{财富:5,健康:5,心性:5},tg:['稳健派'],r:'你没动。两年后那个项目垮了，你在办公室里悄悄松了口气。'},
+  {t:'投钱不投人',e:{财富:12,事业:4,机缘:-4},tg:['投资人'],r:'你只出钱。项目活了你也赚，死了你也不至于死。'},
+  {t:'劝朋友别干，一起找份差事',e:{情感:6,功德:5,财富:-3,事业:-4},tg:['老成'],r:'朋友骂了你半年，后来请了你一顿大酒，说幸亏你。'}
+ ]},
+{id:'car02',cat:'事业',title:'升迁之机',desc:'上头空出一个位置。有人递话：这次看你怎么做了。',age:[25,48],w:16,
+ cond:{shishen:['正官','正印','正财']},
+ opts:[
+  {t:'凭实绩硬顶上去',e:{事业:10,名望:6,健康:-5,情感:-3},tg:['实干'],r:'你把三年的账目摆到桌上，谁也挑不出毛病。位置是你的了。'},
+  {t:'走动关系',e:{事业:9,名望:3,业力:8,财富:-6},tg:['会来事'],r:'你上了位，也欠了人情。往后每一件事，都有人在背后看着。'},
+  {t:'让给别人',e:{功德:7,心性:6,事业:-6,情感:5},tg:['不争'],r:'那人后来成了你的贵人。这一步退，退了十年的路。'}
+ ]},
+{id:'car03',cat:'事业',title:'上头打压',desc:'你的方案被压了三次，第四次连文件都没递上去。',age:[24,52],w:15,
+ cond:{shishen:['七杀','伤官','劫财']},
+ opts:[
+  {t:'硬碰，据理力争',e:{名望:8,事业:3,业力:6,健康:-6},tg:['硬骨头'],r:'你在会上把话挑明了。有人替你叫好，也有人记了你的名字。'},
+  {t:'忍下，暗中积累',e:{心性:8,学识:5,事业:-3},tg:['蛰伏'],r:'你把方案改了七版，全存在自己抽屉里，等一个时机。'},
+  {t:'换个山头',e:{事业:7,机缘:5,情感:-4,财富:-3},tg:['挪窝'],r:'你走了。半年后原单位那个项目黄了，你的新东家正好缺人。'}
+ ]},
+{id:'car04',cat:'事业',title:'体制之内',desc:'一份稳定的差事摆在面前：不富，但稳；不自由，但有名分。',age:[22,45],w:15,
+ cond:{shishen:['正官','正印'],dayMaster:['戊','己','庚','辛']},
+ opts:[
+  {t:'接下这份安稳',e:{事业:8,名望:5,健康:3,机缘:-5},tg:['体制内'],r:'你穿上了那身衣服。此后三十年，风浪都在门外。'},
+  {t:'另谋出路',e:{机缘:8,财富:6,事业:-4,心性:4},tg:['自由身'],r:'你没有那个头衔，但你有了自己的时辰。'},
+  {t:'进去，同时兼着副业',e:{事业:6,财富:7,业力:4,健康:-4},tg:['两头跑'],r:'你白天一份心，晚上一份心，两头都没塌。'}
+ ]},
+{id:'car05',cat:'事业',title:'跳槽机会',desc:'同行开出两倍薪水，但要你带走手上的资源。',age:[23,48],w:14,cond:{},
+ opts:[
+  {t:'干净地走，什么也不带',e:{名望:6,功德:8,财富:4,业力:-6},tg:['干净'],r:'你两手空空去了新地方，从头做起。老东家后来还给你介绍了客户。'},
+  {t:'带走客户名单',e:{财富:14,事业:8,业力:14,名望:-5},tg:['带资源'],r:'你起步很快。但有些宴席，从此不再有人请你。'},
+  {t:'留下来谈条件',e:{财富:8,事业:6,心性:2},tg:['议价'],r:'你把手上的牌打出去，原东家给你加了薪。'}
+ ]},
+{id:'car06',cat:'事业',title:'同伴背刺',desc:'一起打拼的人把方案原封不动交到了对家手里，合同上没你的名字。',age:[27,55],w:13,
+ cond:{shishen:['劫财','七杀','比肩']},
+ opts:[
+  {t:'翻脸追责到底',e:{事业:4,名望:5,业力:8,情感:-7},tg:['不留情'],r:'你把他送上了法庭。你赢了案子，输了一段交情。'},
+  {t:'认了，重新来过',e:{心性:9,健康:-4,事业:-3,功德:5},tg:['翻篇'],r:'你烧了那堆材料，第二天重新画了第一张图。'},
+  {t:'暗中布局，反将一军',e:{心智:8,事业:9,业力:6},tg:['城府'],r:'半年后他栽了，没人知道跟你有关。'}
+ ]},
+{id:'car07',cat:'事业',title:'行业寒冬',desc:'整个行业都在裁员，你的名字在名单边上晃。',age:[28,58],w:15,cond:{},
+ opts:[
+  {t:'主动降薪留下',e:{事业:3,财富:-7,心性:5,健康:-2},tg:['守成'],r:'你保住了位置，也保住了那份体面。'},
+  {t:'拿补偿走人，转行',e:{财富:6,机缘:8,事业:-5,学识:5},tg:['转行'],r:'你四十岁重新学了一门手艺，居然学得比年轻人快。'},
+  {t:'趁低价收了同行的小摊子',e:{财富:15,事业:10,业力:5,健康:-6},tg:['抄底'],r:'别人退场的时候你进场。这一注，赌对了。'}
+ ]},
+/* ============ 财富 ============ */
+{id:'wea01',cat:'财富',title:'意外之财',desc:'你在旧物里翻出一件东西，懂行的人开出了一个不低的价。',age:[18,65],w:12,
+ cond:{shishen:['偏财','食神','伤官']},
+ opts:[
+  {t:'卖掉，落袋为安',e:{财富:14,机缘:-3},tg:['落袋'],r:'钱到账那天你数了三遍。当晚睡得极沉。'},
+  {t:'留着，等更高的价',e:{财富:22,机缘:6,心性:-3},tg:['耐心'],r:'三年后它翻了三倍，也可能一文不值。这一次，你押对了。'},
+  {t:'捐出去',e:{功德:14,名望:7,财富:-4,心性:6},tg:['散财'],r:'你把东西交出去的时候，心里忽然轻了。'}
+ ]},
+{id:'wea02',cat:'财富',title:'投资机会',desc:'有人拿着图纸找上门，说这是十年一遇的机会，本金翻十倍。',age:[24,58],w:16,
+ cond:{shishen:['偏财','七杀','伤官']},
+ opts:[
+  {t:'重仓押上',e:{财富:26,事业:8,业力:4,健康:-4},tg:['重仓'],r:'你赌了。有人因此翻身，也有人因此上不了岸，你是哪一种，只有你自己知道。'},
+  {t:'小额试水',e:{财富:9,心智:5,机缘:3},tg:['谨慎'],r:'你挣了顿酒钱，也没亏掉裤衩。'},
+  {t:'婉拒',e:{心性:5,财富:2},tg:['不动心'],r:'你没动。半年后那项目暴雷的消息上了报。'}
+ ]},
+{id:'wea03',cat:'财富',title:'为人担保',desc:'亲戚要借一笔钱，需要有人签字。他握着你的手说：就这一次。',age:[26,58],w:14,cond:{},
+ opts:[
+  {t:'签了',e:{功德:7,情感:5,财富:-16,业力:3},tg:['担保人'],r:'他跑了。那笔债落到你头上，你还了整整七年。'},
+  {t:'只借自己能承受的数',e:{财富:-5,功德:5,情感:4,心智:6},tg:['有度'],r:'你把话说得很清楚。他不太高兴，但你们都保住了。'},
+  {t:'断然拒绝',e:{财富:4,心性:5,情感:-8},tg:['不信人'],r:'他从此没再登门。多年后你听说，他确实没还上。'}
+ ]},
+{id:'wea04',cat:'财富',title:'副业',desc:'你手上有点闲工夫，也有一门旁人不知道的手艺。',age:[20,55],w:13,cond:{},
+ opts:[
+  {t:'老老实实做起来',e:{财富:9,事业:5,健康:-4},tg:['细水长流'],r:'你每晚熬到深夜。三年后，副业收入超过了正职。'},
+  {t:'招人外包，自己抽成',e:{财富:13,心智:6,业力:4,名望:-3},tg:['生意人'],r:'你成了中间那双手。钱来得快，口碑却薄了。'},
+  {t:'把手艺教给别人',e:{功德:10,名望:8,财富:3,情感:5},tg:['传艺'],r:'你带出了七个徒弟，后来他们逢年过节都来看你。'}
+ ]},
+{id:'wea05',cat:'财富',title:'大额诱惑',desc:'一个能快速翻倍的路子摆在你面前。所有人都说，这回是真的。',age:[25,60],w:14,
+ cond:{shishen:['偏财','劫财'],tags:['重仓','生意人','财迷']},
+ opts:[
+  {t:'全部家当压进去',e:{财富:35,业力:10,健康:-8,心性:-6},tg:['孤注一掷'],r:'那一夜你盯着天花板到天亮。结果如何，只有那一世的人知道。'},
+  {t:'只投三成',e:{财富:12,心智:7},tg:['有分寸'],r:'你把风险切成了三份，睡得着觉。'},
+  {t:'反向做空',e:{财富:18,机缘:6,业力:8,名望:-4},tg:['反向操作'],r:'所有人都往里冲的时候，你站在了对面。'}
+ ]},
+/* ============ 情感 ============ */
+{id:'lov01',cat:'情感',title:'初见心动',desc:'你在人群里看见一个人，那一瞬间你觉得世界安静了半拍。',age:[14,24],w:16,cond:{},
+ opts:[
+  {t:'主动上前搭话',e:{情感:10,名望:2,心性:-3},tg:['主动'],r:'你走过去说了句很蠢的话。对方笑了。故事就是这么开始的。'},
+  {t:'默默看着',e:{心性:6,情感:-5,学识:3},tg:['暗恋'],r:'你把这件事写进了日记，很多年后自己翻到，还觉得手心发烫。'},
+  {t:'托人递一封信',e:{情感:6,机缘:5,心智:2},tg:['含蓄'],r:'信递出去了，回音来得比你想象中慢，也比你想象中好。'}
+ ]},
+{id:'lov02',cat:'情感',title:'异地',desc:'你们隔着一千多里。信要走上七天，电话费按分钟算。',age:[17,32],w:13,cond:{},
+ opts:[
+  {t:'一方放弃一切去投奔',e:{情感:12,事业:-8,财富:-6,机缘:5},tg:['奔赴'],r:'你把行李一收就上了车。那一刻你觉得什么都值得。'},
+  {t:'异地苦守',e:{情感:6,心性:8,健康:-4},tg:['苦守'],r:'你们撑了很久。撑到最后，是撑住了，还是只是习惯了，你分不清。'},
+  {t:'好聚好散',e:{心性:7,情感:-8,心智:6},tg:['放手'],r:'你们在车站抱了一下。此后各自成家，再没见过。'}
+ ]},
+{id:'lov03',cat:'情感',title:'婚姻抉择',desc:'到了要决定的时候了。面前的人不算惊艳，但让你踏实。',age:[21,36],w:18,cond:{},
+ opts:[
+  {t:'成家',e:{情感:12,健康:5,财富:4,机缘:-4},tg:['成家'],r:'婚礼那天你忙得晕头转向。晚上收拾红包的时候，你忽然笑了。'},
+  {t:'再等几年',e:{事业:8,财富:6,情感:-5,心性:4},tg:['缓婚'],r:'你把时间用在了别的地方。几年后回头看，你不知道该不该庆幸。'},
+  {t:'不婚，独自生活',e:{心性:10,机缘:6,情感:-10,财富:5},tg:['独身'],r:'你把日子过成了自己想要的样子，只是偶尔夜里会静得发慌。'}
+ ]},
+{id:'lov04',cat:'情感',title:'心动之人',desc:'你已经有了家庭。可那个人递过来的那杯茶，手抖了一下。',age:[27,52],w:12,
+ cond:{shishen:['偏财','伤官','七杀']},
+ opts:[
+  {t:'断了念想，退了半步',e:{心性:12,情感:6,功德:9,机缘:-4},tg:['守心'],r:'你把那杯茶放在了桌上，起身走了。回家路上风吹得脸很凉。'},
+  {t:'越了那条线',e:{情感:8,业力:16,名望:-8,心性:-10},tg:['越线'],r:'那半年你活得像另一个人。代价在几年后才来收。'},
+  {t:'把欣赏说成朋友',e:{心智:8,情感:4,名望:2},tg:['分寸'],r:'你们成了很好的朋友，好到有些话一辈子都没说出口。'}
+ ]},
+{id:'lov05',cat:'情感',title:'婚姻危机',desc:'家里的对话只剩下了账单和安排。你站在阳台上，抽完了整整一包烟。',age:[28,58],w:14,cond:{},
+ opts:[
+  {t:'坐下来把话说开',e:{情感:10,心智:7,心性:5},tg:['修补'],r:'你们谈了四个小时，哭了两次。那天之后，家里的灯亮得晚了些。'},
+  {t:'各过各的，不吵不散',e:{心性:6,情感:-7,财富:4},tg:['将就'],r:'你们在一个屋檐下各活了二十年。孩子长大后说，其实他都知道。'},
+  {t:'离开',e:{情感:-6,心性:9,财富:-9,机缘:7},tg:['决绝'],r:'你拎着一个箱子走了。楼下的桂花正开，你闻到了。'}
+ ]},
+{id:'lov06',cat:'情感',title:'忘年之交',desc:'一个比你年长许多的人，愿意把一辈子攒下的东西讲给你听。',age:[18,62],w:12,
+ cond:{shishen:['正印','偏印','食神']},
+ opts:[
+  {t:'常去请教',e:{学识:9,心智:7,机缘:7,情感:5},tg:['问道'],r:'他把你当半子。临终前把一封信交给了你，你到很晚才拆开。'},
+  {t:'保持距离',e:{心性:5,学识:3,情感:-3},tg:['疏'],r:'你始终客气。他去世后你才意识到，你错过了什么。'},
+  {t:'为他整理文稿',e:{学识:8,名望:8,功德:10,健康:-3},tg:['传灯'],r:'那本书出版时，署名是他的，序言是你在写。'}
+ ]},
+/* ============ 健康 ============ */
+{id:'hea01',cat:'健康',title:'透支',desc:'连轴转了几个月。某天早上你从椅子上站起来，眼前黑了两秒。',age:[22,55],w:17,cond:{},
+ opts:[
+  {t:'咬牙继续',e:{事业:9,财富:7,健康:-14,寿元:-3},tg:['拼命'],r:'你把项目交了。庆功宴上你举杯的时候，手在抖。'},
+  {t:'请长假休整',e:{健康:12,心性:7,事业:-6,财富:-4},tg:['懂休息'],r:'你去了山里住了半个月，回来时脸黑了些，眼睛亮了。'},
+  {t:'改作息，长期调理',e:{健康:9,寿元:4,心性:6,事业:-2},tg:['养生'],r:'你从此十一点睡，坚持了三十年。这件事比你想的更值钱。'}
+ ]},
+{id:'hea02',cat:'健康',title:'体检异常',desc:'一份报告上有一个指标被圈了出来，旁边写着：建议复查。',age:[30,68],w:16,cond:{},
+ opts:[
+  {t:'立刻复查、认真对待',e:{健康:12,寿元:5,财富:-6},tg:['惜命'],r:'发现得早。医生说，你来得正是时候。'},
+  {t:'拖着，装作没看见',e:{健康:-15,寿元:-6,心性:-4},tg:['讳疾'],r:'你把报告塞进了抽屉最底层。它在那里躺了很多年。'},
+  {t:'调整生活，同时复查',e:{健康:10,寿元:4,心性:6,财富:-3},tg:['自律'],r:'你戒了烟酒，每天走一万步，指标慢慢回到了线内。'}
+ ]},
+{id:'hea03',cat:'健康',title:'意外',desc:'一声闷响。等你反应过来的时候，人已经躺在地上了。',age:[5,75],w:13,cond:{},
+ opts:[
+  {t:'就近求医',e:{健康:-5,寿元:-2,财富:-8},tg:['外伤'],r:'伤养了三个月。留下一道疤，你后来常常摸着它发呆。'},
+  {t:'硬扛过去',e:{健康:-12,寿元:-4,心性:5},tg:['硬汉'],r:'你没去医院。那道伤后来每逢阴雨天就疼，疼了一辈子。'},
+  {t:'借机停下脚步',e:{健康:6,心性:9,事业:-5,机缘:4},tg:['因祸得福'],r:'养伤的那段时间你想清楚了很多事。复出后，你走了一条新路。'}
+ ]},
+{id:'hea04',cat:'健康',title:'养生之道',desc:'有人告诉你一个养身的法子，听起来有点玄，但也花不了几个钱。',age:[33,78],w:12,
+ cond:{wuxing:['土','木','水']},
+ opts:[
+  {t:'认真练起来',e:{健康:16,寿元:6,心性:7,财富:-3},tg:['持修'],r:'你练了四十年。八十岁那年还能一口气上五楼。'},
+  {t:'半信半疑试了试',e:{健康:6,寿元:2,机缘:3},tg:[],r:'你说不清是它管用还是心理作用，反正身体是舒服了些。'},
+  {t:'嗤之以鼻',e:{心智:5,健康:-6,寿元:-2},tg:['不信邪'],r:'你笑别人迷信。多年后你躺在病床上，想起过这个法子。'}
+ ]},
+{id:'hea05',cat:'健康',title:'心力交瘁',desc:'你睡不着，吃不下，看见谁都觉得烦。',age:[24,66],w:14,cond:{},
+ opts:[
+  {t:'找个地方静一静',e:{心性:12,健康:8,事业:-4},tg:['自愈'],r:'你在江边坐了三天。第四天早上，你吃了两大碗饭。'},
+  {t:'靠酒撑着',e:{情感:3,健康:-14,寿元:-5,业力:6},tg:['杯中物'],r:'酒让你睡着了，也让你更早醒不过来了。'},
+  {t:'找人说说话',e:{情感:9,健康:7,心性:6,机缘:3},tg:['倾诉'],r:'有人听你把话说完，什么也没评价。你忽然就轻了。'}
+ ]},
+/* ============ 机缘 ============ */
+{id:'luc01',cat:'机缘',title:'山中奇遇',desc:'你走岔了路，在雾里遇见一个不说话的人，递给你一样东西。',age:[10,62],w:11,
+ cond:{wuxing:['水','木'],shishen:['偏印','正印']},
+ opts:[
+  {t:'收下，并听他说完',e:{心智:9,机缘:12,学识:6},tg:['得缘'],r:'那人只说了七句话。你用了三十年才明白其中三句。'},
+  {t:'推辞，转身就走',e:{心性:7,机缘:-6,功德:5},tg:['不受'],r:'你没接。走出雾的时候你回头看了一眼，那里什么都没有。'},
+  {t:'请他一同下山',e:{情感:8,机缘:6,功德:7},tg:['引路'],r:'他下了山，在你家住了三年，然后不告而别。'}
+ ]},
+{id:'luc02',cat:'机缘',title:'贵人相助',desc:'一个你并不熟悉的人，替你在关键场合说了一句话。',age:[17,60],w:15,cond:{},
+ opts:[
+  {t:'登门致谢，结下交情',e:{情感:8,事业:7,机缘:6},tg:['知恩'],r:'你们成了忘年之交。他说：我当年也被人拉过一把。'},
+  {t:'记在心里，日后还他',e:{功德:8,心性:7,事业:4},tg:['记恩'],r:'多年后他落难，你是唯一到场的人。'},
+  {t:'觉得理所应当',e:{事业:4,功德:-8,名望:-4},tg:['忘恩'],r:'你没去道谢。后来再需要有人说话的时候，没人开口。'}
+ ]},
+{id:'luc03',cat:'机缘',title:'古卷残页',desc:'旧书摊角落里有几页散装的东西，字迹古怪，摊主说一文不值。',age:[14,58],w:11,
+ cond:{shishen:['偏印','正印','食神']},
+ opts:[
+  {t:'买下，回去慢慢研究',e:{学识:8,心智:8,机缘:8,财富:-2},tg:['好古'],r:'那几页纸你研究了半辈子，最后成了一门只有你懂的本事。'},
+  {t:'抄一份再还回去',e:{学识:6,功德:4,心智:5,机缘:3},tg:['谨慎'],r:'你抄得工工整整，原稿还给了摊主，他愣了很久。'},
+  {t:'买了转手卖出去',e:{财富:8,机缘:-4,学识:-3},tg:['过手'],r:'你赚了一笔，买家赚了更多。这件事你后来想起来会叹气。'}
+ ]},
+{id:'luc04',cat:'机缘',title:'一注之念',desc:'你手里正好有点闲钱，而那张纸上的数字看起来像在招你的手。',age:[18,68],w:11,cond:{},
+ opts:[
+  {t:'买一注就走',e:{财富:14,机缘:8,心性:-2},tg:['小赌'],r:'你中了个不大不小的数。此后你再没买过，所以运气一直很好。'},
+  {t:'研究规律，重注下注',e:{财富:-16,业力:8,心智:3,健康:-4},tg:['赌性'],r:'你研究了两百期。有些人的一辈子，就在这几张纸上没了。'},
+  {t:'把钱拿去做了别的',e:{财富:5,心性:5,事业:4,功德:4},tg:['务实'],r:'你把钱交给了正经的用途。踏实。'}
+ ]},
+{id:'luc05',cat:'机缘',title:'异地来信',desc:'一封陌生的信，说在很远的地方有件与你有关的事。',age:[20,65],w:10,cond:{},
+ opts:[
+  {t:'亲自走一趟',e:{机缘:12,心智:7,财富:-5,健康:-4},tg:['远行'],r:'你去了。事情没信上说的那么玄，但你确实遇见了该遇见的人。'},
+  {t:'先托人打听',e:{心智:8,机缘:5,财富:3},tg:['稳当'],r:'你打听清楚了才动。少走了很多弯路，也少看了很多风景。'},
+  {t:'把信烧了',e:{心性:6,机缘:-8,功德:3},tg:['不为所动'],r:'你把信丢进了炉子。此后二十年，你偶尔会想那封信里写了什么。'}
+ ]},
+/* ============ 危机 ============ */
+{id:'cri01',cat:'危机',title:'火起',desc:'半夜里有人敲锣。等你抱着东西冲出去，半边天已经红了。',age:[4,72],w:12,cond:{},
+ opts:[
+  {t:'冲回去抢救财物',e:{财富:6,健康:-16,寿元:-4,名望:5},tg:['舍命'],r:'你抱出来一个箱子，眉毛烧掉了一半。'},
+  {t:'先保人',e:{功德:12,健康:-4,财富:-14,名望:8},tg:['救人'],r:'你把邻居家的老人背了出来。你什么都没了，但你还站得住。'},
+  {t:'组织众人隔出火道',e:{心智:9,名望:10,健康:-6,事业:5},tg:['主心骨'],r:'你指挥了整夜。后来重建时，所有人都听你的。'}
+ ]},
+{id:'cri02',cat:'危机',title:'官司缠身',desc:'一纸文书送到门上。有人把你告了，理由牵强，但手续齐全。',age:[24,62],w:13,cond:{},
+ opts:[
+  {t:'找最好的讼师硬打',e:{财富:-16,事业:5,名望:6},tg:['打官司'],r:'花了三年，赢了。赢的时候你已经不想赢了。'},
+  {t:'花钱消灾',e:{财富:-13,业力:8,心性:-4},tg:['息事'],r:'钱花出去了。事情平了，只是你心里一直不平。'},
+  {t:'自己去讲清楚',e:{心智:9,名望:8,功德:7,情感:4},tg:['自辩'],r:'你在堂上把来龙去脉讲了一遍，讲得连原告都低了头。'}
+ ]},
+{id:'cri03',cat:'危机',title:'被诬',desc:'一句没头没尾的闲话，传着传着就成了板上钉钉的事。',age:[16,60],w:13,cond:{},
+ opts:[
+  {t:'逐一对质，把话掰开',e:{名望:8,心智:8,健康:-6},tg:['较真'],r:'你一个一个找过去。有人道歉，有人回避，有人从此记恨你。'},
+  {t:'不理，做自己的事',e:{心性:12,学识:5,名望:-5},tg:['不辩'],r:'很多年后还有人在说。那时你已经不在那个地方了。'},
+  {t:'走关系把话压下去',e:{名望:6,事业:5,业力:10,功德:-6},tg:['压制'],r:'话没了，人还在。你学会了用权力解决问题，也学会了依赖它。'}
+ ]},
+{id:'cri04',cat:'危机',title:'乱世',desc:'世道乱了。城门口开始查路条，米价一天涨三回。',age:[12,68],w:12,cond:{},
+ opts:[
+  {t:'举家南迁避乱',e:{寿元:4,健康:-6,财富:-12,机缘:8,情感:5},tg:['南渡'],r:'你带着一家人走了两个月。到地方的时候，人还在，钱没了，命保住了。'},
+  {t:'留下来守着家业',e:{财富:10,事业:8,健康:-14,寿元:-6},tg:['守土'],r:'你留下来了。你守着的东西，有些还在，有些再也没回来。'},
+  {t:'趁乱做起了生意',e:{财富:22,业力:16,名望:-10,健康:-4},tg:['发国难财'],r:'钱来得像流水。你不再抬头看别人的眼睛。'}
+ ]},
+{id:'cri05',cat:'危机',title:'至亲病危',desc:'大夫摇了摇头，说该准备的要准备了。',age:[20,70],w:12,cond:{},
+ opts:[
+  {t:'倾家荡产去救',e:{财富:-25,功德:12,情感:10,寿元:-3,健康:-6},tg:['倾家救亲'],r:'你卖了房子。人是多留了三年，那三年你们说了很多话。'},
+  {t:'陪着他走完',e:{情感:12,心性:10,功德:8,财富:-4},tg:['善终'],r:'你没有折腾他。最后那几天，你握着他的手，说了他爱听的事。'},
+  {t:'躲避，不敢面对',e:{心性:-10,情感:-12,业力:6},tg:['逃避'],r:'你没去。这件事在你心里扎了一根刺，一辈子没拔出来。'}
+ ]},
+{id:'cri06',cat:'危机',title:'背水一战',desc:'所有的路都堵死了，只剩一条：往前。',age:[24,60],w:11,cond:{tags:['创业者','硬骨头','孤注一掷','刺头']},
+ opts:[
+  {t:'全力一搏',e:{事业:18,财富:12,健康:-12,寿元:-4,机缘:6},tg:['破釜沉舟'],r:'你把最后一点本钱押上去了。成与不成，你都不打算回头。'},
+  {t:'认输，从头再来',e:{心性:10,健康:5,事业:-8,财富:-6},tg:['认输不认命'],r:'你关掉了招牌，第二天去给人打了一份工。你才三十几岁。'},
+  {t:'找人接盘，体面退出',e:{财富:8,情感:-4,心智:8,名望:3},tg:['善退'],r:'你把摊子交了出去，走得算干净。江湖上还留着你一句好话。'}
+ ]},
+/* ============ 修行 ============ */
+{id:'cul01',cat:'修行',title:'拜师',desc:'你看中了一个人，他手里有一门真东西，但他不收徒。',age:[9,42],w:12,cond:{},
+ opts:[
+  {t:'在门外站了三天三夜',e:{心性:12,学识:8,健康:-6,机缘:6},tg:['诚心'],r:'第三天夜里下了雨，门开了。他说：够了。'},
+  {t:'托人说情走门路',e:{机缘:6,学识:4,业力:4,财富:-5},tg:['走门路'],r:'他收了，但教得很浅。你知道他留了手。'},
+  {t:'自己琢磨',e:{学识:6,心智:8,机缘:-4,心性:6},tg:['自学'],r:'你摸索了很多年，走了不少弯路，但每一步都是自己的。'}
+ ]},
+{id:'cul02',cat:'修行',title:'云游',desc:'有一个念头在心里绕了很久：出去走走，什么也不带。',age:[17,52],w:11,
+ cond:{wuxing:['水','木'],shishen:['偏印','正印','食神']},
+ opts:[
+  {t:'真的走了',e:{心性:14,机缘:10,财富:-8,情感:-4,健康:-4},tg:['云游'],r:'你走了三年，走进过无人的山谷。回来时你不再急着说话。'},
+  {t:'攒够钱再去',e:{财富:6,心性:4,机缘:-3},tg:['等等再说'],r:'你一直在攒。等你攒够的时候，腿脚已经不太行了。'},
+  {t:'在附近的山里走走',e:{心性:7,健康:8,机缘:4},tg:['小隐'],r:'你每周上山一次，走了二十年。那山你闭着眼都能走。'}
+ ]},
+{id:'cul03',cat:'修行',title:'静坐',desc:'你试着什么都不做，就坐在那里。十分钟后，你的脑子吵翻了天。',age:[18,78],w:12,cond:{},
+ opts:[
+  {t:'坚持坐下去',e:{心性:14,健康:8,寿元:5,名望:-3},tg:['修心'],r:'你坐了三十年。别人看不出你有什么变化，但你自己知道。'},
+  {t:'改成抄书写字',e:{心性:9,学识:7,健康:3},tg:['以艺入道'],r:'你的字越写越静。有一年有人出高价买，你没卖。'},
+  {t:'放弃，还是忙点好',e:{事业:6,财富:5,心性:-4},tg:['闲不住'],r:'你重新忙了起来，也确实忙出了些东西。'}
+ ]},
+{id:'cul04',cat:'修行',title:'济人',desc:'入冬了，门口有几个冻得发抖的人。你家也不宽裕。',age:[20,75],w:12,cond:{},
+ opts:[
+  {t:'开棚施粥，施满一冬',e:{功德:18,名望:10,财富:-12,心性:8},tg:['济人'],r:'你散尽了余粮。开春的时候，那几个人在你的门口磕了个头。'},
+  {t:'给一顿热饭就好',e:{功德:8,健康:3,财富:-3},tg:['随手之善'],r:'你给了他们一顿饭。有一年你家遇难，有人还了这一饭。'},
+  {t:'关上了门',e:{心性:-8,功德:-8,财富:3},tg:['闭门'],r:'你关上了门。那年冬天特别长。'}
+ ]},
+{id:'cul05',cat:'修行',title:'抄经',desc:'有人给了你一本册子，说抄满一百遍，许多事会不一样。',age:[16,72],w:11,cond:{},
+ opts:[
+  {t:'一日一遍，坚持三年',e:{心性:12,学识:6,寿元:4,功德:7},tg:['恒心'],r:'你抄到手酸。抄完那天你把册子烧了，心里空空的，也满的。'},
+  {t:'只抄心烦的时候',e:{心性:8,健康:4,心智:5},tg:['以静制乱'],r:'你把它当成一种药。管用，你就一直留着。'},
+  {t:'嫌浪费时间',e:{事业:5,财富:4,心性:-5},tg:['务实'],r:'你觉得时间该花在看得见回报的地方。你确实是这么做的。'}
+ ]},
+/* ============ 日常 / 通用 ============ */
+{id:'gen01',cat:'日常',title:'四季流转',desc:'这一年没什么大事。春天种下的东西，秋天收了。',age:[0,14],w:22,cond:{},
+ opts:[
+  {t:'跟着大人下地',e:{健康:6,心性:4,学识:-2},tg:['接地气'],r:'你晒黑了，也长高了。你记住了泥土的味道。'},
+  {t:'趴在窗边看天',e:{心智:5,机缘:3,情感:2},tg:['发呆'],r:'你看了一整个下午的云。多年后你还记得那天的形状。'},
+  {t:'缠着大人讲故事',e:{学识:5,情感:5,心智:3},tg:['听古'],r:'你听了一肚子故事。这些故事后来在你心里长成了别的样子。'}
+ ]},
+{id:'gen02',cat:'日常',title:'小病',desc:'不算严重，但躺在床上什么都干不了。',age:[0,88],w:16,cond:{},
+ opts:[
+  {t:'乖乖躺着',e:{健康:6,心性:4,事业:-2},tg:[],r:'你睡了两天。醒来时窗外有鸟叫。'},
+  {t:'带病硬撑',e:{事业:3,健康:-7,寿元:-1},tg:['逞强'],r:'你撑过去了。但身体记了一笔账。'},
+  {t:'借机读完了想读的书',e:{学识:6,心智:4,健康:2},tg:['病中读书'],r:'你躺着读完了一整本。这本书后来影响了你半辈子。'}
+ ]},
+{id:'gen03',cat:'日常',title:'闲日',desc:'一年里头总有那么几天，什么都不想干。',age:[0,95],w:15,cond:{},
+ opts:[
+  {t:'约人喝酒说话',e:{情感:6,机缘:4,健康:-3},tg:['好热闹'],r:'那晚你们说了很多胡话，笑得直不起腰。'},
+  {t:'一个人待着',e:{心性:6,心智:4,情感:-3},tg:['喜静'],r:'你什么也没做，但你觉得这一天没白过。'},
+  {t:'把家里里外外收拾一遍',e:{健康:4,心性:3,财富:2},tg:['整顿'],r:'你把多年不用的东西都清了出去，出了一身汗。'}
+ ]},
+{id:'gen04',cat:'日常',title:'人情往来',desc:'一张请帖送上门。来往多年，人情该还。',age:[5,95],w:14,cond:{},
+ opts:[
+  {t:'厚礼到场',e:{情感:7,财富:-6,名望:4},tg:['讲人情'],r:'你到了，礼也重。人家记了很久。'},
+  {t:'人到礼薄',e:{情感:4,财富:-1,名望:-2},tg:['实在'],r:'你去了，也说清了缘由。真正的关系不在乎这个。'},
+  {t:'托故不去',e:{财富:2,情感:-7,名望:-4},tg:['疏远'],r:'你没去。此后你们的关系就慢慢淡了。'}
+ ]},
+{id:'gen05',cat:'日常',title:'世态',desc:'你看见了有人被欺负，围观的人很多，说话的人没有。',age:[6,88],w:15,cond:{},
+ opts:[
+  {t:'站出来',e:{名望:6,功德:9,健康:-6,业力:4},tg:['管闲事'],r:'你出头了。挨了两下，但那个人的眼神你记了一辈子。'},
+  {t:'报官或叫人来',e:{心智:6,功德:6,机缘:3},tg:['稳妥'],r:'你找了能管的人来，事情处理得比硬来好。'},
+  {t:'走开',e:{心性:-5,功德:-6,健康:2},tg:['绕道'],r:'你走了。路上你走得很慢，一直在想刚刚那一幕。'}
+ ]},
+{id:'gen06',cat:'日常',title:'一顿好饭',desc:'今天桌上有你最爱吃的那样东西，还冒着热气。',age:[0,98],w:13,cond:{},
+ opts:[
+  {t:'慢慢吃，吃干净',e:{健康:6,心性:5,情感:3},tg:['知足'],r:'你吃得很慢。你忽然觉得，这样的日子再来五百年也不嫌多。'},
+  {t:'分给身边的人',e:{情感:7,功德:6,健康:-2},tg:['分享'],r:'你分出去了大半。他们吃的时候，你比他们还高兴。'},
+  {t:'留到下一顿',e:{财富:3,健康:3,心性:2},tg:['惜物'],r:'你留了一半。第二天热了热，还是香的。'}
+ ]},
+/* ============ 晚年 ============ */
+{id:'old01',cat:'晚年',title:'含饴弄孙',desc:'孩子们回来看你，屋子里一下子吵了起来。',age:[55,98],w:18,cond:{},
+ opts:[
+  {t:'把所有好东西都拿出来',e:{情感:10,健康:4,财富:-4},tg:['慈祖'],r:'你把藏了很久的糖都掏了出来。小手抓走的时候，你笑得像个孩子。'},
+  {t:'讲讲当年的事',e:{名望:5,情感:7,学识:4},tg:['口述历史'],r:'你讲了两小时，他们听了半小时。你也知道，但你还是讲完了。'},
+  {t:'嫌吵，自己出门散步',e:{心性:6,健康:5,情感:-4},tg:['独处'],r:'你在巷口坐了很久，听着屋里传来笑声。'}
+ ]},
+{id:'old02',cat:'晚年',title:'故人凋零',desc:'又一个老朋友走了。送行的人一年比一年少。',age:[52,98],w:17,cond:{},
+ opts:[
+  {t:'每一场都去送',e:{情感:8,心性:9,功德:8,健康:-4},tg:['送行人'],r:'你一场不落。到最后，只剩你一个人站在那儿。'},
+  {t:'不去，只在家里上一炷香',e:{心性:6,情感:-4,功德:3},tg:['自守'],r:'你在家里点了一炷香，坐了一晚上。'},
+  {t:'开始整理自己的后事',e:{心智:6,心性:8,财富:-3},tg:['从容'],r:'你把该写的写了，该交代的交代了。你觉得轻松了。'}
+ ]},
+{id:'old03',cat:'晚年',title:'传道',desc:'有年轻人上门，说想听你把一辈子的东西讲一讲。',age:[50,95],w:15,cond:{},
+ opts:[
+  {t:'倾囊相授',e:{功德:12,名望:9,学识:5,健康:-3},tg:['传灯'],r:'你讲了三个月。他们走的时候，把笔记抄了三份带走。'},
+  {t:'只讲一半，留一手',e:{名望:7,财富:5,业力:5},tg:['留一手'],r:'你留了最关键的一段。多年后你发现，那一段也跟你一起走了。'},
+  {t:'婉拒，说自己没什么可讲的',e:{心性:6,健康:3,名望:-4},tg:['藏拙'],r:'你说自己是个普通人。他们也就不再来了。'}
+ ]},
+{id:'old04',cat:'晚年',title:'回首',desc:'你坐在门口晒太阳，忽然把这一辈子从头到尾过了一遍。',age:[58,105],w:16,cond:{},
+ opts:[
+  {t:'觉得值',e:{心性:10,功德:6,寿元:3},tg:['无悔'],r:'你闭上眼，觉得这一趟没白来。'},
+  {t:'觉得有憾',e:{心性:8,心智:6,情感:-3},tg:['有憾'],r:'你想起了几个人，几件事。有些话你一直没说出口。'},
+  {t:'不想了，去睡午觉',e:{健康:7,心性:5,寿元:2},tg:['豁达'],r:'你打了个盹。醒来时太阳正好，饭也好了。'}
+ ]},
+/* ============ 大限 ============ */
+{id:'end01',cat:'大限',title:'大限将至',desc:'你能感觉到时候快到了。窗外的光变得很慢。',age:[60,120],w:5,cond:{require:{lowLife:true}},
+ opts:[
+  {t:'安然接受，与家人告别',e:{心性:14,功德:8,情感:6},tg:['善终'],die:'寿终正寝',r:'你把人一个个叫到床边，说了该说的话。然后你说：我累了，让我睡会儿。'},
+  {t:'拼一把，求医问药',e:{寿元:6,财富:-20,健康:-8,心性:-4},tg:['挣扎'],r:'你又拖了几年。那几年很苦，但你还是想活着。'},
+  {t:'独自走远，不告而别',e:{心性:12,机缘:8,情感:-8},tg:['自去'],die:'不知所终',r:'某天早上你的床空了。没有人知道你去了哪里。'}
+ ]}
+];
+
+/* ------------------------------------------------------------------ 2b. 事件库 · 扩展包
+   在原有 67 条基础上追加，总量 110+ 条；新增「时代」类别，
+   并支持 cond.yearRange（按公历年份触发，用于时代感事件）。 */
+const EVENTS_EXTRA = [
+/* ============ 家庭 ============ */
+{id:'fam11',cat:'家庭',title:'婚房首付',desc:'要成家了，两边家长把钱摆到桌上，数字差着一截。',age:[24,38],w:15,cond:{},
+ opts:[
+  {t:'背上贷款，先买下',e:{财富:-6,情感:8,事业:4,寿元:-2,业力:2},tg:['房奴'],r:'签字那天手有点抖。钥匙拿到手，你在空屋子里站了很久。'},
+  {t:'租房结婚，慢慢来',e:{财富:5,心性:6,情感:3,名望:-3},tg:['轻装'],r:'长辈的脸色不好看，但你俩把日子过得挺松快。'},
+  {t:'向双方父母各要一点',e:{财富:8,情感:-4,功德:3},tg:['啃老'],r:'钱到位了。此后每逢过年，那笔账都会被轻轻提一次。'}
+ ]},
+{id:'fam12',cat:'家庭',title:'要不要二胎',desc:'家里催得紧，说一个孩子太孤单。你算的是另一本账。',age:[26,42],w:13,cond:{tags:['房奴','担当','慈爱']},
+ opts:[
+  {t:'再要一个',e:{情感:8,财富:-8,健康:-6,寿元:-2},tg:['儿女双全'],r:'家里更吵了，也更满了。你半夜起来冲奶粉，居然不觉得烦。'},
+  {t:'只要一个，把资源给足',e:{财富:6,学识:4,名望:3},tg:['精养'],r:'你把所有力气押在一个孩子身上。他后来走得很远，也走得很累。'},
+  {t:'干脆不要孩子',e:{财富:8,心性:6,情感:-6},tg:['丁克'],r:'亲戚的闲话持续了十年。你们俩守着彼此，把日子过成了自己的。'}
+ ]},
+{id:'fam13',cat:'家庭',title:'翁婿与婆媳',desc:'饭桌上那句话，你听出来是冲着你来的。',age:[25,52],w:14,cond:{},
+ opts:[
+  {t:'当场顶回去',e:{心性:6,名望:3,情感:-8,业力:3},tg:['硬气'],r:'桌上安静了三秒。此后很多年，你们再没在一张桌上吃过饭。'},
+  {t:'装没听见，给足面子',e:{心性:8,功德:5,情感:-3,健康:-2},tg:['能忍'],r:'你笑着给他夹了菜。回家路上，你在车里坐了十分钟才上楼。'},
+  {t:'让配偶去说',e:{情感:5,心智:6,机缘:3},tg:['借力'],r:'他／她替你把话说圆了。这件事之后，你们更像一队人。'}
+ ]},
+{id:'fam14',cat:'家庭',title:'老屋拆迁',desc:'一纸通知贴在门口，住了几十年的院子，三个月后就是平地。',age:[26,62],w:12,cond:{yearRange:[1995,2035]},
+ opts:[
+  {t:'要房，不要钱',e:{财富:9,情感:4,心性:4},tg:['有产'],r:'你选了回迁房。看着新楼起来，你总觉得脚下这块地不是原来那块。'},
+  {t:'要钱，另作打算',e:{财富:6,机缘:7,情感:-4},tg:['变现'],r:'钱到账那天你一夜没睡。后来这笔钱去了哪里，你自己也说不清。'},
+  {t:'跟邻里一起争取更多',e:{财富:7,名望:6,健康:-4,业力:3},tg:['带头人'],r:'你被推出来当代表，跑了半年，多争下一点。也得罪了几个人。'}
+ ]},
+{id:'fam15',cat:'家庭',title:'手足开口',desc:'兄弟或姐妹来找你借钱，数目不小，理由说得含糊。',age:[26,58],w:14,cond:{},
+ opts:[
+  {t:'借，不打条',e:{功德:7,情感:6,财富:-9},tg:['重情'],r:'钱出去了。这笔钱后来成了你们之间一件谁都不提的事。'},
+  {t:'借，但要写清楚',e:{财富:4,心智:7,情感:-4},tg:['明算账'],r:'对方签了字，脸色不太好看。三年后如期还上，你们的关系反而更清爽。'},
+  {t:'拒绝，另想办法帮他',e:{心智:8,功德:4,情感:-5},tg:['分清界限'],r:'你替他对接了一份工作。他嘴上谢你，心里未必服。'}
+ ]},
+{id:'fam16',cat:'家庭',title:'年夜饭上的比较',desc:'亲戚把自家孩子的成绩单摊在桌上，问你最近怎么样。',age:[20,55],w:11,cond:{},
+ opts:[
+  {t:'笑着含糊过去',e:{心性:7,名望:-2},tg:['不争'],r:'你把话头引到菜上。那顿饭后，你决定不再参加这种饭局。'},
+  {t:'把这些年的成绩说出来',e:{名望:6,情感:-4,事业:3},tg:['好胜'],r:'桌上眼神变了。你赢了这一场，也失去了几份轻松。'},
+  {t:'反问对方孩子的近况',e:{心智:5,名望:2,业力:3},tg:['锋芒'],r:'空气僵了两秒，长辈赶紧打圆场。你有点后悔，也有点痛快。'}
+ ]},
+
+/* ============ 学业 ============ */
+{id:'stu11',cat:'学业',title:'择校',desc:'两所学校摆在面前：一所名气大，一所离家近、老师肯带人。',age:[12,18],w:16,cond:{},
+ opts:[
+  {t:'去名校，拼一把',e:{学识:9,名望:5,健康:-5,情感:-3},tg:['名校'],r:'你在尖子堆里排到中游，第一次尝到"努力也追不上"的滋味。'},
+  {t:'留在家门口',e:{健康:5,情感:6,学识:4,心性:4},tg:['就近'],r:'老师记住了你的名字，也愿意在课后多留你一会儿。'},
+  {t:'选特长方向',e:{学识:5,机缘:7,名望:4},tg:['偏科'],r:'你把时间押在一件喜欢的事上。那件事后来真的派上了用场。'}
+ ]},
+{id:'stu12',cat:'学业',title:'竞赛名额',desc:'系里只有一个名额，报名表已经发到你手上。',age:[14,22],w:14,cond:{wuxing:['木','火']},
+ opts:[
+  {t:'全力备赛',e:{学识:10,名望:7,健康:-6,情感:-3},tg:['夺魁'],r:'你熬了三个月。拿奖那天，你把通知书看了一遍又一遍。'},
+  {t:'让给更需要的人',e:{功德:8,情感:5,名望:-3,学识:3},tg:['成人之美'],r:'那个人后来一直记着这件事，在你需要的时候站到了你这边。'},
+  {t:'退赛，专心课业',e:{学识:6,健康:5,心性:5},tg:['务实'],r:'你把基础打得极牢，后面反而走得更稳。'}
+ ]},
+{id:'stu13',cat:'学业',title:'远渡重洋',desc:'一封录取信躺在邮箱里，后面跟着一串你不敢细看的数字。',age:[18,27],w:13,cond:{tags:['名校','勤勉','书香']},
+ opts:[
+  {t:'砸锅卖铁也要去',e:{学识:12,名望:8,财富:-14,情感:-6,机缘:6},tg:['留洋'],r:'你在异国的第一个冬天，一个人在宿舍煮了碗面，吃着吃着就哭了。'},
+  {t:'放弃，先工作攒钱',e:{财富:7,心智:7,学识:-3},tg:['现实'],r:'你把那封信存进了一个文件夹，很多年没再打开。'},
+  {t:'申请奖学金再试一次',e:{学识:8,机缘:7,心智:6,健康:-4},tg:['再战'],r:'第二年你拿到了资助。你终于明白，很多门只是要多敲一次。'}
+ ]},
+{id:'stu14',cat:'学业',title:'转专业的念头',desc:'读到第三年，你确定自己不喜欢这个方向。',age:[18,24],w:13,cond:{},
+ opts:[
+  {t:'转，从头再来',e:{学识:7,机缘:7,心性:5,财富:-6},tg:['转向'],r:'你要补十几门课。但坐在新教室里，你是真的想听课。'},
+  {t:'不转，辅修喜欢的',e:{学识:8,心智:6,健康:-4},tg:['两栖'],r:'你两边都拿得出手，也两边都不算最尖。'},
+  {t:'读完再说，专业不等于职业',e:{心智:8,事业:5,心性:4},tg:['看开'],r:'你把学位拿到手，然后去了完全不相干的行业，居然做得不错。'}
+ ]},
+{id:'stu15',cat:'学业',title:'毕业论文',desc:'导师说选题太大，再压下去就没东西可写了。',age:[20,28],w:12,cond:{},
+ opts:[
+  {t:'咬牙做完原题',e:{学识:9,名望:5,健康:-6,心性:-3},tg:['执拗'],r:'你写出了一篇很难读但很扎实的东西。答辩那天，有位老师看完说了句"不容易"。'},
+  {t:'改小题目，尽快通过',e:{学识:5,健康:4,心智:4},tg:['求稳'],r:'顺利毕业。多年后你偶尔会想，如果当时硬撑下去会怎样。'},
+  {t:'换导师',e:{机缘:6,学识:5,情感:-4,心智:5},tg:['断腕'],r:'过程很难看，但你跟对了人。'}
+ ]},
+
+/* ============ 事业 ============ */
+{id:'car11',cat:'事业',title:'第一份工作',desc:'两份 offer：一份薪资高但没什么人带，一份钱少但平台大。',age:[20,27],w:20,cond:{},
+ opts:[
+  {t:'选高薪小公司',e:{财富:9,事业:4,学识:-2,机缘:3},tg:['先赚钱'],r:'你很快攒下第一笔钱，也很快摸到了天花板。'},
+  {t:'选大平台慢慢熬',e:{事业:9,学识:7,名望:5,财富:-3},tg:['平台'],r:'前两年你觉得自己在打杂。第三年你忽然发现，看问题的角度不一样了。'},
+  {t:'都不选，自己折腾',e:{机缘:8,财富:-4,业力:3,事业:5,寿元:-2},tg:['不打工'],r:'头一年你亏光了积蓄。第二年你学会了怎么跟人谈钱。'}
+ ]},
+{id:'car12',cat:'事业',title:'升职竞聘',desc:'名单上有你的名字，也有那个总在领导面前出现的人。',age:[25,48],w:17,cond:{},
+ opts:[
+  {t:'把业绩摊在桌上',e:{事业:9,名望:6,情感:-4},tg:['硬实力'],r:'你把三年的数据做成了一页纸。会议室里没人说话。'},
+  {t:'先做关系，再做业绩',e:{事业:7,名望:5,业力:4,心性:-3},tg:['会做人'],r:'你学会了在电梯里说那三句话。事情确实顺了。'},
+  {t:'退出，另找出路',e:{机缘:7,心性:7,事业:-4},tg:['另起'],r:'你把机会让了出去。半年后你在别处拿到了更好的位置。'}
+ ]},
+{id:'car13',cat:'事业',title:'猎头的电话',desc:'对方报出的数字，是你现在的一倍半。',age:[26,52],w:16,cond:{tags:['平台','硬实力','会做人','留洋']},
+ opts:[
+  {t:'跳，趁还能折腾',e:{财富:11,事业:7,情感:-5,机缘:4},tg:['跳槽'],r:'新公司头三个月你天天加班。钱是真的多了，人也是真的累了。'},
+  {t:'留下，用 offer 谈涨薪',e:{财富:7,事业:5,名望:-3,业力:2},tg:['博弈'],r:'你涨了，但领导记住了这一手。'},
+  {t:'婉拒，这里还有没做完的事',e:{心性:8,事业:5,功德:4},tg:['守局'],r:'你把那个项目做完了。它后来成了你履历上最漂亮的一行。'}
+ ]},
+{id:'car14',cat:'事业',title:'第一次带团队',desc:'你从做事的人，变成了要为别人的事负责的人。',age:[28,50],w:15,cond:{tags:['平台','硬实力','夺魁','跳槽']},
+ opts:[
+  {t:'事事亲力亲为',e:{事业:7,健康:-7,名望:4,情感:-3},tg:['劳模'],r:'你把活都扛了，团队却没长起来。你累得说不出话。'},
+  {t:'放手让下面的人试',e:{事业:9,名望:6,功德:5,心性:4},tg:['带队'],r:'他们犯了错，也长了本事。你第一次体会到"教人比自己干更值"。'},
+  {t:'立规矩，奖罚分明',e:{事业:8,名望:5,情感:-5,业力:3},tg:['铁腕'],r:'团队效率上去了，也没人再敢跟你说真话。'}
+ ]},
+{id:'car15',cat:'事业',title:'被架空',desc:'你发现重要会议不再通知你，邮件抄送里你的名字悄悄消失了。',age:[27,55],w:14,cond:{},
+ opts:[
+  {t:'正面找领导谈',e:{事业:7,心智:7,名望:3,情感:-3},tg:['摊牌'],r:'谈开了。你知道了原因，也接受了那个原因。'},
+  {t:'默默找下家',e:{机缘:7,心智:6,事业:-3,财富:4},tg:['暗渡'],r:'你在下班后投了三十份简历。离开那天，你没跟任何人告别。'},
+  {t:'换个赛道，做内部转岗',e:{事业:5,学识:6,机缘:6,名望:-3},tg:['转向'],r:'你去了没人愿意去的部门。那里后来成了新的机会。'}
+ ]},
+{id:'car16',cat:'事业',title:'副业的诱惑',desc:'下班后还有四个小时，有人愿意为它付钱。',age:[24,52],w:14,cond:{},
+ opts:[
+  {t:'干起来，先小后大',e:{财富:8,事业:5,健康:-6,寿元:-2},tg:['斜杠'],r:'你的副业收入第三年超过了主业。你开始考虑要不要辞职。'},
+  {t:'不干，把精力给主业',e:{事业:8,健康:4,财富:2},tg:['专注'],r:'你比同事走得更快，但也只有一条路可走。'},
+  {t:'找个人一起做',e:{财富:6,机缘:5,情感:4,业力:2},tg:['合伙'],r:'两个人分钱的时候，才知道当初没说清的那些话有多贵。'}
+ ]},
+{id:'car17',cat:'事业',title:'裁员名单',desc:'HR 约谈的日程排到了下周三，办公室安静得不像话。',age:[27,56],w:15,cond:{yearRange:[1995,2040]},
+ opts:[
+  {t:'主动争取留下',e:{事业:6,心智:6,情感:-5,健康:-3},tg:['留任'],r:'你留下了，但看着空掉的工位，你知道这只是轮到你晚一点。'},
+  {t:'拿补偿走人',e:{财富:7,机缘:6,心性:5,事业:-4},tg:['转身'],r:'补偿金到账。你休息了一个月，然后开始做一直想做的事。'},
+  {t:'趁乱把手里的资源带走',e:{财富:9,事业:4,业力:9,名望:-5},tg:['带客户'],r:'你走得漂亮，也在圈子里留下了点说法。'}
+ ]},
+{id:'car18',cat:'事业',title:'风口来了',desc:'整个行业都在说同一件事，早入场的人已经赚到了。',age:[24,48],w:14,cond:{yearRange:[1998,2040]},
+ opts:[
+  {t:'全押，早就是优势',e:{财富:13,事业:8,业力:4,健康:-5,寿元:-2},tg:['风口'],r:'你赶上了第一波。夜里看着账户上的数字，你有点不敢相信。'},
+  {t:'小仓位试试水',e:{财富:6,心智:7,机缘:4},tg:['谨慎'],r:'你赚了不多不少。后来泡沫破了，你庆幸自己没上头。'},
+  {t:'不碰，看不懂的钱不赚',e:{心性:8,财富:2,学识:5},tg:['不懂不做'],r:'身边人聚聚散散。你守着自己那点生意，睡得安稳。'}
+ ]},
+
+/* ============ 财富 ============ */
+{id:'wea11',cat:'财富',title:'第一次买房',desc:'中介说这个价再不上车就没了，你信了七成。',age:[24,46],w:16,cond:{yearRange:[1998,2040]},
+ opts:[
+  {t:'掏空积蓄上车',e:{财富:10,情感:5,健康:-4,寿元:-2},tg:['有产'],r:'月供占了收入一半。你戒掉了外卖，也开始研究理财。'},
+  {t:'再等等，看看行情',e:{心智:7,财富:4,机缘:-3},tg:['观望'],r:'两年后价格确实变了。至于是变高还是变低，只有你自己知道。'},
+  {t:'不买，把钱投在别处',e:{财富:7,机缘:7,情感:-4},tg:['另投'],r:'你的钱去了别的地方。有的翻了倍，有的没了影。'}
+ ]},
+{id:'wea12',cat:'财富',title:'入市',desc:'身边的人都在谈论同一个代码，说得像是明天就能翻倍。',age:[25,60],w:15,cond:{yearRange:[1992,2040]},
+ opts:[
+  {t:'重仓押上',e:{财富:14,健康:-6,业力:4,寿元:-2},tg:['重仓'],r:'你连着几天睡不好。后来你明白了，钱来得太快也会走得太快。'},
+  {t:'定投，慢慢来',e:{财富:8,心智:7,心性:5},tg:['定投'],r:'你不看盘，只按日子买。十年后你翻开账户，有点意外。'},
+  {t:'站在场外看',e:{心性:7,学识:5,财富:1},tg:['旁观'],r:'你看着别人起落。你说不清自己是清醒还是胆小。'}
+ ]},
+{id:'wea13',cat:'财富',title:'高息的机会',desc:'熟人推荐一个项目，年化高得让人心跳，说是内部渠道。',age:[28,62],w:15,cond:{},
+ opts:[
+  {t:'投进去',e:{财富:-14,心智:5,业力:5,情感:-5},tg:['踩坑'],r:'前三个月利息准时到账。第四个月，群解散了。'},
+  {t:'只投一小笔试试',e:{财富:-4,心智:7,机缘:3},tg:['试水'],r:'你损失了一点，但学会了怎么辨认这种事。这笔学费很值。'},
+  {t:'劝身边人别碰',e:{功德:9,名望:4,情感:-4,财富:2},tg:['清醒'],r:'有人听了你的，也有人没听。后来没听的那几个，再没联系过你。'}
+ ]},
+{id:'wea14',cat:'财富',title:'朋友开口借钱',desc:'多年交情，开口的数目正好是你的一半积蓄。',age:[25,58],w:14,cond:{},
+ opts:[
+  {t:'全借',e:{情感:7,功德:6,财富:-11},tg:['仗义'],r:'钱出去了。你们的友情在那一刻达到了顶点，此后一路下滑。'},
+  {t:'借一半',e:{财富:-4,情感:3,心智:6},tg:['留余地'],r:'他有点失望，但你们还是朋友。几年后他把钱还上了。'},
+  {t:'不借，但陪他想办法',e:{心智:8,功德:5,情感:-5},tg:['守界'],r:'你帮他梳理了账、找了人。他当时没说什么，很久以后专程来谢你。'}
+ ]},
+{id:'wea15',cat:'财富',title:'保险推销',desc:'一个亲戚做了代理人，拿着一份计划书坐在你家沙发上不肯走。',age:[26,56],w:11,cond:{},
+ opts:[
+  {t:'买一份，图个安心',e:{财富:-6,健康:4,心性:5,情感:4},tg:['有备'],r:'很多年后你真的用上了它。那天你第一次觉得这笔钱花得值。'},
+  {t:'算清条款再决定',e:{心智:7,学识:5,财富:3,情感:-3},tg:['精明'],r:'你问得他答不上来。亲戚之间的气氛有点僵，但你搞明白了自己要什么。'},
+  {t:'直接拒绝',e:{心性:5,情感:-4,财富:2},tg:['干脆'],r:'他被你拒绝后，再没提过这件事，也没再登门。'}
+ ]},
+{id:'wea16',cat:'财富',title:'一笔灰色收入',desc:'有人把一个信封推过来，说这事只有你知我知。',age:[28,58],w:13,cond:{},
+ opts:[
+  {t:'收下',e:{财富:12,业力:12,心性:-6},tg:['越界'],r:'信封很薄，你捏了很久。那天晚上你把门反锁了两遍。'},
+  {t:'退回去',e:{功德:10,名望:5,心性:8,财富:-3},tg:['守线'],r:'你说：这个我不能拿。对方愣了一下，随后对你多了几分敬意。'},
+  {t:'收下，但转手捐了',e:{功德:5,业力:5,心智:5,名望:4},tg:['挪用'],r:'你觉得这样算两清。可有些账，不是这么算的。'}
+ ]},
+{id:'wea17',cat:'财富',title:'捐款的数目',desc:'一场灾难的募捐箱摆在街口，旁边站着举牌子的学生。',age:[30,72],w:12,cond:{},
+ opts:[
+  {t:'倾力相助',e:{功德:13,名望:5,财富:-9,情感:4},tg:['悲悯'],r:'你把那个月的余钱都放下了。学生鞠躬，你摆摆手走了。'},
+  {t:'按能力捐一点',e:{功德:6,财富:-3,心性:4},tg:['尽力'],r:'一点是一点。你没觉得高尚，只觉得该做。'},
+  {t:'路过',e:{财富:2,心性:-4,功德:-5},tg:['无视'],r:'你走过去了。走出十几米，你回头看了一眼，然后继续走。'}
+ ]},
+
+/* ============ 情感 ============ */
+{id:'lov11',cat:'情感',title:'第一次心动',desc:'你数着走廊上遇见他／她的分钟数，算得很准。',age:[14,22],w:18,cond:{},
+ opts:[
+  {t:'递出那封信',e:{情感:10,心性:4,学识:-3,心智:3},tg:['初恋'],r:'你等了三天，等到一句"我们可以做朋友"。你还是把信留着。'},
+  {t:'藏在心里',e:{心性:7,学识:4,情感:-5},tg:['暗恋'],r:'多年后同学聚会，对方笑着说：当年我知道啊。你端起杯子，把话喝了。'},
+  {t:'干脆表白',e:{情感:8,名望:3,心性:-3,机缘:5},tg:['坦荡'],r:'被拒了。但你从那天起，学会了把喜欢说出口。'}
+ ]},
+{id:'lov12',cat:'情感',title:'异地',desc:'两个城市，两张车票，和越来越短的电话。',age:[19,32],w:15,cond:{tags:['初恋','留洋','知己','暗恋']},
+ opts:[
+  {t:'每两周跑一趟',e:{情感:9,财富:-8,健康:-5,寿元:-2},tg:['坚持'],r:'你把车票攒了一盒。后来那一盒成了你们故事的物证。'},
+  {t:'约定一个期限，共同奔赴',e:{情感:8,心智:7,事业:4},tg:['约定'],r:'你们定了三年。三年后真的聚到了同一座城，谁都没有食言。'},
+  {t:'和平分开',e:{心性:8,情感:-8,心智:5},tg:['放手'],r:'最后一通电话，你们互相说"要好好的"。挂断后你删了聊天记录，没有删照片。'}
+ ]},
+{id:'lov13',cat:'情感',title:'求婚',desc:'戒指在口袋里压了很多天，你一直在找一个"就是现在"的时刻。',age:[23,40],w:15,cond:{},
+ opts:[
+  {t:'大张旗鼓地求',e:{情感:9,名望:5,财富:-6},tg:['张扬'],r:'朋友都在场，她哭了，你也哭了。这段视频后来被翻出来看了无数次。'},
+  {t:'两个人在家把话说明白',e:{情感:10,心性:6,财富:-2},tg:['平淡是真'],r:'没有仪式，只有一句"那就一起过吧"。很多年后你发现，这比仪式牢靠。'},
+  {t:'再等等，还没准备好',e:{心智:6,情感:-6,事业:4},tg:['拖延'],r:'对方没说什么。三年后他／她成了别人的家人。'}
+ ]},
+{id:'lov14',cat:'情感',title:'婚姻里的沉默',desc:'你们已经很久没有认真说过话了，不是吵，是没话说。',age:[30,58],w:16,cond:{tags:['平淡是真','联姻','坚持','约定','张扬']},
+ opts:[
+  {t:'主动制造一次长谈',e:{情感:10,心性:8,心智:5},tg:['修复'],r:'你们聊到凌晨三点。有些结一直在这儿，只是没人去解。'},
+  {t:'各过各的',e:{心性:6,情感:-8,事业:5,财富:3},tg:['同屋异梦'],r:'日子照常运转。你们像两个配合默契的同事，把公司经营得很好。'},
+  {t:'离婚',e:{情感:-10,心性:7,财富:-9,机缘:6},tg:['重来'],r:'手续办得很快。走出民政局那天阳光很好，你一个人吃了个午饭。'}
+ ]},
+{id:'lov15',cat:'情感',title:'心动的人',desc:'你知道不该，但那种感觉已经很久没有过了。',age:[28,58],w:13,cond:{},
+ opts:[
+  {t:'守住界限，止于欣赏',e:{心性:10,功德:6,情感:-3,业力:-3},tg:['守心'],r:'你把那份心思折好收起来。它偶尔还会冒头，但你让它只是冒头。'},
+  {t:'往前走一步',e:{情感:6,业力:11,名望:-7,心性:-6},tg:['越界'],r:'那段时间你过得像偷来的。代价在后面，你还没看到。'},
+  {t:'把心思放回自己身上',e:{心性:7,学识:5,事业:5,健康:4},tg:['向内'],r:'你开始跑步、读书、学做菜。那个念头慢慢淡了。'}
+ ]},
+{id:'lov16',cat:'情感',title:'一个能说真话的人',desc:'你发现有人愿意听你把话说完，不带评价。',age:[16,60],w:15,cond:{},
+ opts:[
+  {t:'把这段关系经营一辈子',e:{情感:11,心性:7,功德:4},tg:['挚友'],r:'几十年里你们各自搬过很多次家，但一直知道对方在哪儿。'},
+  {t:'保持距离，别太近',e:{心性:6,情感:-5,心智:4},tg:['分寸'],r:'你怕依赖，所以退开半步。后来你偶尔会想起这个决定。'},
+  {t:'把 ta 当成树洞',e:{情感:5,健康:5,心性:4,功德:-2},tg:['倾诉'],r:'你说了很多。对方一直听着。你很少问他／她过得怎么样。'}
+ ]},
+{id:'lov17',cat:'情感',title:'旧人重逢',desc:'二十年后的同学会，那个人站在门口，你一眼就认出来了。',age:[34,62],w:12,cond:{},
+ opts:[
+  {t:'好好聊聊这些年',e:{情感:7,心性:7,机缘:4},tg:['释怀'],r:'你们聊了两个小时，谁都没提当年。散场时你听见自己心里"咔"地一声，开了。'},
+  {t:'打个招呼就走',e:{心性:5,情感:-3},tg:['避让'],r:'你说了句"好久不见"，然后去找别人喝酒。'},
+  {t:'把当年的话说出来',e:{情感:6,心性:5,名望:-2,机缘:3},tg:['补白'],r:'你说完了，对方笑了：都过去了。你也笑了，确实过去了。'}
+ ]},
+{id:'lov18',cat:'情感',title:'家里的空椅子',desc:'过年时你数了数，桌上的位置比去年少了一个。',age:[40,80],w:13,cond:{},
+ opts:[
+  {t:'把大家重新叫到一起',e:{情感:9,功德:7,财富:-4},tg:['聚拢'],r:'你挨个打电话。有人推脱，有人立马答应。那顿饭吃得有点乱，但很热。'},
+  {t:'一个人待着',e:{心性:8,情感:-5,健康:-3},tg:['独处'],r:'你把碗筷收好，坐了会儿。窗外的烟花响了很多下。'},
+  {t:'去看那个还在的人',e:{情感:8,功德:6,健康:-2},tg:['惦记'],r:'你拎着东西去了。门开的时候，对方愣了一下，然后眼睛就红了。'}
+ ]},
+
+/* ============ 健康 ============ */
+{id:'hea11',cat:'健康',title:'体检报告',desc:'一张纸上有几个箭头朝上，医生说得含糊。',age:[32,62],w:15,cond:{},
+ opts:[
+  {t:'立刻调整作息、戒掉坏习惯',e:{健康:11,寿元:5,心性:7,事业:-3},tg:['自律'],r:'你把烟戒了，把夜里的酒局推了。三个月后复查，指标回来了。'},
+  {t:'再观察观察',e:{健康:-5,心智:3,机缘:-2},tg:['拖延'],r:'你把报告放进抽屉。它在里面躺了两年。'},
+  {t:'找更好的医院仔细查',e:{健康:6,财富:-6,心智:6},tg:['较真'],r:'查出来是个小问题，早处理了。你庆幸自己没犹豫。'}
+ ]},
+{id:'hea12',cat:'健康',title:'连轴转',desc:'项目上线倒计时，你已经连着两周没在半夜前睡过。',age:[22,48],w:16,cond:{},
+ opts:[
+  {t:'撑住，做完再说',e:{事业:9,财富:6,健康:-9,寿元:-3},tg:['拼命'],r:'项目成了。庆功宴上你去了趟洗手间，洗了把脸才回去继续笑。'},
+  {t:'跟上级要人',e:{事业:5,心智:7,健康:3,名望:-2},tg:['要资源'],r:'你争取到了支援。有人觉得你不够拼，但你活下来了。'},
+  {t:'辞职',e:{健康:8,心性:7,事业:-6,财富:-4},tg:['保命要紧'],r:'很多人劝你再忍忍。你递交了辞呈，睡了整整两天。'}
+ ]},
+{id:'hea13',cat:'健康',title:'跑起来',desc:'楼下新开了个公园，早上有人在跑步。',age:[24,58],w:13,cond:{},
+ opts:[
+  {t:'每天五公里',e:{健康:10,心性:7,寿元:4,学识:3},tg:['自律'],r:'第一个月最难，第三个月开始上瘾。你后来跑完了一个半马。'},
+  {t:'报个班，有人带',e:{健康:7,情感:5,财富:-3,机缘:3},tg:['结伴'],r:'你在课上认识了几个人，后来一起爬了山。'},
+  {t:'还是算了',e:{健康:-3,心性:-2},tg:['懒散'],r:'你说等忙完这阵。这阵一直没忙完。'}
+ ]},
+{id:'hea14',cat:'健康',title:'心里那口气',desc:'早上不想起，晚上睡不着，做什么都提不起劲。',age:[20,62],w:14,cond:{},
+ opts:[
+  {t:'找专业的人聊聊',e:{健康:9,心性:9,财富:-5,情感:5},tg:['求助'],r:'你坐在咨询室里把话讲出来了。走出门的时候，天比进去时亮。'},
+  {t:'硬扛，时间会解决',e:{健康:-6,心性:4,寿元:-3},tg:['硬扛'],r:'你熬过去了，但留下了一道看不见的痕。'},
+  {t:'把生活节奏整个改掉',e:{健康:8,心性:7,事业:-5,机缘:5},tg:['重排'],r:'你搬了家、换了工作、删了很多联系人。像是重活了一次。'}
+ ]},
+
+/* ============ 机缘 ============ */
+{id:'cha11',cat:'机缘',title:'一个愿意带你的人',desc:'一次偶然的场合，有人对你说：你这人有点意思，跟我干吧。',age:[22,55],w:14,cond:{},
+ opts:[
+  {t:'跟，先学再说',e:{学识:9,机缘:10,事业:7,情感:-3},tg:['遇贵人'],r:'你跟着他跑了三年。他教你的东西，比学校里四年还多。'},
+  {t:'谢绝，走自己的路',e:{心性:8,机缘:-3,事业:4},tg:['自立'],r:'你婉拒了。多年后你听说他做得很大，没有后悔，只是想了想。'},
+  {t:'先合作一件事试试',e:{机缘:7,心智:7,财富:4},tg:['试水'],r:'合作顺利，你们成了长期的伙伴。'}
+ ]},
+{id:'cha12',cat:'机缘',title:'一笔意外之财',desc:'一笔你完全没预料到的钱到了账上。',age:[24,62],w:11,cond:{},
+ opts:[
+  {t:'存起来，不动',e:{财富:9,心性:6},tg:['守财'],r:'你把它放进定期。它后来在你最难的时候救了你一次。'},
+  {t:'拿去学点东西',e:{学识:10,心智:7,财富:-4},tg:['投资自己'],r:'你报了个很贵的课。里面有一句话，改变了你后来的判断。'},
+  {t:'带家人出去玩一趟',e:{情感:9,功德:6,财富:-5,健康:4},tg:['舍得'],r:'那是全家人最开心的一次旅行。照片洗出来贴在了冰箱上。'}
+ ]},
+{id:'cha13',cat:'机缘',title:'走出去的机会',desc:'有人邀你去一个很远的地方，语言不通，机会也说不清。',age:[22,48],w:13,cond:{wuxing:['水','金']},
+ opts:[
+  {t:'去，人生要赌一次',e:{机缘:11,学识:7,财富:6,情感:-6,健康:-4},tg:['远行'],r:'你在陌生城市的第一晚，买了瓶水，坐在路边看了很久的人。'},
+  {t:'不去，家里走不开',e:{情感:6,功德:7,机缘:-4},tg:['顾家'],r:'你留下了。后来你常常想，如果去了会怎样，但也就是想想。'},
+  {t:'先去看看，再决定',e:{心智:8,机缘:6,财富:-4},tg:['务实'],r:'你去了两周。回来时心里已经有数了。'}
+ ]},
+{id:'cha14',cat:'机缘',title:'拜师',desc:'一位老先生看了你很久，说：你愿意学吗？学这个不赚钱。',age:[15,52],w:12,cond:{wuxing:['木','水']},
+ opts:[
+  {t:'磕头拜师',e:{学识:10,心性:8,机缘:6,财富:-5},tg:['传承'],r:'你学了十年。师父走的时候，把那套东西全留给了你。'},
+  {t:'想学，但先谋生',e:{财富:6,心智:6,学识:-2},tg:['半途'],r:'你只学了点皮毛。后来你偶尔翻出那些笔记，会看很久。'},
+  {t:'谢谢，我志不在此',e:{心性:6,事业:5,机缘:-3},tg:['明志'],r:'老先生点点头：知道自己不要什么，也是本事。'}
+ ]},
+
+/* ============ 危机 ============ */
+{id:'cri11',cat:'危机',title:'那一瞬间',desc:'刺耳的刹车声之后，你躺在路上，看见天空很蓝。',age:[18,62],w:12,cond:{},
+ opts:[
+  {t:'配合治疗，慢慢养',e:{健康:-9,财富:-8,心性:8,寿元:-4},tg:['大难不死'],r:'你在床上躺了三个月。能重新走路那天，你在走廊上来回走了二十遍。'},
+  {t:'不等养好就回去干活',e:{健康:-13,事业:5,财富:3,寿元:-6},tg:['硬撑'],r:'你落下了病根。往后的每个阴雨天，它都会提醒你。'},
+  {t:'借这次机会把生活全盘重来',e:{心性:11,健康:5,事业:-6,财富:-6,机缘:6},tg:['重生'],r:'你把断掉的那些事都断了。有人说你变了，你说对，是变了。'}
+ ]},
+{id:'cri12',cat:'危机',title:'一纸诉状',desc:'你成了被告。理由你看了三遍才看明白。',age:[26,62],w:13,cond:{},
+ opts:[
+  {t:'请最好的律师，正面应诉',e:{财富:-11,名望:5,心智:7,业力:3},tg:['对簿'],r:'官司打了两年。你赢了，也累掉了一层皮。'},
+  {t:'庭外和解，花钱了事',e:{财富:-9,心性:6,名望:-3},tg:['了结'],r:'你把钱付了，把事按下去。心里那口气一直没顺。'},
+  {t:'自己上，把道理讲清楚',e:{心智:9,学识:7,名望:4,健康:-5},tg:['自辩'],r:'你在法庭上把时间线一条条摆出来。法官看了你很久。'}
+ ]},
+{id:'cri13',cat:'危机',title:'被泼的脏水',desc:'一句没有来源的话，在圈子里传得比真相快。',age:[24,58],w:13,cond:{},
+ opts:[
+  {t:'公开发声，把证据摆出来',e:{名望:7,心智:8,健康:-5,业力:3},tg:['自证'],r:'你把材料发了出来。多数人信了，少数人不在乎真假。'},
+  {t:'不解释，让时间说',e:{心性:9,名望:-5,功德:4},tg:['沉默'],r:'你什么都没说。半年后没人再提，但有几个人从此没再联系你。'},
+  {t:'换个环境重新开始',e:{机缘:7,心性:6,名望:-7,财富:4},tg:['远走'],r:'你去了没人认识你的地方，重新做了一遍自我介绍。'}
+ ]},
+{id:'cri14',cat:'危机',title:'身后的那一刀',desc:'你最信任的人，在关键的时候站到了对面。',age:[25,58],w:13,cond:{tags:['知己','合伙','挚友','搭档','带队']},
+ opts:[
+  {t:'当面对质',e:{情感:-9,心智:7,名望:4,业力:3},tg:['撕破'],r:'你把话说尽了。他低着头，一句没反驳。你们从此再无往来。'},
+  {t:'吃下这个亏，重新组队',e:{心性:9,功德:5,财富:-6,机缘:5},tg:['止损'],r:'你没闹。你只是把边界划清了，然后找了新的人。'},
+  {t:'反将一军',e:{事业:6,财富:7,业力:11,名望:-4},tg:['以牙还牙'],r:'你比他做得更狠。赢的那天，你看着镜子，觉得有点陌生。'}
+ ]},
+{id:'cri15',cat:'危机',title:'天有不测',desc:'一场谁都没料到的变故，把很多人的计划都掀翻了。',age:[18,72],w:11,cond:{},
+ opts:[
+  {t:'先顾好身边的人',e:{功德:10,情感:8,财富:-7,健康:-4},tg:['守望'],r:'你把能做的都做了。后来很多人提起那段时间，第一个想到的是你。'},
+  {t:'趁乱找机会',e:{财富:10,机缘:8,业力:9,名望:-4},tg:['投机'],r:'你确实赚到了。也有人在背后说了你很久。'},
+  {t:'什么都不做，等它过去',e:{心性:6,财富:-5,健康:-3},tg:['按兵'],r:'事情过去了。你损失了一些，也保住了一些。'}
+ ]},
+
+/* ============ 修行 ============ */
+{id:'xiu11',cat:'修行',title:'抄经的夜',desc:'一笔一画写下去，写到第三页，心忽然静了。',age:[26,72],w:11,cond:{},
+ opts:[
+  {t:'抄满一百遍',e:{心性:11,功德:7,健康:4,事业:-3},tg:['静心'],r:'你把那一摞纸收进柜子。此后每次心乱，你都会拿出来看看第一页。'},
+  {t:'偶尔抄一次',e:{心性:5,健康:3},tg:['偶修'],r:'忙起来就断了。但每次想起，还是会坐下来写两行。'},
+  {t:'干脆去山里住一阵',e:{心性:10,功德:8,寿元:3,财富:-6,情感:-4},tg:['清修'],r:'你在山上住了四十天。下山那天，路上的车声让你觉得陌生。'}
+ ]},
+{id:'xiu12',cat:'修行',title:'远行朝圣',desc:'有一个地方你在图片上见过很多次，一直想去。',age:[28,68],w:11,cond:{},
+ opts:[
+  {t:'徒步走完全程',e:{心性:12,功德:8,健康:-5,寿元:3},tg:['行脚'],r:'你走了二十天。到终点的时候，你没觉得达成了什么，只觉得累，和轻。'},
+  {t:'跟团去，走个流程',e:{心性:5,机缘:5,财富:-4},tg:['到此一游'],r:'你拍了很多照片。回来之后，日子还是原来的样子。'},
+  {t:'把这个念头放下',e:{心性:5,财富:3,机缘:-3},tg:['放下'],r:'你对自己说，不一定非要去那里。但你偶尔还是会看那些图片。'}
+ ]},
+{id:'xiu13',cat:'修行',title:'一件小事',desc:'路上有人在雨里推着装满东西的车，伞就在你手上。',age:[18,72],w:14,cond:{},
+ opts:[
+  {t:'把伞给他，自己淋回去',e:{功德:10,心性:7,健康:-3,名望:3},tg:['举手之劳'],r:'他愣了一瞬，说了声谢。你淋透了，但那天记得所有的细节。'},
+  {t:'一起把车推上去',e:{功德:8,健康:4,情感:5},tg:['搭把手'],r:'你们一起把车推过了坡。他问你要不要喝口水，你说不用。'},
+  {t:'加快脚步走开',e:{心性:-3,功德:-4},tg:['无感'],r:'你走开了。走出很远，你还听得见车轮的声音。'}
+ ]},
+
+/* ============ 日常 ============ */
+{id:'day11',cat:'日常',title:'搬家',desc:'打包的时候你才发现，这些年攒了这么多没用的东西。',age:[22,55],w:12,cond:{},
+ opts:[
+  {t:'该扔就扔',e:{心性:7,健康:3,机缘:5},tg:['断舍离'],r:'你扔了六箱。搬到新地方，屋子空得让人舒服。'},
+  {t:'全都搬过去',e:{心性:-2,情感:4,健康:-4,财富:-3},tg:['念旧'],r:'新家很快堆满了。你在一堆旧物中间坐了很久，像坐在过去里。'},
+  {t:'送人，一件件找下家',e:{功德:6,情感:5,机缘:4,健康:-3},tg:['流转'],r:'你把书送给了学弟，把花送给了邻居。东西去了别处，也还在。'}
+ ]},
+{id:'day12',cat:'日常',title:'多了一口人',desc:'回家的时候，纸箱里有一双眼睛在看你。',age:[22,60],w:12,cond:{},
+ opts:[
+  {t:'留下来养',e:{情感:9,健康:5,心性:6,财富:-4},tg:['铲屎官'],r:'它陪了你十四年。走的那天，你第一次为一只动物哭。'},
+  {t:'送养给有缘人',e:{功德:6,情感:-3,心智:4},tg:['量力'],r:'你给它找了一个好人家。后来你偶尔会收到照片。'},
+  {t:'送回原处',e:{心性:-4,情感:-3},tg:['回避'],r:'你把它放回了纸箱。第二天再路过，箱子空了。'}
+ ]},
+{id:'day13',cat:'日常',title:'考驾照',desc:'教练的嗓门很大，你握方向盘的手全是汗。',age:[19,45],w:10,cond:{},
+ opts:[
+  {t:'多练，练到熟',e:{心智:5,健康:3,财富:-3,机缘:3},tg:['稳当'],r:'你一次就过了。后来开长途，稳当救过你好几次。'},
+  {t:'花钱找关系快点拿证',e:{财富:-6,业力:7,心智:-2},tg:['走捷径'],r:'证拿得快。十年后你还是不太敢开。'},
+  {t:'算了，不开车',e:{健康:4,财富:5,机缘:-3},tg:['不学'],r:'你一直用公交和地铁。很多年里，你比谁都熟悉这座城市的地面。'}
+ ]},
+{id:'day14',cat:'日常',title:'同学会',desc:'二十年没见的人坐了一桌，开口第一句都是：你现在在哪儿高就？',age:[28,58],w:11,cond:{},
+ opts:[
+  {t:'认真聊，听听各自的路',e:{心智:7,情感:7,机缘:5},tg:['顾旧'],r:'你听到几个故事，忽然觉得当年那些排名毫无意义。'},
+  {t:'喝完这杯就走',e:{心性:5,情感:-4},tg:['客气'],r:'你敬了一圈酒，说了些场面话。出门后你觉得轻松了。'},
+  {t:'借机谈成一件事',e:{事业:6,财富:6,情感:-3},tg:['实用'],r:'你和老同学签了个合作。关系变成了另一种关系。'}
+ ]},
+{id:'day15',cat:'日常',title:'说走就走',desc:'假期批下来了，你盯着地图，没有目的地。',age:[22,65],w:11,cond:{},
+ opts:[
+  {t:'挑一个没去过的地方',e:{机缘:9,心性:7,学识:5,财富:-5},tg:['看世界'],r:'你在一个陌生人不多的小城待了五天。回来后工作照旧，但你不太一样了。'},
+  {t:'回家陪父母',e:{情感:9,功德:7,财富:-2},tg:['回家'],r:'母亲做了一桌菜。临走时父亲往你包里塞了一袋东西，你到站才发现是咸菜。'},
+  {t:'哪也不去，在家睡到自然醒',e:{健康:7,心性:6,机缘:-4},tg:['充电'],r:'你睡了三天。第四天早上，你忽然知道自己想做什么了。'}
+ ]},
+
+/* ============ 晚年 ============ */
+{id:'old11',cat:'晚年',title:'退休那天',desc:'工牌交上去，门禁卡失效，你在楼下站了一会儿。',age:[52,78],w:20,cond:{},
+ opts:[
+  {t:'把日子排得满满的',e:{心性:8,健康:6,情感:5,寿元:3},tg:['不服老'],r:'你学了画画、报了旅行团、加入了合唱队。比上班还忙，但开心。'},
+  {t:'彻底闲下来',e:{健康:-4,心性:5,寿元:2},tg:['彻底休'],r:'你在家待了半年。后来的一天早上，你发现自己不太想说话了。'},
+  {t:'返聘，继续做事',e:{财富:7,事业:5,健康:-5,寿元:-2},tg:['老将'],r:'你又干了五年。那五年里，你带出来的人成了骨干。'}
+ ]},
+{id:'old12',cat:'晚年',title:'隔代亲',desc:'儿子女儿把孩子送过来住一学期，说麻烦你了。',age:[52,82],w:15,cond:{tags:['担当','慈爱','长兄如父','精养','儿女双全']},
+ opts:[
+  {t:'全包，怎么宠怎么来',e:{情感:10,功德:6,健康:-5},tg:['溺爱'],r:'孩子跟你最亲。你走的那年，他是哭得最厉害的一个。'},
+  {t:'该管就管',e:{功德:7,名望:4,情感:3,健康:-3},tg:['严祖'],r:'你把规矩立住了。孩子起初不高兴，长大后专门回来看你。'},
+  {t:'跟儿女说清力所不及',e:{心性:7,健康:5,情感:-6},tg:['量力'],r:'儿女有点不高兴。但你没逞强，身体保住了。'}
+ ]},
+{id:'old13',cat:'晚年',title:'交代后事',desc:'律师把文件摊开，问你财产怎么分。',age:[58,95],w:14,cond:{},
+ opts:[
+  {t:'平分，写清楚',e:{功德:8,心性:8,情感:5,业力:-4},tg:['明白账'],r:'你把每一项都写清了。签完字那天，你睡了一个很踏实的觉。'},
+  {t:'多分给最难的那个',e:{功德:9,情感:6,业力:4},tg:['偏心'],r:'你心里有杆秤。这杆秤后来在子女之间引起了一点风浪。'},
+  {t:'先不立，看他们表现',e:{心智:7,业力:5,情感:-5},tg:['观望'],r:'你把这件事当成了一张牌。家里的气氛从此有点微妙。'}
+ ]},
+{id:'old14',cat:'晚年',title:'走了一个老朋友',desc:'电话是他儿子打来的。你握着手机，很久没说出话。',age:[60,98],w:15,cond:{},
+ opts:[
+  {t:'去送他最后一程',e:{情感:8,功德:7,心性:7,健康:-3},tg:['送别'],r:'你在灵前站了很久。回来后你开始整理那些老照片。'},
+  {t:'一个人在家待了一天',e:{心性:9,情感:-6,健康:-3},tg:['独悼'],r:'你没去。你把两个人的往事从头想了一遍，像又活了一次。'},
+  {t:'去陪他的家人做点什么',e:{功德:10,情感:7,健康:-2},tg:['守望'],r:'你帮着跑手续、接待客人。他儿子后来说，那天多亏有你。'}
+ ]},
+
+/* ============ 时代（按公历年份触发） ============ */
+{id:'era11',cat:'时代',title:'潮水退了',desc:'厂门口贴了告示，很多人站在原地念了很多遍。',age:[24,58],w:13,cond:{yearRange:[1994,2004]},
+ opts:[
+  {t:'南下，去更远的地方找活路',e:{财富:9,机缘:9,健康:-6,情感:-6,业力:2},tg:['南下'],r:'你在车站买了一张站票。二十多个小时，你靠着车窗没怎么睡。'},
+  {t:'留下来，摆个摊',e:{财富:5,心性:7,健康:-4,名望:3},tg:['自谋'],r:'你支起了小摊。冬天手冻得裂口，但每天都能看见现钱。'},
+  {t:'考个证，换个行当',e:{学识:8,心智:7,财富:3,健康:-3},tg:['转行'],r:'你白天打零工，晚上看书。两年后你进了新单位。'}
+ ]},
+{id:'era12',cat:'时代',title:'新东西来了',desc:'有人告诉你，以后所有人都要上一个叫"网"的东西。',age:[20,45],w:13,cond:{yearRange:[1997,2013]},
+ opts:[
+  {t:'学，第一批挤进去',e:{学识:10,财富:11,机缘:9,健康:-5},tg:['第一批'],r:'你是周围第一个懂这个的人。有人半夜敲你家门来问问题。'},
+  {t:'看着，不太信',e:{心性:5,财富:-2,机缘:-5},tg:['后知后觉'],r:'你后来花了很多年补上这一课。'},
+  {t:'辞掉铁饭碗去做这个',e:{财富:13,机缘:11,事业:7,健康:-7,情感:-6},tg:['下海'],r:'家里所有人都反对。你签完字就去了，那时候你连办公室都没有。'}
+ ]},
+{id:'era13',cat:'时代',title:'一切都在涨',desc:'菜价、房租、车票，还有身边人的口气。',age:[25,55],w:12,cond:{yearRange:[2003,2022]},
+ opts:[
+  {t:'加杠杆买资产',e:{财富:14,业力:4,健康:-6,寿元:-2},tg:['加杠杆'],r:'数字涨得很快。你每天醒来第一件事是看行情。'},
+  {t:'控制开支，攒现金',e:{财富:6,心性:7,健康:4},tg:['现金为王'],r:'你错过了几波涨幅，也在后来的震荡里睡得很稳。'},
+  {t:'投资自己，学新技能',e:{学识:11,事业:8,财富:3},tg:['投资自己'],r:'你花了一笔钱去学习。三年后它变成了你的底气。'}
+ ]},
+{id:'era14',cat:'时代',title:'人人都在低头看',desc:'街上、车上、饭桌上，所有人都在看同一个方向。',age:[22,50],w:12,cond:{yearRange:[2009,2040]},
+ opts:[
+  {t:'做内容，把自己放出去',e:{名望:11,财富:8,机缘:7,健康:-6},tg:['自媒体'],r:'你的东西被很多人看到。有人骂你，更多人谢你。'},
+  {t:'用新工具把自己的活干得更快',e:{事业:9,学识:9,财富:5},tg:['效率'],r:'你把重复的活都交了出去，自己腾出手做更重要的事。'},
+  {t:'尽量远离屏幕',e:{健康:7,心性:8,名望:-4,财富:2},tg:['离线'],r:'你每天留两个小时不看任何东西。那两小时后来成了你最清楚的时间。'}
+ ]},
+{id:'era15',cat:'时代',title:'风变了',desc:'大家说话都比以前小心了，机会也换了个样子。',age:[28,62],w:12,cond:{yearRange:[2016,2045]},
+ opts:[
+  {t:'收缩，守住手里的东西',e:{财富:7,健康:4,心性:6,事业:-4},tg:['守成'],r:'你把摊子缩小了，把现金留住了。后来你庆幸自己退得早。'},
+  {t:'换个方向重新开始',e:{机缘:9,学识:7,事业:6,财富:-6,健康:-4},tg:['转向'],r:'你四十多岁重新当了一次新人。丢脸，但学到了东西。'},
+  {t:'两条腿走路，一边守一边试',e:{心智:9,事业:6,财富:5,健康:-3},tg:['双轨'],r:'你没赌，也没等。老本行养着新尝试，慢慢就长起来了。'}
+ ]}
+];
+EVENTS.push.apply(EVENTS, EVENTS_EXTRA);
+
+/* ------------------------------------------------------------------ 3. 结局与评分 */
+const ENDING_RULES = [
+  {id:'e_break', name:'打破命簿', desc:'五千年的账，被你在这一世翻了过去。', test:g=>g.meta.totalLife >= 500 || g.score >= 100 && g.life >= 100},
+  {id:'e_early', name:'早逝天才', desc:'来过，亮过，然后太早地走了。', test:g=>g.life < 34 && g.attrs['学识'] >= 84 && g.attrs['心智'] >= 78},
+  {id:'e_power', name:'权倾朝野', desc:'一句话，可以让半座城的人等着。', test:g=>g.attrs['事业'] >= 95 && g.attrs['名望'] >= 92},
+  {id:'e_rich',  name:'富甲一方', desc:'你没能带走什么，但你把什么都留下了。', test:g=>g.attrs['财富'] >= 92 && g.life >= 48},
+  {id:'e_glory', name:'名垂青史', desc:'你的名字比你的身子活得久。', test:g=>g.attrs['名望'] >= 90 && g.attrs['功德'] >= 85},
+  {id:'e_grace', name:'德被苍生', desc:'你没留下名字，但很多人因为你活下去了。', test:g=>g.attrs['功德'] >= 98},
+  {id:'e_saint', name:'隐居悟道', desc:'你从人间退了出去，然后才真正进了人间。', test:g=>g.attrs['心性'] >= 98 && g.attrs['功德'] >= 94 && g.attrs['财富'] < 72},
+  {id:'e_wander',name:'江湖散人', desc:'没有归处，也就处处是归处。', test:g=>g.attrs['机缘'] >= 93 && g.attrs['情感'] >= 70},
+  {id:'e_karma', name:'业火焚身', desc:'你算得很准，只是少算了人心。', test:g=>g.attrs['业力'] >= 66},
+  {id:'e_alone', name:'孤苦终老', desc:'你活了很久，只是没人陪你到最后。', test:g=>g.attrs['情感'] <= 35 && g.attrs['财富'] <= 56},
+  {id:'e_full',  name:'大限圆满', desc:'寿、德、名、财，你要的都拿到了，也没亏欠什么。', test:g=>g.life >= 74 && g.score >= 68},
+  {id:'e_common',name:'平凡一生', desc:'来过了，也好好地过了。', test:g=>true}
+];
+const ENDING_ALL = ENDING_RULES.map(e=>e.name);
+
+function grade(score){
+  if(score >= 87) return '超脱';
+  if(score >= 79) return '传奇';
+  if(score >= 70) return '显赫';
+  if(score >= 60) return '得意';
+  if(score >= 50) return '有成';
+  if(score >= 40) return '平庸';
+  return '潦草';
+}
+
+/* ------------------------------------------------------------------ 4. 天赋 */
+const TALENTS = [
+  {id:'t_health', name:'筋骨天成', desc:'初始 寿元 +6、健康 +8，且提高 寿元/健康 上限', max:3, cost:[4,9,18],
+   boost:['健康','寿元'], apply:a=>{a['寿元']+=6; a['健康']+=8; }},
+  {id:'t_wealth', name:'财帛星君', desc:'初始 财富 +10，且提高 财富 上限', max:3, cost:[4,9,18],
+   boost:['财富'], apply:a=>{a['财富']+=10; }},
+  {id:'t_wit',    name:'慧根深厚', desc:'初始 学识 +8、心智 +7，且提高二者上限', max:3, cost:[4,9,18],
+   boost:['学识','心智'], apply:a=>{a['学识']+=8; a['心智']+=7; }},
+  {id:'t_luck',   name:'天缘巧合', desc:'初始 机缘 +10，且提高 机缘 上限', max:3, cost:[4,9,18],
+   boost:['机缘'], apply:a=>{a['机缘']+=10; }},
+  {id:'t_fame',   name:'声名远播', desc:'初始 名望 +10，且提高 名望 上限', max:3, cost:[4,9,18],
+   boost:['名望'], apply:a=>{a['名望']+=10; }},
+  {id:'t_heart',  name:'心如止水', desc:'初始 心性 +10、业力 −8，且提高 心性 上限', max:3, cost:[4,9,18],
+   boost:['心性'], apply:a=>{a['心性']+=10; a['业力']-=8; }},
+  {id:'t_merit',  name:'积德之门', desc:'初始 功德 +10、情感 +4，且提高二者上限', max:3, cost:[4,9,18],
+   boost:['功德','情感'], apply:a=>{a['功德']+=10; a['情感']+=4; }},
+  {id:'t_social', name:'情丝绵长', desc:'初始 情感 +10，且提高 情感 上限', max:3, cost:[4,9,18],
+   boost:['情感'], apply:a=>{a['情感']+=10; }},
+  {id:'t_eye',    name:'洞悉天机', desc:'永久显示选项的属性增减（1 级即生效）', max:1, cost:[10],
+   boost:null, apply:a=>{}}
+];
+/* 属性天花板：天赋抬高上限，命盘喜用神也会给一点额外空间 */
+function buildCaps(){
+  const cap = {};
+  ATTRS.forEach(k=>cap[k] = 100);
+  TALENTS.forEach(t=>{
+    const lv = talentLv(t.id);
+    if(!lv || !t.boost) return;
+    t.boost.forEach(k=>{
+      if(ATTRS.indexOf(k) < 0 || NEG_ATTRS.indexOf(k) >= 0) return;
+      cap[k] = Math.min(126, cap[k] + lv * 5);
+    });
+  });
+  const add = (el, n)=>{
+    const list = WX_ATTR[el];
+    if(list) list.forEach(k=>{ cap[k] = Math.min(126, cap[k] + n); });
+  };
+  add(G.bazi.fav.use, 8);
+  add(G.bazi.fav.like, 4);
+  return cap;
+}
+
+/* ------------------------------------------------------------------ 5. 存档 */
+const SAVE_KEY = 'hxz500_meta_v1';
+let META = loadMeta();
+function loadMeta(){
+  const base = {soul:0, frag:0, totalLife:0, lives:0, talents:{}, endings:{}, events:{}, history:[], brokeBook:false};
+  try{
+    const raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return base;
+    const o = JSON.parse(raw);
+    return Object.assign(base, o);
+  }catch(e){ return base; }
+}
+function saveMeta(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(META)); }catch(e){}
+}
+function talentLv(id){ return META.talents[id] || 0; }
+function fragNeed(id){
+  const t = TALENTS.find(x=>x.id === id);
+  if(!t) return 999;
+  const lv = talentLv(id);
+  if(lv >= t.max) return 999;
+  return t.cost[lv];
+}
+
+/* ------------------------------------------------------------------ 5b. 本世志向（双轨目标）
+   借鉴同类人生模拟器的设计：本局有一条自己选的「志向」，
+   志向达成度会影响事件倾向与最终评级上限。 */
+const AMBITIONS = [
+  {id:'a_rich', name:'求富贵', desc:'此生只问一句：能不能立住自己的家业。',
+   cats:['财富','事业'], keys:['财富','事业'], icon:'钱'},
+  {id:'a_fame', name:'求声名', desc:'你想被人记住，哪怕只在一个很小的圈子里。',
+   cats:['学业','事业','时代'], keys:['名望','学识'], icon:'名'},
+  {id:'a_free', name:'求自在', desc:'不受管，不欠人，走到哪儿算哪儿。',
+   cats:['机缘','修行','日常'], keys:['心性','机缘'], icon:'游'},
+  {id:'a_kind', name:'求心安', desc:'你只想做个能让人放心的人。',
+   cats:['家庭','情感','修行'], keys:['功德','情感'], icon:'德'}
+];
+/* 属性历史峰值：志向看的是"你这辈子做到过什么"，而不是临终时的残值 */
+function updatePeak(){
+  if(!G.peak) G.peak = {};
+  ATTRS.forEach(k=>{
+    if(G.peak[k] === undefined || G.attrs[k] > G.peak[k]) G.peak[k] = G.attrs[k];
+  });
+}
+function ambitionProgress(){
+  if(!G.ambition) return 0;
+  const a = G.attrs, pk = G.peak || {}, k = G.ambition.keys;
+  const val = key => {
+    const cur = a[key] || 0;
+    const peak = pk[key] === undefined ? cur : pk[key];
+    return cur * 0.4 + peak * 0.6;   // 终值与峰值加权：晚年自然衰退不该抹掉一生的成就
+  };
+  return clamp(clamp((val(k[0]) - 28) / 52, 0, 1) * 0.62
+             + clamp((val(k[1]) - 28) / 52, 0, 1) * 0.38, 0, 1);
+}
+/* 志向达成度决定评级上限：走岔了路，分数再高也上不去 */
+function ambitionScoreCap(){
+  const p = ambitionProgress();
+  if(p >= 0.70) return 100;
+  if(p >= 0.50) return 95;
+  if(p >= 0.30) return 88;
+  return 78;
+}
+const AMBITION_LEVELS = [[0.75,'无愧此生'],[0.55,'如愿'],[0.35,'差强人意'],[0.15,'走了岔路'],[-1,'终究错付']];
+function ambitionLabel(p){
+  for(let i = 0; i < AMBITION_LEVELS.length; i++){
+    if(p >= AMBITION_LEVELS[i][0]) return AMBITION_LEVELS[i][1];
+  }
+  return '终究错付';
+}
+
+/* ------------------------------------------------------------------ 5c. 标签分级：普通 / 成就 / 稀有 / 负面 / 永世 */
+const TAG_NEG = ['踩坑','越界','挪用','带客户','硬撑','无视','回避','懒散','硬扛','同屋异梦','孤僻','刺头',
+  '争宠','疏离','寸土必争','慕强','官迷','后知后觉','投机','以牙还牙','撕破','走捷径','断腕','旁观',
+  '无感','独悼','偏心','客气','不争','暗恋','拖延','避让','溺爱','丁克','放任'];
+const TAG_RARE = ['遇贵人','大难不死','重生','留洋','夺魁','下海','第一批','风口','加杠杆','自媒体',
+  '传承','行脚','清修','初恋','挚友','知己','四海为家','带队','破局'];
+const TAG_LEGEND = ['打破命簿','大限圆满','善终','自去','德被苍生'];
+function tagCls(t){
+  if(TAG_LEGEND.indexOf(t) >= 0) return 'black';
+  if(TAG_RARE.indexOf(t) >= 0) return 'purple';
+  if(TAG_NEG.indexOf(t) >= 0) return 'red';
+  return 'gold';
+}
+function tagPill(t, size){
+  const c = tagCls(t);
+  const label = {'black':'永世','purple':'稀有','red':'负面','gold':'成就'}[c];
+  return '<span class="pill ' + c + (size ? ' ' + size : '') + '" data-lv="' + label + '">' + t + '</span>';
+}
+/* 事件池扩到 130 条后，一世可累积上百枚标签；
+   展示时优先给出稀有与负面标签，普通成就只保留前若干枚。 */
+function tagPillsCompact(list, maxNormal){
+  if(!list || !list.length) return '';
+  const rare = list.filter(t=>tagCls(t) !== 'gold');
+  const norm = list.filter(t=>tagCls(t) === 'gold');
+  const room = Math.max(0, (maxNormal || 20) - rare.length);
+  const show = rare.concat(norm.slice(0, room));
+  let h = show.map(t=>tagPill(t)).join('');
+  const hidden = list.length - show.length;
+  if(hidden > 0) h += '<span class="pill" style="opacity:.6">+' + hidden + ' 枚</span>';
+  return h;
+}
+/* 属性阈值自动获得的境界称号 */
+function realmTags(){
+  const a = G.attrs, out = [];
+  if(a['财富'] >= 84) out.push('富甲一方'); else if(a['财富'] >= 68) out.push('家底殷实');
+  if(a['名望'] >= 84) out.push('名动四方'); else if(a['名望'] >= 68) out.push('小有名气');
+  if(a['学识'] >= 84) out.push('博闻强识');
+  if(a['事业'] >= 84) out.push('功业有成');
+  if(a['心性'] >= 86) out.push('心境澄明');
+  if(a['功德'] >= 84) out.push('德泽深厚');
+  if(a['机缘'] >= 84) out.push('福缘深厚');
+  if(a['情感'] >= 84) out.push('情缘圆满');
+  if(a['健康'] >= 84) out.push('身轻体健');
+  if(a['心智'] >= 86) out.push('通透');
+  if(a['业力'] >= 70) out.push('业障缠身');
+  if(a['情感'] <= 26) out.push('孑然一身');
+  if(a['健康'] <= 26) out.push('病骨支离');
+  if(a['财富'] <= 24) out.push('囊中羞涩');
+  return out;
+}
+/* 标签池：把标签按级别分组统计 */
+function tagStats(){
+  const s = {gold:0, purple:0, red:0, black:0};
+  G.tags.forEach(t=>{ s[tagCls(t)]++; });
+  return s;
+}
+
+/* ------------------------------------------------------------------ 6. 游戏状态 */
+const G = {
+  bazi:null, attrs:null, age:0, maxAge:100,
+  dayun:[], curDayun:null, liunian:null,
+  tags:[], timeline:[], log:[],
+  pending:[], pidx:0, inEvent:false,
+  life:0, score:0, ending:null, died:false,
+  startInfo:null, fast:false, fastTimer:null,
+  attrSnapshot:null, lastYearLog:0,
+  ambition:null, ambitionId:'a_rich', snapshots:[], peak:{}
+};
+
+/* ------------------------------------------------------------------ 7. 工具 */
+function $(id){ return document.getElementById(id); }
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+/* 儒略日 → 北京时间字符串 */
+function jdToBJ(jd){
+  if(jd === null || jd === undefined) return '—';
+  const d = new Date((jd + 8/24 - 2440587.5) * 86400000);
+  const p = n => (n < 10 ? '0' : '') + n;
+  return d.getUTCFullYear() + '/' + p(d.getUTCMonth()+1) + '/' + p(d.getUTCDate())
+       + ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes());
+}
+function rnd(n){ return Math.floor(Math.random()*n); }
+function pick(arr){ return arr[rnd(arr.length)]; }
+function shuffle(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=rnd(i+1); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+function show(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $('screen-'+name);
+  if(el){
+    void el.offsetWidth;   // 强制重排，让入场动画每次切换都能重播
+    el.classList.add('active');
+  }
+  window.scrollTo({top:0, behavior:'instant'});
+  const app = document.querySelector('.app');
+  if(app) app.scrollIntoView({block:'start'});
+}
+function toastModal(title, html){
+  $('modal').innerHTML = '<h3>'+title+'</h3><div style="font-size:13.5px;color:var(--ink2);line-height:1.9">'+html+'</div>'
+    + '<button class="btn mt12" onclick="closeMask()">知道了</button>';
+  $('mask').classList.add('on');
+}
+window.closeMask = function(){ $('mask').classList.remove('on'); };
+$('mask').addEventListener('click', e=>{ if(e.target.id === 'mask') closeMask(); });
+
+/* ------------------------------------------------------------------ 8. 起盘 */
+function makeBazi(y,m,d,h,gender,unknownHour){
+  const yIdx = yearPillar(y,m,d,h);
+  const mIdx = monthPillar(y,m,d,h);
+  const dIdx = dayPillar(y,m,d,h);
+  const hIdx = hourPillar(dIdx, h);
+  const jie  = jieBefore(y, m, d, h);
+  const p1 = pillarOf(yIdx), p2 = pillarOf(mIdx), p3 = pillarOf(dIdx), p4 = pillarOf(hIdx);
+  const pillars = [p1,p2,p3,p4];
+  const dayGan = p3.gan;
+  const raw = wuxingScores(pillars);
+  const pct = normalize(raw);
+  const st = dayStrength(dayGan, pct, p2.zhi);
+  const fav = favorable(dayGan, pct, st.level);
+  const rel = relations(pillars);
+
+  // 十神统计
+  const ssCount = {};
+  [p1,p2,p4].forEach(p=>{
+    const s = shishen(dayGan, p.gan);
+    ssCount[s] = (ssCount[s]||0) + 1;
+  });
+  // 藏干十神（权重较弱）
+  [p1,p2,p3,p4].forEach((p,i)=>{
+    p.hide.forEach(([g,w])=>{
+      if(g === dayGan) return;
+      const s = shishen(dayGan, g);
+      ssCount[s] = (ssCount[s]||0) + w * (i===1 ? 1.4 : 0.7);
+    });
+  });
+  const ssList = Object.keys(ssCount).sort((a,b)=>ssCount[b]-ssCount[a]).map(k=>({name:k, v:ssCount[k]}));
+
+  const startAge = 4 + rnd(4);
+  const dayun = buildDayun(yIdx, mIdx, TG[yIdx%10], gender, startAge);
+
+  return {
+    y,m,d,h,gender,unknownHour,
+    year:yIdx, month:mIdx, day:dIdx, hour:hIdx, jie,
+    pillars, dayGan, raw, pct, strength:st, fav, rel,
+    ssCount, ssList, dayun, startAge,
+    yearGz:gzName(yIdx), monthGz:gzName(mIdx), dayGz:gzName(dIdx), hourGz:gzName(hIdx),
+    nayin:[nayinOf(yIdx), nayinOf(mIdx), nayinOf(dIdx), nayinOf(hIdx)],
+    shengxiao: shengxiaoOf(yIdx), xingzuo: xingzuoOf(m, d)
+  };
+}
+
+function makeAttrs(bz){
+  const a = {};
+  const pct = bz.pct;
+  const val = p => clamp(20 + (p - 0.05) / 0.40 * 60, 20, 80);
+
+  WX.forEach(w=>{
+    const v = val(pct[w]);
+    (WX_ATTR[w] || []).forEach((attrName, i)=>{
+      if(attrName === '健康' && i === 1) return;
+      a[attrName] = (a[attrName] || 20) + v * 0.6;
+    });
+  });
+  // 土的第二项给功德
+  a['功德'] = (a['功德'] || 20) + val(pct['土']) * 0.5;
+
+  // 基础值
+  ATTRS.forEach(k=>{ if(typeof a[k] !== 'number') a[k] = 45; });
+
+  // 日主强弱
+  const lv = bz.strength.level;
+  if(lv === '极强'){ a['事业']+=10; a['名望']+=8; a['健康']+=5; a['情感']-=8; a['心性']-=5; }
+  else if(lv === '偏强'){ a['事业']+=7; a['名望']+=5; a['健康']+=3; a['情感']-=5; a['心性']-=2; }
+  else if(lv === '中和'){ ATTRS.forEach(k=>{ if(k!=='业力'&&k!=='寿元') a[k]+=4; }); }
+  else if(lv === '偏弱'){ a['心智']+=7; a['学识']+=5; a['机缘']+=4; a['事业']-=6; a['财富']-=4; }
+  else { a['心智']+=10; a['学识']+=7; a['机缘']+=6; a['事业']-=9; a['财富']-=7; a['健康']-=4; }
+
+  // 十神倾向
+  bz.ssList.slice(0,5).forEach(s=>{
+    const m = SS_ATTR[s.name];
+    if(!m) return;
+    const k = clamp(s.v, 0.5, 3) / 2.2;
+    Object.keys(m).forEach(kk=>{ a[kk] = (a[kk]||45) + m[kk] * k * 1.4; });
+  });
+
+  // 刑冲合害
+  const bads = bz.rel.filter(r=>!r.good).length;
+  const goods = bz.rel.filter(r=>r.good).length;
+  a['业力'] = 30 + bads * 7 - goods * 4;
+  a['功德'] += goods * 4;
+  a['情感'] += goods * 3 - bads * 3;
+  a['心性'] += goods * 2 - bads * 2;
+
+  // 寿元
+  let lifeBase = 42 + pct['土'] * 70 + pct['水'] * 22;
+  const balance = 1 - Math.abs(0.2 - Math.max(...WX.map(w=>pct[w]))) * 1.2;
+  lifeBase += balance * 14;
+  lifeBase -= bads * 3.2;
+  lifeBase += (bz.strength.level === '中和' ? 7 : bz.strength.level === '极弱' ? -9 : 0);
+  a['寿元'] = clamp(lifeBase, 20, 80);
+
+  // 性别微调
+  if(bz.gender === '女'){ a['情感'] += 3; a['心性'] += 2; a['事业'] -= 2; }
+  else { a['事业'] += 3; a['财富'] += 2; a['情感'] -= 2; }
+
+  // 天赋加成
+  TALENTS.forEach(t=>{
+    const lv2 = talentLv(t.id);
+    if(lv2 > 0 && t.id !== 't_eye'){
+      for(let i=0;i<lv2;i++) t.apply(a);
+    }
+  });
+
+  ATTRS.forEach(k=>{ a[k] = Math.round(clamp(a[k], 5, 96)); });
+  if(a['业力'] < 0) a['业力'] = 0;
+  return a;
+}
+
+/* ------------------------------------------------------------------ 9. 事件引擎 */
+function curDayunAt(age){
+  for(const d of G.dayun){ if(age >= d.from && age <= d.to) return d; }
+  return null;
+}
+function liunianAt(age, birthYear){
+  const y = birthYear + age;
+  const idx = ((y - 4) % 60 + 60) % 60;
+  const p = pillarOf(idx);
+  return {gz:gzName(idx), gan:p.gan, zhi:p.zhi, wx:p.ganWx, zhiWx:p.zhiWx, year:y};
+}
+function weightOf(ev){
+  if(!ev.age || G.age < ev.age[0] || G.age > ev.age[1]) return 0;
+  const last = G.usedAt[ev.id];
+  if(last !== undefined && G.age - last < 5) return 0;
+  if(ev.cond && ev.cond.require){
+    if(ev.cond.require.lowLife && G.attrs['寿元'] > 12) return 0;
+  }
+  // 时代事件：按公历年份开窗（出生年 + 当前年龄）
+  if(ev.cond && ev.cond.yearRange){
+    const yy = (G.birthYear || G.bazi.y) + G.age;
+    if(yy < ev.cond.yearRange[0] || yy > ev.cond.yearRange[1]) return 0;
+  }
+  let w = ev.w || 10;
+  const c = ev.cond || {};
+  if(c.dayMaster && c.dayMaster.indexOf(G.bazi.dayGan) >= 0) w += 14;
+  if(c.shishen){
+    const hit = c.shishen.some(s=>G.bazi.ssList.slice(0,4).some(x=>x.name === s));
+    if(hit) w += 12;
+  }
+  if(c.wuxing){
+    const ln = G.liunian ? G.liunian.wx : null;
+    const strong = Object.keys(G.bazi.pct).sort((a,b)=>G.bazi.pct[b]-G.bazi.pct[a])[0];
+    if(c.wuxing.indexOf(ln) >= 0) w += 9;
+    if(c.wuxing.indexOf(strong) >= 0) w += 7;
+    if(c.wuxing.indexOf(G.bazi.fav.use) >= 0) w += 6;
+  }
+  if(c.dayun){
+    const dn = G.curDayun ? SS_DAYUN_NAME[shishen(G.bazi.dayGan, G.curDayun.gan)] : '';
+    if(dn && c.dayun.indexOf(dn) >= 0) w += 15;
+  }
+  if(c.tags){
+    const hit = c.tags.some(t=>G.tags.indexOf(t) >= 0);
+    if(hit) w += 9; else w -= 2;
+  }
+  // 大运主题倾向
+  if(G.curDayun){
+    const s = shishen(G.bazi.dayGan, G.curDayun.gan);
+    if(s === '七杀' && (ev.cat === '危机' || ev.cat === '事业')) w += 8;
+    if(s === '正印' && (ev.cat === '学业' || ev.cat === '修行')) w += 8;
+    if(s === '偏财' && (ev.cat === '财富' || ev.cat === '事业')) w += 8;
+    if(s === '伤官' && (ev.cat === '事业' || ev.cat === '情感')) w += 6;
+    if(s === '正官' && ev.cat === '事业') w += 8;
+    if(s === '食神' && (ev.cat === '日常' || ev.cat === '晚年')) w += 6;
+    if(s === '劫财' && (ev.cat === '财富' || ev.cat === '危机')) w += 7;
+  }
+  // 流年刑冲
+  if(G.liunian && G.bazi.pillars.some(p=>{
+    const pair = G.liunian.zhi + p.zhi, pair2 = p.zhi + G.liunian.zhi;
+    return LIU_CHONG.indexOf(pair)>=0 || LIU_CHONG.indexOf(pair2)>=0;
+  })) w += 4;
+  // 属性导向
+  if(G.attrs['健康'] < 30 && (ev.cat === '健康' || ev.cat === '危机')) w += 8;
+  if(G.attrs['财富'] < 25 && (ev.cat === '财富')) w += 8;
+  if(G.attrs['功德'] > 70 && ev.cat === '修行') w += 8;
+  if(G.attrs['业力'] > 65 && ev.cat === '危机') w += 8;
+
+  // 流年宜忌：流年五行落喜用为吉年（顺势事多、风险少），落忌神为凶年（风险上扬）
+  const cw = CAT_WX[ev.cat];
+  const lnWx = G.liunian ? G.liunian.wx : null;
+  if(lnWx && cw){
+    const favWx = [G.bazi.fav.use, G.bazi.fav.like];
+    if(favWx.indexOf(lnWx) >= 0){
+      if(cw === lnWx) w += 9;
+      if(ev.cat === '危机') w -= 5;
+    }else if(lnWx === G.bazi.fav.avoid){
+      if(ev.cat === '危机') w += 10;
+      if(cw === lnWx) w -= 3;
+    }else if(cw === lnWx){
+      w += 3;
+    }
+  }
+  // 本世志向：与志向相关的机会更容易找上门
+  if(G.ambition && G.ambition.cats.indexOf(ev.cat) >= 0) w += 7;
+
+  return Math.max(0, w);
+}
+/* 当年宜忌文案 */
+function yijiNow(){
+  const lnWx = G.liunian ? G.liunian.wx : '土';
+  const favWx = [G.bazi.fav.use, G.bazi.fav.like];
+  const w = YI_JI_WORD[lnWx] || {yi:'—', ji:'—'};
+  if(favWx.indexOf(lnWx) >= 0) return {tone:'吉', yi:w.yi, ji:w.ji};
+  if(lnWx === G.bazi.fav.avoid) return {tone:'凶', yi:'静守 · 收敛 · 补' + G.bazi.fav.use, ji:w.ji + ' · 冒进'};
+  return {tone:'平', yi:w.yi, ji:w.ji};
+}
+function rollEvents(n){
+  const out = [];
+  const usedIds = [];
+  for(let i=0;i<n;i++){
+    const pool = EVENTS.filter(e=>weightOf(e) > 0 && usedIds.indexOf(e.id) < 0);
+    if(!pool.length) break;
+    const ws = pool.map(e=>weightOf(e));
+    const total = ws.reduce((a,b)=>a+b,0);
+    let r = Math.random() * total, idx = 0;
+    for(let j=0;j<pool.length;j++){ r -= ws[j]; if(r <= 0){ idx = j; break; } }
+    out.push(pool[idx]);
+    usedIds.push(pool[idx].id);
+  }
+  // 兜底
+  let guard = 0;
+  while(out.length < n && guard < 40){
+    guard++;
+    const g = EVENTS.filter(e=>e.cat === '日常' && G.age >= e.age[0] && G.age <= e.age[1]);
+    if(!g.length) break;
+    const e = pick(g);
+    if(usedIds.indexOf(e.id) >= 0) continue;
+    out.push(e); usedIds.push(e.id);
+  }
+  return out;
+}
+
+/* 高位阻尼：属性越接近上限，正向收益越难拿到；负向收益不打折 */
+function dampen(k, cur, v){
+  if(!v) return 0;
+  const bad = NEG_ATTRS.indexOf(k) >= 0;
+  const favorable = (v > 0) !== bad;
+  if(!favorable) return v;
+  if(k === '寿元'){
+    const base = (G.attrBase && G.attrBase['寿元']) || 60;
+    const room = clamp(base * 1.5 - cur, 0, 200);
+    return v * clamp(room / 55, 0.1, 1);
+  }
+  const cap = (G.cap && G.cap[k]) || 100;
+  const head = clamp(cap - cur, 0, 100) / 100;
+  return v * Math.max(0.28, Math.pow(head, 0.82));
+}
+function applyEffect(eff){
+  const deltas = {};
+  Object.keys(eff || {}).forEach(k=>{
+    if(ATTRS.indexOf(k) < 0) return;
+    const cur = G.attrs[k];
+    const v = dampen(k, cur, eff[k]);
+    if(k === '寿元'){
+      G.attrs[k] = clamp(cur + v, -60, 240);
+    }else{
+      G.attrs[k] = clamp(Math.round(cur + v), 0, 100);
+    }
+    deltas[k] = Math.round(v * 10) / 10;
+  });
+  ATTRS.forEach(k=>{ if(deltas[k] === undefined) deltas[k] = 0; });
+  updatePeak();
+  return deltas;
+}
+
+/* ------------------------------------------------------------------ 10. 渲染：属性条 */
+function attrBars(container, attrs, deltas){
+  let html = '';
+  ATTR_GROUPS.forEach(g=>{
+    html += '<div class="grp">'+g.name+'</div>';
+    g.list.forEach(k=>{
+      const v = clamp(attrs[k], 0, 100);
+      const neg = NEG_ATTRS.indexOf(k) >= 0;
+      const col = ATTR_COLOR[k] || '#888';
+      let flash = '';
+      if(deltas && deltas[k]) flash = deltas[k] > 0 ? (neg ? 'flash-dn' : 'flash-up') : (neg ? 'flash-up' : 'flash-dn');
+      html += '<div class="bar">'
+        + '<div class="h"><span>'+k+'</span><b>'+Math.round(attrs[k])+'</b></div>'
+        + '<div class="track"><div class="fill '+flash+'" style="width:'+v+'%;background:'+col+'"></div></div>'
+        + '</div>';
+    });
+  });
+  container.innerHTML = html;
+}
+
+/* ------------------------------------------------------------------ 11. 渲染：命盘页 */
+function radarSVG(pct, size){
+  size = size || 240;
+  const cx = size/2, cy = size/2 + 4, R = size * 0.31;
+  const max = Math.max.apply(null, WX.map(k=>pct[k])) || 0.001;
+  const ang = k => -Math.PI/2 + WX.indexOf(k) * 2 * Math.PI / 5;
+  const pt = (k, r) => [cx + Math.cos(ang(k))*r, cy + Math.sin(ang(k))*r];
+  const radiusOf = k => R * (pct[k]/max) * 0.9 + 10;
+  let s = '';
+  // 网格
+  for(let i = 1; i <= 4; i++){
+    const r = R*i/4;
+    const pts = WX.map(k=>pt(k,r).map(n=>n.toFixed(1)).join(',')).join(' ');
+    s += '<polygon points="'+pts+'" fill="none" stroke="#e6dcc8" stroke-width="1"/>';
+  }
+  // 轴线
+  WX.forEach(k=>{
+    const p = pt(k,R);
+    s += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#ece3d2" stroke-width="1"/>';
+  });
+  // 数据多边形
+  const dataPts = WX.map(k=>pt(k, radiusOf(k)).map(n=>n.toFixed(1)).join(',')).join(' ');
+  s += '<polygon class="data" points="'+dataPts+'" fill="rgba(176,58,46,.15)" stroke="#b03a2e" '
+     + 'stroke-width="2" stroke-linejoin="round"/>';
+  // 数据顶点
+  WX.forEach(k=>{
+    const p = pt(k, radiusOf(k));
+    s += '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.2" fill="#b03a2e" '
+       + 'stroke="#fffdf8" stroke-width="1.4"/>';
+  });
+  // 外圈顶点与标签
+  WX.forEach(k=>{
+    const p = pt(k, R);
+    const lp = pt(k, R + 24);
+    s += '<circle class="rnode" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.4" fill="#b8902c"/>';
+    const anchor = Math.abs(lp[0] - cx) < 6 ? 'middle' : (lp[0] > cx ? 'start' : 'end');
+    s += '<text x="'+lp[0].toFixed(1)+'" y="'+lp[1].toFixed(1)+'" text-anchor="'+anchor+'" '
+       + 'dominant-baseline="middle" font-size="12" fill="#6b6257" font-family="sans-serif">'
+       + k + ' ' + (pct[k]*100).toFixed(0) + '%</text>';
+  });
+  return '<svg viewBox="0 0 '+size+' '+size+'" width="100%" height="'+size
+       + '" style="max-width:240px;display:block;margin:0 auto">'+s+'</svg>';
+}
+
+const WX_STRATEGY = {
+  '金':'宜守规则、立契约、做需要决断的事；忌意气用事、忌为面子硬撑。',
+  '木':'宜长期学习与培育、做需要时间生长的事；忌急功近利、忌拔苗助长。',
+  '水':'宜流动变通、多与人交流、借势而行；忌固执死守、忌把话憋在心里。',
+  '火':'宜主动曝光、抓准时机、把事做在明处；忌闷头硬扛、忌拖到错过。',
+  '土':'宜稳扎稳打、置业守成、经营长期关系；忌频繁变动、忌轻信快钱。'
+};
+const HOURS = [
+  {v:0, t:'子时 23:00-00:59'},{v:2, t:'丑时 01:00-02:59'},{v:4, t:'寅时 03:00-04:59'},
+  {v:6, t:'卯时 05:00-06:59'},{v:8, t:'辰时 07:00-08:59'},{v:10, t:'巳时 09:00-10:59'},
+  {v:12, t:'午时 11:00-12:59'},{v:14, t:'未时 13:00-14:59'},{v:16, t:'申时 15:00-16:59'},
+  {v:18, t:'酉时 17:00-18:59'},{v:20, t:'戌时 19:00-20:59'},{v:22, t:'亥时 21:00-22:59'}
+];
+
+/* ------------------------------------------------------------------ 12. 渲染：命盘页 */
+function renderChart(){
+  const bz = G.bazi;
+  const labels = ['年 柱','月 柱','日 柱','时 柱'];
+  let html = '';
+  bz.pillars.forEach((p,i)=>{
+    let ss;
+    if(i === 2) ss = '日主';
+    else ss = shishen(bz.dayGan, p.gan) + ((i === 3 && bz.unknownHour) ? '·随机' : '');
+    html += '<div class="pillar">'
+      + '<div class="lbl">' + labels[i] + '</div>'
+      + '<div class="gz"><span class="g">' + p.gan + '</span><span class="z">' + p.zhi + '</span></div>'
+      + '<div class="wx">' + p.ganWx + '·' + p.zhiWx + '</div>'
+      + '<div class="ss">' + ss + '</div>'
+      + '<div class="hid">' + p.hide.map(h=>h[0]).join('') + '</div>'
+      + '<div class="ny">' + bz.nayin[i] + '</div>'
+      + '</div>';
+  });
+  $('pillars').innerHTML = html;
+
+  const jieTxt = bz.jie
+    ? '<b>' + bz.jie.name + '</b> 后 ' + bz.jie.days.toFixed(2) + ' 日'
+      + '　<span style="color:var(--ink3)">交节 ' + jdToBJ(bz.jie.jd) + '</span>'
+    : '<span style="color:var(--ink3)">—</span>';
+
+  $('chartBasic').innerHTML =
+      '公历 ' + bz.y + ' 年 ' + bz.m + ' 月 ' + bz.d + ' 日'
+    + (bz.unknownHour ? '（时辰未知，已随机起时）' : '　' + (bz.h < 10 ? '0' + bz.h : bz.h) + ' 时')
+    + '　' + bz.gender + '命　属' + bz.shengxiao + '　' + bz.xingzuo + '座<br/>'
+    + '年柱 <b>' + bz.yearGz + '</b>　月柱 <b>' + bz.monthGz + '</b>　日柱 <b>'
+    + bz.dayGz + '</b>　时柱 <b>' + bz.hourGz + '</b><br/>'
+    + '<span style="color:var(--ink3)">生于 ' + jieTxt + '　·　纳音 '
+    + bz.nayin.join(' / ') + '</span>';
+
+  const tg = [];
+  tg.push('<span class="pill red">' + bz.strength.level + '</span>');
+  tg.push('<span class="pill green">用神 ' + bz.fav.use + '</span>');
+  tg.push('<span class="pill green">喜神 ' + bz.fav.like + '</span>');
+  tg.push('<span class="pill">忌 ' + bz.fav.avoid + '</span>');
+  if(bz.rel.length) tg.push('<span class="pill red">刑冲合害 ' + bz.rel.length + ' 处</span>');
+  else tg.push('<span class="pill green">四柱平和</span>');
+  $('chartTags').innerHTML = tg.join('');
+
+  $('radar').innerHTML = radarSVG(bz.pct);
+
+  let wxHtml = '';
+  WX.slice().sort((a,b)=>bz.pct[b]-bz.pct[a]).forEach(w=>{
+    wxHtml += '<div class="bar">'
+      + '<div class="h"><span>' + w + ' · ' + WX_DESC[w] + '</span><b>' + (bz.pct[w]*100).toFixed(1) + '%</b></div>'
+      + '<div class="track"><div class="fill" style="width:' + clamp(bz.pct[w]*260, 3, 100) + '%;background:#b8902c"></div></div>'
+      + '</div>';
+  });
+  $('wxList').innerHTML = wxHtml;
+
+  $('dayMasterBox').innerHTML =
+      '日主 <b style="color:var(--red);font-size:15px">' + bz.dayGan + '</b>（'
+    + TG_WX[TG.indexOf(bz.dayGan)] + '）　强弱：<b>' + bz.strength.level + '</b>'
+    + '（同党占比 ' + (bz.strength.ratio*100).toFixed(0) + '%）<br/>'
+    + bz.strength.desc + '<br/><br/>'
+    + '<b style="color:var(--green)">喜用神：' + bz.fav.use + '</b>　喜神：' + bz.fav.like
+    + '　忌神：' + bz.fav.avoid + '<br/>'
+    + bz.fav.reason + '<br/>'
+    + '<span style="color:var(--ink3)">幸运策略：' + (WX_STRATEGY[bz.fav.use] || '') + '</span>';
+
+  let ssHtml = '<div class="grp" style="margin-top:0">十 神 倾 向</div>';
+  bz.ssList.slice(0,6).forEach(s=>{
+    ssHtml += '<span class="pill purple">' + s.name + ' ' + s.v.toFixed(1) + ' · ' + (SS_DESC[s.name]||'') + '</span>';
+  });
+  $('ssBox').innerHTML = ssHtml;
+
+  if(bz.rel.length){
+    let c = '<div class="grp">刑 冲 合 害</div>';
+    bz.rel.forEach(r=>{ c += '<span class="pill ' + (r.good ? 'green' : 'red') + '">' + r.type + '</span>'; });
+    c += '<div style="font-size:12.5px;color:var(--ink2);margin-top:6px;line-height:1.85">'
+       + bz.rel.map(r=>'· ' + r.txt).join('<br/>') + '</div>';
+    $('cxBox').innerHTML = c;
+  }else{
+    $('cxBox').innerHTML = '<div class="grp">刑 冲 合 害</div>'
+      + '<div style="font-size:12.5px;color:var(--ink2)">四柱平和，无明显刑冲合害。此局稳，也少震动。</div>';
+  }
+
+  let dy = '';
+  bz.dayun.forEach(d=>{
+    const s = shishen(bz.dayGan, d.gan);
+    const cur = (G.age >= d.from && G.age <= d.to);
+    dy += '<div class="dayun-item' + (cur ? ' cur' : '') + '">'
+        + '<div class="dg">' + d.gz + '</div>'
+        + '<div class="dn">' + (SS_DAYUN_NAME[s] || s) + '</div>'
+        + '<div class="da">' + d.from + '-' + d.to + '岁</div>'
+        + '<div class="da" style="color:var(--ink3)">' + (SS_DAYUN_DESC[s] || '') + '</div>'
+        + '</div>';
+  });
+  $('dayunStrip').innerHTML = dy;
+
+  attrBars($('attrInit'), G.attrs, null);
+  renderAmbition();
+
+  $('btnToLife') && ($('btnToLife').textContent = '入 世 · 开 始 人 生');
+}
+
+/* 本世志向的渲染与选择 */
+function renderAmbition(){
+  const wrap = $('ambitionList');
+  if(!wrap) return;
+  let html = '';
+  AMBITIONS.forEach(a=>{
+    const on = (G.ambitionId === a.id);
+    html += '<button class="amb' + (on ? ' on' : '') + '" onclick="setAmbition(\'' + a.id + '\')">'
+      + '<span class="ambicon">' + a.icon + '</span>'
+      + '<span class="ambbody">'
+      + '<span class="an">' + a.name + '</span>'
+      + '<span class="ad">' + a.desc + '</span>'
+      + '<span class="ak">看重 · ' + a.keys.join(' / ') + '</span>'
+      + '</span></button>';
+  });
+  wrap.innerHTML = html;
+}
+window.setAmbition = function(id){
+  G.ambitionId = id;
+  G.ambition = AMBITIONS.find(a=>a.id === id) || null;
+  renderAmbition();
+};
+
+/* ------------------------------------------------------------------ 13. 首页统计 */
+function renderHome(){
+  $('hSoul').textContent  = Math.round(META.soul);
+  $('hFrag').textContent  = META.frag;
+  $('hLife').textContent  = Math.round(META.totalLife);
+  $('hLives').textContent = META.lives;
+  const p = clamp(META.totalLife / 500 * 100, 0, 100);
+  $('hProgress').innerHTML = META.brokeBook
+    ? '你已经打破过一次命簿。'
+    : '目标：累计活满 <b>五百</b> 年。当前进度 <b>' + p.toFixed(1) + '%</b>（' + Math.round(META.totalLife) + ' / 500 年）';
+}
+
+/* ------------------------------------------------------------------ 14. 开局 */
+function fillSelects(){
+  let m = '';
+  for(let i=1;i<=12;i++) m += '<option value="' + i + '">' + i + ' 月</option>';
+  $('inM').innerHTML = m;
+  let h = '';
+  HOURS.forEach(o=>{ h += '<option value="' + o.v + '">' + o.t + '</option>'; });
+  $('inH').innerHTML = h;
+  fillDays();
+  $('inY').value = 1990;
+  $('inM').value = 6;
+  $('inD').value = 15;
+  $('inH').value = 12;
+}
+function fillDays(){
+  const y = parseInt($('inY').value || '1990', 10);
+  const m = parseInt($('inM').value || '1', 10);
+  const dim = new Date(y, m, 0).getDate();
+  let d = '';
+  for(let i=1;i<=dim;i++) d += '<option value="' + i + '">' + i + ' 日</option>';
+  const keep = parseInt($('inD').value || '1', 10);
+  $('inD').innerHTML = d;
+  $('inD').value = Math.min(keep, dim) || 1;
+}
+
+function buildFromForm(){
+  const y = parseInt($('inY').value, 10);
+  const m = parseInt($('inM').value, 10);
+  const d = parseInt($('inD').value, 10);
+  const unknown = $('inUnknown').checked;
+  let h = parseInt($('inH').value, 10);
+  if(unknown) h = rnd(24);
+  if(!(y >= 1900 && y <= 2025)){ toastModal('年份不对', '请输入 1900 至 2025 年之间的年份。'); return null; }
+  if(!(m >= 1 && m <= 12)){ toastModal('月份不对', '请输入 1 至 12 月。'); return null; }
+  const dim = new Date(y, m, 0).getDate();
+  if(!(d >= 1 && d <= dim)){ toastModal('日期不对', y + ' 年 ' + m + ' 月只有 ' + dim + ' 天。'); return null; }
+  const gender = $('inG').value;
+  return makeBazi(y, m, d, h, gender, unknown);
+}
+
+function startGame(bz){
+  if(!bz) bz = buildFromForm();
+  if(!bz) return;
+  G.bazi = bz;
+  G.attrs = makeAttrs(bz);
+  G.age = 0;
+  G.tags = [];
+  G.timeline = [];
+  G.log = [];
+  G.snapshots = [];
+  G.peak = {};
+  G.usedAt = {};
+  G.ambition = AMBITIONS.find(a=>a.id === G.ambitionId) || AMBITIONS[0];
+  G.ambitionId = G.ambition.id;
+  G.forceDeath = null;
+  G.died = false;
+  G.choosing = false;
+  G.score = 0;
+  G.ending = null;
+  G.birthYear = bz.y;
+  G.maxAge = clamp(Math.round(G.attrs['寿元'] * 1.25) + 8, 32, 116);
+  G.attrs['寿元'] = Math.round(G.attrs['寿元']);
+  G.attrBase = JSON.parse(JSON.stringify(G.attrs));
+  G.cap = buildCaps();
+  recordSnapshot();
+  updatePeak();
+  renderChart();
+  show('chart');
+}
+
+function randomGame(){
+  const y = 1900 + rnd(126);
+  const m = 1 + rnd(12);
+  const dim = new Date(y, m, 0).getDate();
+  const d = 1 + rnd(dim);
+  const h = rnd(24);
+  const g = Math.random() < 0.5 ? '男' : '女';
+  $('inY').value = y; fillDays();
+  $('inM').value = m; fillDays();
+  $('inD').value = d;
+  $('inG').value = g;
+  $('inUnknown').checked = false;
+  const near = HOURS.reduce((a,b)=>Math.abs(b.v-h) < Math.abs(a.v-h) ? b : a, HOURS[0]);
+  $('inH').value = near.v;
+  startGame(makeBazi(y, m, d, h, g, false));
+}
+
+function showHistory(){
+  if(!META.history.length){
+    toastModal('历史命盘', '本地还没有留下过命盘。<br/><br/><span style="color:var(--ink3)">每次结算后，这一世会自动记在这里。</span>');
+    return;
+  }
+  let html = '<div style="max-height:52vh;overflow-y:auto">';
+  META.history.slice().reverse().slice(0,20).forEach((h,i)=>{
+    html += '<div class="kv"><span>' + h.date + '　' + h.bazi + '</span><b>' + h.ending + '</b></div>';
+  });
+  html += '</div>';
+  toastModal('历史命盘（最近 20 世）', html);
+}
+
+/* ------------------------------------------------------------------ 15. 人生循环 */
+function yearlyDecay(){
+  const a = G.attrs;
+  let d = 1.0;
+  d += (52 - a['健康']) / 115;
+  d *= 1 + (a['业力'] - 35) / 280;
+  d *= 1 - (a['功德'] - 40) / 360;
+  d *= 1 - (a['心性'] - 50) / 950;
+  return clamp(d, 0.35, 2.6);
+}
+/* 年龄带来的自然增减：让属性成为动态平衡，而不是单调涨到顶 */
+function yearlyDrift(){
+  const age = G.age;
+  const d = {};
+  if(age >= 40) d['健康'] = -((age - 35) / 26);
+  if(age >= 55) d['事业'] = -((age - 50) / 34);
+  if(age >= 50) d['名望'] = -((age - 45) / 75);
+  if(age >= 58) d['财富'] = -((age - 55) / 58);
+  if(age >= 62) d['心智'] = -((age - 58) / 85);
+  if(age >= 66) d['机缘'] = -((age - 60) / 75);
+  if(age >= 72) d['情感'] = -((age - 65) / 85);
+  return d;
+}
+/* 属性自然回归：高位回落、低位回血、业力随时间消散，避免任何一项顶格或归零 */
+function yearlyRegression(){
+  const r = {};
+  ATTRS.forEach(k=>{
+    if(k === '寿元') return;
+    const cur = G.attrs[k];
+    const bad = NEG_ATTRS.indexOf(k) >= 0;
+    let v = 0;
+    const hinge = ((G.cap && G.cap[k]) || 100) - 20;
+    if(cur > hinge) v -= (cur - hinge) * 0.26;
+    if(cur < 24 && !bad) v += (24 - cur) * 0.26;
+    if(k === '健康') v += (56 - cur) * 0.10;
+    if(k === '业力') v -= 1.0 + G.attrs['功德'] / 130;
+    if(k === '功德' && cur > 40) v -= 0.25;
+    if(v) r[k] = v;
+  });
+  return r;
+}
+
+function beginYear(){
+  G.curDayun = curDayunAt(G.age);
+  G.liunian  = liunianAt(G.age, G.birthYear);
+  const n = 2 + rnd(2);
+  G.pending = rollEvents(n);
+  if(!G.pending.length){
+    const g = EVENTS.filter(e=>e.cat === '日常');
+    G.pending = [pick(g)];
+  }
+  G.pidx = 0;
+  G.choosing = false;
+  renderLife();
+}
+
+function renderLife(){
+  $('lifeAge').textContent = G.age;
+  const dy = G.curDayun;
+  let meta = '流年 <b>' + G.liunian.gz + '</b>（' + G.liunian.wx + '）<br/>';
+  if(dy){
+    const s = shishen(G.bazi.dayGan, dy.gan);
+    meta += '大运 <b>' + dy.gz + '</b> · ' + (SS_DAYUN_NAME[s] || '');
+  }else{
+    meta += '未 起 运';
+  }
+  meta += '<br/>寿元 <b>' + Math.round(G.attrs['寿元']) + '</b>';
+  $('lifeMeta').innerHTML = meta;
+
+  // 志向进度
+  const ap = ambitionProgress();
+  if($('ambBar')) $('ambBar').innerHTML = G.ambition
+    ? '<span class="ambname">志 · ' + G.ambition.name + '</span>'
+      + '<span class="ambtrack"><i style="width:' + (ap*100).toFixed(0) + '%"></i></span>'
+      + '<span class="ambpct">' + (ap*100).toFixed(0) + '%</span>'
+    : '';
+
+  // 流年宜忌
+  if($('yijiLine')){
+    const yj = yijiNow();
+    const cls = yj.tone === '吉' ? 'good' : yj.tone === '凶' ? 'bad' : 'flat';
+    $('yijiLine').innerHTML = '<span class="yjtag ' + cls + '">' + yj.tone + '</span>'
+      + '<span class="yjyi">宜　' + yj.yi + '</span>'
+      + '<span class="yjji">忌　' + yj.ji + '</span>';
+  }
+
+  const wrap = $('lifeEventWrap');
+
+  if(G.pidx >= G.pending.length){
+    wrap.innerHTML = '<div class="card center">'
+      + '<div style="font-size:14px;color:var(--ink2);line-height:1.9">'
+      + G.age + ' 岁这一年过去了。<br/>'
+      + '<span style="color:var(--ink3);font-size:12.5px">本年自然耗损寿元约 '
+      + (G.lastDecay ? G.lastDecay.toFixed(1) : '1.0') + ' 点</span></div>'
+      + '<div class="hint">当前寿元 ' + Math.round(G.attrs['寿元'])
+      + '　·　寿数上限 ' + G.maxAge + ' 岁</div>'
+      + '<button class="btn" onclick="nextYear()">进入 ' + (G.age + 1) + ' 岁</button>'
+      + '</div>';
+    if(G.fast) scheduleFast(nextYear);
+    return;
+  }
+
+  const ev = G.pending[G.pidx];
+  let optsHtml = '';
+  ev.opts.forEach((o, i)=>{
+    let effHtml = '';
+    if(talentLv('t_eye') > 0){
+      const parts = Object.keys(o.e).map(k=>{
+        const v = o.e[k];
+        const good = (v > 0) === (NEG_ATTRS.indexOf(k) < 0);
+        return '<i class="' + (good ? 'u' : 'd') + '">' + k + ' ' + (v > 0 ? '+' : '') + v + '</i>';
+      });
+      effHtml = '<span class="eff">' + parts.join('') + '</span>';
+    }
+    optsHtml += '<button class="opt" onclick="chooseOption(' + i + ')">' + o.t + effHtml + '</button>';
+  });
+
+  wrap.innerHTML = '<div class="event">'
+    + '<div class="scene">' + sceneSVG(ev.cat) + '</div>'
+    + '<div class="etop">'
+    + '<div class="cat">' + ev.cat + '</div>'
+    + '<h3>' + ev.title + '</h3>'
+    + '<div class="desc">' + ev.desc + '</div>'
+    + '</div>'
+    + '<div class="opts">' + optsHtml + '</div>'
+    + '</div>';
+
+  if(G.fast) scheduleFast(()=>chooseOption(rnd(ev.opts.length)));
+}
+
+function scheduleFast(fn){
+  clearTimeout(G.fastTimer);
+  if(!G.fast) return;
+  G.fastTimer = setTimeout(()=>{
+    if(!G.died) fn();
+  }, 420);
+}
+
+function doChoose(ev, o){
+  const deltas = applyEffect(o.e);
+  if(o.tg) o.tg.forEach(t=>{ if(G.tags.indexOf(t) < 0) G.tags.push(t); });
+  G.usedAt[ev.id] = G.age;
+  META.events[ev.id] = 1;
+  const rec = {age:G.age, cat:ev.cat, title:ev.title, choice:o.t, r:o.r, deltas};
+  G.timeline.push(rec);
+  G.log.push(rec);
+  if(o.die) G.forceDeath = o.die;
+  return rec;
+}
+
+function chooseOption(i){
+  if(G.choosing || G.died) return;
+  const ev = G.pending[G.pidx];
+  if(!ev) return;
+  const o = ev.opts[i];
+  if(!o) return;
+  G.choosing = true;
+  clearTimeout(G.fastTimer);
+  const rec = doChoose(ev, o);
+  renderResult(ev, o, rec);
+  updateLog();
+  if(G.fast) scheduleFast(advanceEvent);
+}
+
+function renderResult(ev, o, rec){
+  const el = document.querySelector('#lifeEventWrap .event');
+  if(!el){ renderLife(); return; }
+  const rect = el.getBoundingClientRect();
+  const optsEl = el.querySelector('.opts');
+  if(optsEl) optsEl.style.display = 'none';
+  let dl = '';
+  Object.keys(rec.deltas).forEach(k=>{
+    const v = rec.deltas[k];
+    if(!v) return;
+    const good = (v > 0) === (NEG_ATTRS.indexOf(k) < 0);
+    dl += '<span class="' + (good ? 'u' : 'd') + '">' + k + ' ' + (v > 0 ? '+' : '') + v + '</span>';
+  });
+  const div = document.createElement('div');
+  div.className = 'result';
+  div.innerHTML = o.r
+    + (dl ? '<div class="dl">' + dl + '</div>' : '')
+    + '<button class="btn mt8" onclick="advanceEvent()">继 续</button>';
+  el.appendChild(div);
+
+  // 属性浮动数字：让增减被"看见"
+  let fi = 0;
+  Object.keys(rec.deltas).forEach(k=>{
+    const v = rec.deltas[k];
+    if(!v) return;
+    const good = (v > 0) === (NEG_ATTRS.indexOf(k) < 0);
+    const dx = clamp(rect.left + 30 + (fi % 4) * 70, 16, window.innerWidth - 96);
+    const dy = clamp(rect.top + 118 + Math.floor(fi / 4) * 22, 56, window.innerHeight - 96);
+    const txt = k + ' ' + (v > 0 ? '+' : '') + v;
+    setTimeout(()=>floatNum(dx, dy, txt, good), fi * 85);
+    fi++;
+  });
+}
+
+function advanceEvent(){
+  if(G.died) return;
+  clearTimeout(G.fastTimer);
+  G.choosing = false;
+  G.pidx++;
+  if(G.forceDeath) return endLife(G.forceDeath);
+  if(G.attrs['寿元'] <= 0) return endLife('寿元耗尽');
+  renderLife();
+}
+
+function nextYear(){
+  if(G.died) return;
+  clearTimeout(G.fastTimer);
+  const dec = yearlyDecay();
+  G.lastDecay = dec;
+  const all = {};
+  const drift = yearlyDrift();
+  const reg = yearlyRegression();
+  Object.keys(drift).forEach(k=>{ all[k] = (all[k] || 0) + drift[k]; });
+  Object.keys(reg).forEach(k=>{ all[k] = (all[k] || 0) + reg[k]; });
+  const deltas = {'寿元': -Math.round(dec * 10) / 10};
+  G.attrs['寿元'] = clamp(G.attrs['寿元'] - dec, -60, 240);
+  Object.keys(all).forEach(k=>{
+    G.attrs[k] = clamp(Math.round(G.attrs[k] + all[k]), 0, 100);
+    deltas[k] = Math.round(all[k] * 10) / 10;
+  });
+  G.log.push({age:G.age, cat:'年度', title:'岁月', choice:'自然增减',
+              r:'一年过去了。', deltas:deltas});
+  recordSnapshot();
+  updatePeak();
+  if(G.attrs['寿元'] <= 0) return endLife('寿元耗尽');
+  G.age++;
+  if(G.age > G.maxAge){
+    G.age--;
+    return endLife('天年已尽');
+  }
+  beginYear();
+}
+
+function skipYear(){
+  if(G.died) return;
+  clearTimeout(G.fastTimer);
+  let guard = 0;
+  while(G.pidx < G.pending.length && guard < 12){
+    guard++;
+    const ev = G.pending[G.pidx];
+    doChoose(ev, pick(ev.opts));
+    G.pidx++;
+    if(G.forceDeath || G.attrs['寿元'] <= 0) break;
+  }
+  updateLog();
+  if(G.forceDeath) return endLife(G.forceDeath);
+  if(G.attrs['寿元'] <= 0) return endLife('寿元耗尽');
+  nextYear();
+}
+
+function updateLog(){
+  const el = $('lifeLog');
+  if(!el) return;
+  const lines = G.log.slice(-60).map(l=>
+    '<div><span class="age">' + l.age + '岁</span> [' + l.cat + '] ' + l.title + ' → ' + l.choice + '</div>'
+  ).join('');
+  el.innerHTML = lines || '<div style="color:var(--ink3)">还没有记事。</div>';
+}
+
+function openAttrPanel(){
+  let html = '<div style="font-size:13px;color:var(--ink2);line-height:1.9">';
+  ATTR_GROUPS.forEach(g=>{
+    html += '<div class="grp" style="margin-top:8px">' + g.name + '</div>';
+    g.list.forEach(k=>{
+      html += '<div class="kv"><span>' + k + '</span><b>' + Math.round(G.attrs[k]) + '</b></div>';
+    });
+  });
+  html += '<div class="grp mt12">标 签</div><div>'
+    + (G.tags.length ? tagPillsCompact(G.tags, 16) : '<span style="color:var(--ink3)">暂无</span>')
+    + '</div>';
+  if(G.ambition){
+    const ap = ambitionProgress();
+    html += '<div class="grp mt12">本 世 志 向</div>'
+      + '<div class="kv"><span>' + G.ambition.name + '</span><b>' + ambitionLabel(ap)
+      + '（' + (ap*100).toFixed(0) + '%）</b></div>';
+  }
+  html += '</div>';
+  toastModal('属性面板 · ' + G.age + ' 岁', html);
+}
+
+/* ------------------------------------------------------------------ 16. 结算 */
+function keyTimeline(){
+  const arr = G.timeline.filter(it=>it.cat !== '年度').map(it=>({
+    it, imp: Object.keys(it.deltas).reduce((a,k)=>a + Math.abs(it.deltas[k]), 0)
+  }));
+  let sel = arr.filter(x=>x.imp >= 12).map(x=>x.it);
+  if(sel.length > 30){
+    sel = arr.slice().sort((a,b)=>b.imp - a.imp).slice(0,30).map(x=>x.it).sort((a,b)=>a.age - b.age);
+  }
+  if(sel.length < 8) sel = arr.map(x=>x.it);
+  return sel;
+}
+
+function makeEpitaph(reason){
+  const a = G.attrs;
+  const traits = [];
+  if(a['功德'] >= 78) traits.push('一生行善，肯替别人扛事');
+  if(a['业力'] >= 68) traits.push('精于算计，欠了一些账没还');
+  if(a['财富'] >= 78) traits.push('攒下过一份厚实的家底');
+  if(a['名望'] >= 78) traits.push('名字在很远的地方都有人提');
+  if(a['学识'] >= 78) traits.push('读了一辈子书，也懂了一些事');
+  if(a['心性'] >= 78) traits.push('到老都是一副不急的样子');
+  if(a['机缘'] >= 78) traits.push('运气总在要紧的时候落在他身上');
+  if(a['情感'] <= 30) traits.push('身边的人不多，走的时候也安静');
+  if(a['健康'] <= 30) traits.push('身子早就透支了，后半程一直在还');
+  if(!traits.length) traits.push('一生平平，也没亏待过谁');
+
+  const first = G.bazi.y;
+  const last = G.bazi.y + G.life;
+  const sc = grade(G.score);
+  const tail = {
+    'e_rich':'钱散在了该散的地方，他没带走一分。',
+    'e_power':'他握过的东西很重，放下的时候也重。',
+    'e_saint':'山里的那几年，是他这辈子最清楚的几年。',
+    'e_wander':'他一直在路上，直到走不动为止。',
+    'e_glory':'碑上刻着名字，风一吹，还是挺清楚的。',
+    'e_alone':'屋子很大，最后只剩下他一个人。',
+    'e_karma':'他算得很准，就是少算了人心。',
+    'e_grace':'很多人因为他，多活了些年头。',
+    'e_full':'该拿的拿了，该还的还了，走得干净。',
+    'e_common':'来过，忙过，也就这样了。',
+    'e_early':'太亮了，亮得烧得太快。',
+    'e_break':'这一世的账，他翻过去了。'
+  }[G.ending ? G.ending.id : 'e_common'] || '来过，好好地过了。';
+
+  return first + ' — ' + last + '，' + reason + '，享年 ' + G.life + '。<br/>'
+    + traits.join('；') + '。<br/>'
+    + '此世评为「' + sc + '」。' + tail;
+}
+
+function endLife(reason){
+  if(G.died) return;
+  G.died = true;
+  G.deathReason = reason;
+  clearTimeout(G.fastTimer);
+  G.life = G.age;
+  const a = G.attrs;
+  // 成就型属性取「终值与一生峰值」的较高者：晚年自然衰退不该抹掉已达成的成就
+  updatePeak();
+  const ag = {};
+  ATTRS.forEach(k=>{ ag[k] = a[k]; });
+  // 成就型属性取一生峰值：达成过的成就不会因为晚年衰退而被抹掉
+  ['财富','事业','名望','学识','机缘','心性','功德'].forEach(k=>{
+    const pk = (G.peak && G.peak[k] !== undefined) ? G.peak[k] : a[k];
+    ag[k] = Math.max(a[k], pk);
+  });
+  const core = ['健康','心智','学识','财富','事业','名望','情感','机缘','功德','心性'];
+  const avg = core.reduce((x,k)=>x + ag[k], 0) / core.length;
+  // 标签不再按"枚数"计分（事件池扩到 130 条后枚数会爆到上百），改按级别加权
+  const ts = tagStats();
+  const tagVal = Math.min(ts.gold, 60) * 0.32 + ts.purple * 2.4 + ts.black * 5 - ts.red * 1.2;
+  let s = 0;
+  s += clamp(G.life / Math.max(50, G.maxAge), 0, 1.1) * 26;
+  s += clamp(avg / 100, 0, 1.0) * 29;
+  s += clamp(ag['功德'] / 100, 0, 1.0) * 13;
+  s -= clamp(a['业力'] / 100, 0, 1.0) * 15;
+  s += clamp(tagVal / 30, 0, 1.0) * 10;
+  s += clamp(ag['名望'] / 100, 0, 1.0) * 5.5;
+  s += clamp(ag['财富'] / 100, 0, 1.0) * 5.5;
+  G.score = clamp(Math.round(s), 0, 100);
+  // 志向往上封顶：走岔了路，分数再高也上不去
+  const ambCap = ambitionScoreCap();
+  G.scoreRaw = G.score;
+  if(G.score > ambCap) G.score = ambCap;
+  G.ambitionP = ambitionProgress();
+  G.ambitionCapped = (ambCap < 100);
+
+  // 命魂与碎片入账
+  const wasBroke = META.brokeBook;
+  META.soul  += G.score;
+  META.frag  += Math.floor(G.score / 10) + 1;
+  META.totalLife += G.life;
+  META.lives += 1;
+  const firstBreak = !wasBroke && META.totalLife >= 500;
+  if(META.totalLife >= 500) META.brokeBook = true;
+
+  G.agg = ag;   // 供结算页与诊断使用（终值与峰值的合并视图）
+  const gg = {attrs:ag, life:G.life, score:G.score, tags:G.tags, meta:META, broke:firstBreak};
+  if(firstBreak){
+    G.ending = ENDING_RULES[0];
+  }else{
+    G.ending = ENDING_RULES.slice(1).find(e=>e.test(gg)) || ENDING_RULES[ENDING_RULES.length - 1];
+  }
+  META.endings[G.ending.name] = 1;
+
+  META.history.push({
+    date: new Date().toISOString().slice(0,10),
+    bazi: G.bazi.yearGz + ' ' + G.bazi.monthGz + ' ' + G.bazi.dayGz + ' ' + G.bazi.hourGz,
+    life: G.life, score: G.score, ending: G.ending.name
+  });
+  if(META.history.length > 60) META.history = META.history.slice(-60);
+  saveMeta();
+
+  renderSettle(reason);
+  show('settle');
+  drawLifeChart();   // 页面可见后按真实宽度重绘一次
+}
+
+function renderSettle(reason){
+  const a = G.attrs;
+  const sc = grade(G.score);
+  $('stSub').textContent = reason + ' · 终 年 ' + G.life;
+
+  // 结局称号：逐字揭示 + 落印
+  const titleEl = $('stTitle');
+  if(titleEl){
+    titleEl.textContent = G.ending.name;
+    titleEl.classList.remove('play');
+    void titleEl.offsetWidth;
+    titleEl.classList.add('play');
+  }
+  const stampEl = $('stStamp');
+  if(stampEl){
+    stampEl.innerHTML = sc.split('').join('<br/>');
+    stampEl.style.animation = 'none';
+    void stampEl.offsetWidth;
+    stampEl.style.animation = '';
+  }
+  $('stScore').textContent = G.score;
+  const ap = (G.ambitionP === undefined) ? ambitionProgress() : G.ambitionP;
+  $('stScoreTxt').innerHTML = '评级 <b style="color:var(--red)">' + sc + '</b><br/>'
+    + '享年 <b>' + G.life + '</b> 岁<br/>'
+    + '成就标签 <b>' + G.tags.length + '</b> 枚<br/>'
+    + '本世命魂 +' + G.score + ' · 碎片 +' + (Math.floor(G.score / 10) + 1)
+    + (G.ambition ? '<br/>志向 <b>' + G.ambition.name + '</b> · '
+        + ambitionLabel(ap) + '（' + (ap*100).toFixed(0) + '%）' : '');
+
+  $('stReview').innerHTML =
+      '命盘：' + G.bazi.yearGz + ' ' + G.bazi.monthGz + ' ' + G.bazi.dayGz + ' ' + G.bazi.hourGz
+    + '　日主 <b>' + G.bazi.dayGan + '</b>　' + G.bazi.gender + '命<br/>'
+    + '日主 <b>' + G.bazi.strength.level + '</b>　喜用神 <b style="color:var(--green)">'
+    + G.bazi.fav.use + '</b>　忌神 ' + G.bazi.fav.avoid + '<br/>'
+    + '五行：' + WX.map(w=>w + ' ' + (G.bazi.pct[w]*100).toFixed(0) + '%').join('　') + '<br/>'
+    + '刑冲合害：' + (G.bazi.rel.length ? G.bazi.rel.map(r=>r.type).join('、') : '无') + '<br/>'
+    + '寿数上限 ' + G.maxAge + ' 岁，实活 ' + G.life + ' 岁。'
+    + (G.life >= G.maxAge - 2 ? '走到了命数的尽头。' : G.life >= G.maxAge * 0.75 ? '接近天年。' : '提前退场了。')
+    + '<br/>'
+    + (G.ambition
+        ? '本世志向 <b>' + G.ambition.name + '</b>（' + G.ambition.keys.join(' / ') + '）　结果：'
+          + '<b style="color:var(--gold)">' + ambitionLabel(ap) + '</b>'
+          + (G.ambitionCapped ? '　<span style="color:var(--red)">因偏离志向，评级已受封顶</span>' : '')
+          + '<br/>'
+        : '')
+    + '<br/>'
+    + '<span style="color:var(--ink3)">以上均为游戏化简化的虚构推演，不是真实命理判断。</span>';
+
+  attrBars($('stAttrs'), a, null);
+
+  const rt = realmTags();
+  let tagHtml = '';
+  if(G.tags.length) tagHtml += tagPillsCompact(G.tags, 22);
+  if(rt.length) tagHtml += '<div class="grp" style="margin-top:10px">境 界 称 号</div>'
+    + rt.map(t=>'<span class="pill blue">' + t + '</span>').join('');
+  $('stTags').innerHTML = tagHtml
+    || '<span style="color:var(--ink3);font-size:13px">此生未留下特别的标签。</span>';
+
+  $('stEpitaph').innerHTML = makeEpitaph(reason);
+
+  const items = keyTimeline();
+  $('stTimeline').innerHTML = items.length
+    ? items.map(it=>{
+        const imp = Object.keys(it.deltas).reduce((x,k)=>x + Math.abs(it.deltas[k]), 0);
+        return '<div class="tl-item' + (imp >= 20 ? ' hi' : '') + '">'
+          + '<span class="a">' + it.age + '岁</span>'
+          + '<span class="g">' + it.cat + '</span>'
+          + it.title + ' · ' + it.choice + '</div>';
+      }).join('')
+    : '<div class="blank-note">此生平静，无甚可记。</div>';
+
+  drawLifeChart();
+}
+
+/* ------------------------------------------------------------------ 17. 轮回 */
+function renderCycle(){
+  $('cySoul').textContent = Math.round(META.soul);
+  $('cyFrag').textContent = META.frag;
+  $('cyLife').textContent = Math.round(META.totalLife);
+  $('cyLives').textContent = META.lives;
+  const p = clamp(META.totalLife / 500 * 100, 0, 100);
+  $('cyProgress').innerHTML = META.brokeBook
+    ? '你已经打破过命簿。<b style="color:var(--red)">本模拟器抵达终点。</b>'
+    : '五百年进度 <b>' + p.toFixed(1) + '%</b>　还差 <b>' + Math.round(Math.max(0, 500 - META.totalLife)) + '</b> 年。'
+      + '<br/>每一世的评分会转化为命魂，每 10 点评分换 1 枚天赋碎片。';
+
+  let html = '';
+  TALENTS.forEach(t=>{
+    const lv = talentLv(t.id);
+    const need = fragNeed(t.id);
+    const maxed = lv >= t.max;
+    let dots = '';
+    for(let i=0;i<t.max;i++) dots += '<i class="' + (i < lv ? 'on' : '') + '"></i>';
+    html += '<div class="tal">'
+      + '<div class="tx">'
+      + '<div class="tn">' + t.name + ' <span style="font-size:11px;color:var(--ink3)">Lv.' + lv + '/' + t.max + '</span></div>'
+      + '<div class="td">' + t.desc + '</div>'
+      + '<div class="lv">' + dots + '</div>'
+      + '</div>'
+      + '<button ' + (maxed || META.frag < need ? 'disabled' : '') + ' onclick="buyTalent(\'' + t.id + '\')">'
+      + (maxed ? '已满' : '升级 ' + need + ' 碎片') + '</button>'
+      + '</div>';
+  });
+  $('talentList').innerHTML = html;
+
+  $('codexEnding').innerHTML = ENDING_ALL.map(n=>
+    '<span class="c' + (META.endings[n] ? ' got' : '') + '">' + n + '</span>'
+  ).join('');
+
+  $('codexEvent').innerHTML = EVENTS.map(e=>
+    '<span class="c' + (META.events[e.id] ? ' got' : '') + '">' + (META.events[e.id] ? e.title : '？？') + '</span>'
+  ).join('');
+}
+
+function buyTalent(id){
+  const t = TALENTS.find(x=>x.id === id);
+  if(!t) return;
+  const need = fragNeed(id);
+  if(need === 999 || META.frag < need) return;
+  META.frag -= need;
+  META.talents[id] = talentLv(id) + 1;
+  saveMeta();
+  renderCycle();
+  renderHome();
+}
+
+/* ------------------------------------------------------------------ 18. 分享 */
+function buildPoster(){
+  const W = 750, H = 1240;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const x = c.getContext('2d');
+
+  const g = x.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#fdfbf5');
+  g.addColorStop(1, '#f1e8d6');
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+
+  x.strokeStyle = '#c9b28c'; x.lineWidth = 3; x.strokeRect(24, 24, W - 48, H - 48);
+  x.strokeStyle = '#e6dac2'; x.lineWidth = 1; x.strokeRect(34, 34, W - 68, H - 68);
+
+  const serif = '"Songti SC","STSong","SimSun",serif';
+  const sans  = '"PingFang SC","Microsoft YaHei",sans-serif';
+  const ink = '#2c2823', ink2 = '#6b6257', ink3 = '#948a7a', red = '#b03a2e', gold = '#b8902c';
+
+  x.textAlign = 'center';
+  x.fillStyle = red;
+  x.font = '700 42px ' + serif;
+  x.fillText('还想再活五百年', W/2, 106);
+
+  x.fillStyle = ink3;
+  x.font = '20px ' + sans;
+  x.fillText('八字轮回 · 人生模拟', W/2, 142);
+
+  x.strokeStyle = '#ded3bd';
+  x.beginPath(); x.moveTo(90, 168); x.lineTo(W - 90, 168); x.stroke();
+
+  // 命盘四柱
+  const bz = G.bazi;
+  const labels = ['年柱','月柱','日柱','时柱'];
+  const bw = 132, gap = (W - 120 - bw*4) / 3;
+  bz.pillars.forEach((p, i)=>{
+    const bx = 60 + i * (bw + gap);
+    x.fillStyle = '#fffefb';
+    x.fillRect(bx, 196, bw, 112);
+    x.strokeStyle = '#ded3bd'; x.lineWidth = 1.5;
+    x.strokeRect(bx, 196, bw, 112);
+    x.fillStyle = ink3; x.font = '18px ' + sans;
+    x.fillText(labels[i], bx + bw/2, 222);
+    x.fillStyle = red; x.font = '700 40px ' + serif;
+    x.fillText(p.gan, bx + bw/2 - 22, 272);
+    x.fillStyle = ink;
+    x.fillText(p.zhi, bx + bw/2 + 22, 272);
+    x.fillStyle = ink3; x.font = '16px ' + sans;
+    x.fillText(p.ganWx + '·' + p.zhiWx, bx + bw/2, 296);
+  });
+
+  x.fillStyle = ink2; x.font = '19px ' + sans;
+  x.fillText(bz.y + ' 年 ' + bz.m + ' 月 ' + bz.d + ' 日　' + bz.gender + '命　日主 ' + bz.dayGan
+    + '　' + bz.strength.level + '　喜用 ' + bz.fav.use, W/2, 344);
+
+  // 结局称号
+  x.fillStyle = gold; x.font = '700 62px ' + serif;
+  x.fillText(G.ending.name, W/2, 434);
+  x.fillStyle = ink3; x.font = '20px ' + sans;
+  x.fillText('享年 ' + G.life + ' 岁　·　评分 ' + G.score + '　·　评级 ' + grade(G.score), W/2, 470);
+  x.fillStyle = ink3; x.font = '17px ' + sans;
+  x.fillText(G.bazi.y + ' — ' + (G.bazi.y + G.life), W/2, 498);
+
+  x.strokeStyle = '#ded3bd';
+  x.beginPath(); x.moveTo(90, 522); x.lineTo(W - 90, 522); x.stroke();
+
+  // 属性
+  const keys = ['健康','心智','学识','财富','事业','名望','情感','机缘','功德','心性'];
+  const cw = 285, ch = 30, ox = 62, oy = 552;
+  keys.forEach((k, i)=>{
+    const col = i % 2, row = Math.floor(i / 2);
+    const px = ox + col * (cw + 56), py = oy + row * ch;
+    x.textAlign = 'left';
+    x.fillStyle = ink2; x.font = '18px ' + sans;
+    x.fillText(k, px, py);
+    x.fillStyle = '#eee4d0';
+    x.fillRect(px + 58, py - 12, cw - 58 - 46, 13);
+    const v = clamp(G.attrs[k], 0, 100);
+    x.fillStyle = ATTR_COLOR[k] || gold;
+    x.fillRect(px + 58, py - 12, (cw - 58 - 46) * v / 100, 13);
+    x.textAlign = 'right';
+    x.fillStyle = ink; x.font = '700 17px ' + sans;
+    x.fillText(Math.round(G.attrs[k]), px + cw, py);
+    x.textAlign = 'center';
+  });
+
+  // 标签
+  let ty = oy + 5 * ch + 28;
+  x.textAlign = 'left';
+  x.fillStyle = ink3; x.font = '17px ' + sans;
+  x.fillText('成就标签', 62, ty);
+  ty += 12;
+  let tx = 62;
+  x.font = '16px ' + sans;
+  (G.tags.length ? G.tags.slice(0, 14) : ['平平无奇']).forEach(t=>{
+    const w = x.measureText(t).width + 22;
+    if(tx + w > W - 62){ tx = 62; ty += 34; }
+    if(ty > 900) return;
+    x.fillStyle = 'rgba(184,144,44,.12)';
+    x.fillRect(tx, ty, w, 28);
+    x.strokeStyle = 'rgba(184,144,44,.4)';
+    x.strokeRect(tx, ty, w, 28);
+    x.fillStyle = '#8a6a12';
+    x.fillText(t, tx + 11, ty + 20);
+    tx += w + 8;
+  });
+
+  // 时间线
+  let ly = 940;
+  x.strokeStyle = '#ded3bd';
+  x.beginPath(); x.moveTo(90, ly - 20); x.lineTo(W - 90, ly - 20); x.stroke();
+  x.fillStyle = ink3; x.font = '17px ' + sans;
+  x.fillText('人生时间线', 62, ly + 2);
+  ly += 30;
+  const items = keyTimeline().slice(0, 9);
+  items.forEach(it=>{
+    x.fillStyle = gold; x.font = '700 17px ' + sans;
+    x.fillText(it.age + '岁', 62, ly);
+    x.fillStyle = ink2; x.font = '17px ' + sans;
+    const txt = it.title + ' · ' + it.choice;
+    let t2 = txt;
+    if(x.measureText(t2).width > W - 200) t2 = t2.slice(0, 22) + '…';
+    x.fillText(t2, 122, ly);
+    ly += 27;
+  });
+
+  // 底部合规
+  x.fillStyle = ink3; x.font = '16px ' + sans;
+  x.fillText('娱乐模拟，不构成任何建议', W/2, H - 84);
+  x.font = '14px ' + sans;
+  x.fillText('虚构游戏 · 非真实排盘 · 不提供预测 / 医疗 / 投资 / 法律建议', W/2, H - 58);
+  x.font = '13px ' + sans;
+  x.fillStyle = '#b0a795';
+  x.fillText('还想再活五百年 · 单文件离线版', W/2, H - 32);
+
+  return c.toDataURL('image/png');
+}
+
+function buildShareText(){
+  const a = G.attrs;
+  const top = ['财富','事业','名望','学识','心性','功德']
+    .map(k=>({k, v:a[k]})).sort((x,y)=>y.v - x.v).slice(0,3)
+    .map(o=>o.k + ' ' + Math.round(o.v)).join('、');
+  const items = keyTimeline().slice(0, 3).map(it=>'· ' + it.age + '岁「' + it.title + '」' + it.choice).join('\n');
+  return '【还想再活五百年 · 八字轮回】\n'
+    + '我这一世的命盘：' + G.bazi.yearGz + ' ' + G.bazi.monthGz + ' ' + G.bazi.dayGz + ' ' + G.bazi.hourGz
+    + '（日主 ' + G.bazi.dayGan + ' · ' + G.bazi.strength.level + ' · 喜用 ' + G.bazi.fav.use + '）\n'
+    + '结局称号：' + G.ending.name + '　享年 ' + G.life + ' 岁　评分 ' + G.score + '（' + grade(G.score) + '）\n'
+    + '长处：' + top + '\n'
+    + '标签：' + (G.tags.length ? G.tags.slice(0,8).join(' / ') : '平平无奇') + '\n'
+    + '人生片段：\n' + items + '\n'
+    + '累计已在 ' + META.lives + ' 世活过 ' + Math.round(META.totalLife) + ' 年，还差 '
+    + Math.round(Math.max(0, 500 - META.totalLife)) + ' 年就满五百年。\n'
+    + '—— 娱乐模拟，不构成任何建议。';
+}
+
+let posterURL = '';
+function renderShare(){
+  posterURL = buildPoster();
+  $('posterImg').src = posterURL;
+  $('shareText').textContent = buildShareText();
+}
+
+function savePoster(){
+  if(!posterURL) return;
+  const a = document.createElement('a');
+  a.href = posterURL;
+  a.download = '还想再活五百年_' + G.ending.name + '_' + G.life + '岁.png';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function copyShare(){
+  const txt = buildShareText();
+  const done = ()=>toastModal('已复制', '分享文案已经复制到剪贴板。<br/><br/>文案内含合规声明，请勿删改。');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done).catch(()=>fallbackCopy(txt, done));
+  }else{
+    fallbackCopy(txt, done);
+  }
+}
+function fallbackCopy(txt, done){
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try{ document.execCommand('copy'); done(); }
+  catch(e){ toastModal('复制失败', '请长按下方文案手动选择复制。'); }
+  document.body.removeChild(ta);
+}
+
+/* ================================================================== 20. 视觉特效层 */
+
+/* ---------- 背景浮尘粒子 ---------- */
+function initBgFx(){
+  const cv = $('bgFx');
+  if(!cv || !cv.getContext) return;
+  const x = cv.getContext('2d');
+  let W = 0, H = 0, dots = [], raf = null;
+  const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function newDot(){
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: 0.6 + Math.random() * 2.0,
+      vy: -(0.10 + Math.random() * 0.40),
+      vx: (Math.random() - 0.5) * 0.20,
+      a: 0.10 + Math.random() * 0.28,
+      warm: Math.random() < 0.78
+    };
+  }
+  function resize(){
+    W = cv.width = window.innerWidth;
+    H = cv.height = window.innerHeight;
+    const n = clamp(Math.round(W / 15), 16, 54);
+    dots = [];
+    for(let i = 0; i < n; i++) dots.push(newDot());
+  }
+  function frame(){
+    x.clearRect(0, 0, W, H);
+    for(let i = 0; i < dots.length; i++){
+      const d = dots[i];
+      d.x += d.vx; d.y += d.vy;
+      if(d.y < -10){ d.y = H + 10; d.x = Math.random() * W; }
+      if(d.x < -10) d.x = W + 10;
+      if(d.x > W + 10) d.x = -10;
+      x.beginPath();
+      x.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      x.fillStyle = d.warm
+        ? 'rgba(184,144,44,' + d.a.toFixed(3) + ')'
+        : 'rgba(176,58,46,' + (d.a * 0.6).toFixed(3) + ')';
+      x.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  frame();
+  if(reduce){ cancelAnimationFrame(raf); }
+}
+
+/* ---------- 浮动增减数字 ---------- */
+function floatNum(x, y, text, up){
+  const el = document.createElement('div');
+  el.className = 'floatnum ' + (up ? 'up' : 'dn');
+  el.textContent = text;
+  el.style.left = Math.round(x) + 'px';
+  el.style.top = Math.round(y) + 'px';
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.parentNode.removeChild(el); }, 1300);
+}
+
+/* ---------- 事件场景意境插画（按事件类别生成 SVG） ---------- */
+function sceneSVG(cat){
+  const ink = '#5e564b', red = '#b03a2e', gold = '#b8902c', green = '#4a7c59',
+        blue = '#3c6e9e', purple = '#7a5b9e';
+  const far =
+      '<path d="M0,84 L50,56 L88,78 L130,42 L174,80 L216,54 L264,82 L310,58 L360,84 L360,116 L0,116 Z" fill="#eae0cb" opacity=".8"/>'
+    + '<path d="M0,96 L46,74 L94,92 L142,66 L190,94 L238,70 L290,96 L334,76 L360,92 L360,116 L0,116 Z" fill="#ddd1b6" opacity=".95"/>';
+  const moon = '<circle cx="298" cy="32" r="14" fill="#f6ecd6" stroke="#ddcda8" stroke-width="1"/>';
+
+  let fg = '';
+  switch(cat){
+    case '家庭':
+      fg = '<path d="M146,74 L180,48 L214,74" fill="none" stroke="'+ink+'" stroke-width="2.4" stroke-linejoin="round"/>'
+         + '<rect x="156" y="74" width="48" height="30" fill="#fdf8ec" stroke="'+ink+'" stroke-width="2"/>'
+         + '<rect x="172" y="86" width="16" height="18" fill="'+gold+'" opacity=".3" stroke="'+ink+'" stroke-width="1.2"/>';
+      break;
+    case '学业':
+      fg = '<rect x="150" y="62" width="58" height="40" rx="3" fill="#fdf8ec" stroke="'+ink+'" stroke-width="2"/>'
+         + '<line x1="157" y1="74" x2="201" y2="74" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+         + '<line x1="157" y1="82" x2="201" y2="82" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+         + '<line x1="157" y1="90" x2="188" y2="90" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+         + '<rect x="220" y="52" width="7" height="50" rx="3" fill="'+red+'" opacity=".8"/>'
+         + '<path d="M220,52 L223.5,43 L227,52 Z" fill="'+ink+'"/>';
+      break;
+    case '事业':
+      fg = '<rect x="138" y="84" width="84" height="22" fill="#efe6d2" stroke="'+ink+'" stroke-width="2"/>'
+         + '<rect x="154" y="62" width="52" height="22" fill="#f5ecd9" stroke="'+ink+'" stroke-width="2"/>'
+         + '<rect x="172" y="40" width="16" height="22" fill="#faf3e4" stroke="'+ink+'" stroke-width="2"/>'
+         + '<path d="M180,40 L180,20" stroke="'+ink+'" stroke-width="1.8"/>'
+         + '<path d="M180,20 L202,26 L180,33 Z" fill="'+red+'" opacity=".85"/>';
+      break;
+    case '财富':
+      fg = '<circle cx="180" cy="70" r="26" fill="#f7efdb" stroke="'+gold+'" stroke-width="2.6"/>'
+         + '<rect x="170" y="60" width="20" height="20" fill="none" stroke="'+gold+'" stroke-width="2.6"/>'
+         + '<circle cx="126" cy="92" r="13" fill="#f7efdb" stroke="'+gold+'" stroke-width="1.8" opacity=".7"/>'
+         + '<circle cx="236" cy="50" r="10" fill="#f7efdb" stroke="'+gold+'" stroke-width="1.6" opacity=".6"/>';
+      break;
+    case '情感':
+      fg = '<circle cx="164" cy="70" r="24" fill="none" stroke="'+blue+'" stroke-width="2.2" opacity=".8"/>'
+         + '<circle cx="198" cy="70" r="24" fill="none" stroke="'+red+'" stroke-width="2.2" opacity=".75"/>'
+         + '<path d="M250,104 C250,80 260,62 286,52" stroke="'+ink+'" stroke-width="1.8" fill="none"/>'
+         + '<circle cx="276" cy="58" r="3" fill="'+red+'" opacity=".7"/>'
+         + '<circle cx="288" cy="50" r="2.4" fill="'+red+'" opacity=".6"/>'
+         + '<circle cx="266" cy="70" r="2.6" fill="'+red+'" opacity=".5"/>';
+      break;
+    case '健康':
+      fg = '<path d="M148,104 L148,40" stroke="'+green+'" stroke-width="4" stroke-linecap="round"/>'
+         + '<path d="M148,74 L174,62" stroke="'+green+'" stroke-width="3" stroke-linecap="round"/>'
+         + '<path d="M148,88 L124,78" stroke="'+green+'" stroke-width="3" stroke-linecap="round"/>'
+         + '<path d="M174,62 C184,56 190,60 188,68" stroke="'+green+'" stroke-width="2" fill="none"/>'
+         + '<path d="M124,78 C114,72 108,76 110,84" stroke="'+green+'" stroke-width="2" fill="none"/>'
+         + '<circle cx="242" cy="66" r="18" fill="'+gold+'" opacity=".14"/>'
+         + '<circle cx="242" cy="66" r="9" fill="#f8f1de" stroke="'+gold+'" stroke-width="2"/>';
+      break;
+    case '机缘':
+      fg = '<path d="M180,24 L188,58 L222,66 L188,74 L180,108 L172,74 L138,66 L172,58 Z" fill="'+gold+'" opacity=".2"/>'
+         + '<path d="M180,36 L186,62 L210,68 L186,74 L180,100 L174,74 L150,68 L174,62 Z" fill="none" stroke="'+gold+'" stroke-width="1.8"/>'
+         + '<line x1="248" y1="44" x2="270" y2="44" stroke="'+ink+'" stroke-width="2.4" opacity=".5"/>'
+         + '<line x1="248" y1="56" x2="256" y2="56" stroke="'+ink+'" stroke-width="2.4" opacity=".5"/>'
+         + '<line x1="262" y1="56" x2="270" y2="56" stroke="'+ink+'" stroke-width="2.4" opacity=".5"/>'
+         + '<line x1="248" y1="68" x2="270" y2="68" stroke="'+ink+'" stroke-width="2.4" opacity=".5"/>'
+         + '<line x1="248" y1="80" x2="256" y2="80" stroke="'+ink+'" stroke-width="2.4" opacity=".5"/>'
+         + '<line x1="262" y1="80" x2="270" y2="80" stroke="'+ink+'" stroke-width="2.4" opacity=".5"/>';
+      break;
+    case '危机':
+      fg = '<path d="M196,16 L168,62 L188,62 L164,104 L214,56 L190,56 L214,16 Z" fill="'+red+'" opacity=".6"/>'
+         + '<path d="M96,104 L114,80 L130,92 L148,66 L166,104" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".65"/>'
+         + '<path d="M236,104 L252,84 L268,96 L288,72" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".5"/>';
+      break;
+    case '修行':
+      fg = '<ellipse cx="180" cy="100" rx="36" ry="8" fill="'+purple+'" opacity=".12"/>'
+         + '<path d="M180,88 C168,76 162,62 180,46 C198,62 192,76 180,88 Z" fill="'+purple+'" opacity=".2" stroke="'+purple+'" stroke-width="1.6"/>'
+         + '<path d="M180,88 C160,82 148,72 152,58 C168,62 178,70 180,88 Z" fill="'+purple+'" opacity=".14" stroke="'+purple+'" stroke-width="1.4"/>'
+         + '<path d="M180,88 C200,82 212,72 208,58 C192,62 182,70 180,88 Z" fill="'+purple+'" opacity=".14" stroke="'+purple+'" stroke-width="1.4"/>';
+      break;
+    case '日常':
+      fg = '<path d="M152,74 L208,74 C208,90 200,98 180,98 C160,98 152,90 152,74 Z" fill="#faf3e4" stroke="'+ink+'" stroke-width="2"/>'
+         + '<line x1="146" y1="74" x2="214" y2="74" stroke="'+ink+'" stroke-width="2.4" stroke-linecap="round"/>'
+         + '<path d="M214,78 C226,78 226,90 214,90" fill="none" stroke="'+ink+'" stroke-width="2"/>'
+         + '<path d="M172,64 C168,56 176,52 172,44" fill="none" stroke="'+ink+'" stroke-width="1.6" opacity=".45"/>'
+         + '<path d="M188,64 C184,55 192,51 188,42" fill="none" stroke="'+ink+'" stroke-width="1.6" opacity=".35"/>';
+      break;
+    case '晚年':
+      fg = '<path d="M120,104 L120,50" stroke="'+ink+'" stroke-width="3" stroke-linecap="round"/>'
+         + '<path d="M120,64 L152,50" stroke="'+ink+'" stroke-width="2.4" stroke-linecap="round"/>'
+         + '<path d="M120,80 L88,66" stroke="'+ink+'" stroke-width="2.4" stroke-linecap="round"/>'
+         + '<path d="M152,50 C162,44 168,48 166,56" stroke="'+ink+'" stroke-width="1.8" fill="none"/>'
+         + '<path d="M88,66 C78,60 72,64 74,72" stroke="'+ink+'" stroke-width="1.8" fill="none"/>'
+         + '<circle cx="264" cy="58" r="26" fill="'+red+'" opacity=".1"/>'
+         + '<circle cx="264" cy="58" r="15" fill="'+red+'" opacity=".16"/>';
+      break;
+    case '时代':
+      fg = '<rect x="116" y="68" width="34" height="38" fill="#efe6d2" stroke="'+ink+'" stroke-width="1.8"/>'
+         + '<rect x="158" y="44" width="40" height="62" fill="#f5ecd9" stroke="'+ink+'" stroke-width="1.8"/>'
+         + '<rect x="206" y="76" width="30" height="30" fill="#efe6d2" stroke="'+ink+'" stroke-width="1.8"/>'
+         + '<rect x="244" y="56" width="28" height="50" fill="#f5ecd9" stroke="'+ink+'" stroke-width="1.8"/>'
+         + '<line x1="128" y1="80" x2="140" y2="80" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+         + '<line x1="168" y1="58" x2="188" y2="58" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+         + '<line x1="168" y1="70" x2="188" y2="70" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+         + '<circle cx="62" cy="36" r="17" fill="'+gold+'" opacity=".18"/>';
+      break;
+    case '大限':
+    default:
+      fg = '<path d="M152,98 L208,98 L202,84 L158,84 Z" fill="#f5ecd9" stroke="'+ink+'" stroke-width="2"/>'
+         + '<path d="M180,84 L180,56" stroke="'+ink+'" stroke-width="2"/>'
+         + '<circle cx="180" cy="44" r="9" fill="'+gold+'" opacity=".6"/>'
+         + '<circle cx="180" cy="44" r="20" fill="'+gold+'" opacity=".12"/>'
+         + '<circle cx="180" cy="44" r="33" fill="'+gold+'" opacity=".06"/>';
+  }
+  return '<svg viewBox="0 0 360 116" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'
+    + '<rect width="360" height="116" fill="#fdfaf3"/>'
+    + '<rect width="360" height="116" fill="#f4ecd9" opacity=".55"/>'
+    + moon + far + fg + '</svg>';
+}
+
+/* ---------- 生命轨迹曲线 ---------- */
+function recordSnapshot(){
+  const a = G.attrs;
+  const core = ['健康','心智','学识','财富','事业','名望','情感','机缘'];
+  const avg = core.reduce((s,k)=> s + a[k], 0) / core.length;
+  G.snapshots.push({
+    age: G.age,
+    state: Math.round(avg * 10) / 10,
+    life: Math.round(a['寿元'] * 10) / 10,
+    merit: a['功德'],
+    karma: a['业力']
+  });
+}
+function drawLifeChart(){
+  const cv = $('lifeChart');
+  if(!cv || !cv.getContext) return;
+  const dpr = window.devicePixelRatio > 1 ? 2 : 1;
+  const W = Math.max(260, (cv.parentElement ? cv.parentElement.clientWidth : 320) - 18);
+  const H = 200;
+  cv.width = Math.floor(W * dpr);
+  cv.height = Math.floor(H * dpr);
+  cv.style.width = W + 'px';
+  cv.style.height = H + 'px';
+  const x = cv.getContext('2d');
+  x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  x.clearRect(0, 0, W, H);
+
+  let snaps = (G.snapshots || []).slice();
+  if(snaps.length < 2){
+    snaps = [{age:0, state:50, life:60, merit:40, karma:30},
+             {age:Math.max(1, G.life), state:50, life:0, merit:45, karma:35}];
+  }
+  const padL = 28, padR = 10, padT = 12, padB = 22;
+  const pw = W - padL - padR, ph = H - padT - padB;
+  const maxAge = Math.max(1, snaps[snaps.length - 1].age);
+  const px = a => padL + (a / maxAge) * pw;
+  const py = v => padT + (1 - clamp(v, 0, 100) / 100) * ph;
+
+  // 网格
+  x.strokeStyle = '#ece3d2'; x.lineWidth = 1;
+  x.font = '9px -apple-system,"PingFang SC","Microsoft YaHei",sans-serif';
+  for(let i = 0; i <= 4; i++){
+    const yy = padT + ph * i / 4;
+    x.beginPath(); x.moveTo(padL, yy); x.lineTo(W - padR, yy); x.stroke();
+    x.fillStyle = '#b6ab95'; x.textAlign = 'right'; x.textBaseline = 'middle';
+    x.fillText(String(100 - i * 25), padL - 6, yy);
+  }
+  x.textAlign = 'center'; x.textBaseline = 'top';
+  for(let i = 0; i <= 4; i++){
+    const a = Math.round(maxAge * i / 4);
+    x.fillStyle = '#b6ab95';
+    x.fillText(a + '岁', px(a), H - padB + 6);
+  }
+
+  // 状态曲线下的浅填充
+  x.beginPath();
+  snaps.forEach((s, i)=>{ const X = px(s.age), Y = py(s.state); i ? x.lineTo(X, Y) : x.moveTo(X, Y); });
+  x.lineTo(px(maxAge), padT + ph); x.lineTo(padL, padT + ph); x.closePath();
+  x.fillStyle = 'rgba(176,58,46,.07)'; x.fill();
+
+  function stroke(key, color, w){
+    x.beginPath();
+    snaps.forEach((s, i)=>{
+      const X = px(s.age), Y = py(s[key]);
+      i ? x.lineTo(X, Y) : x.moveTo(X, Y);
+    });
+    x.strokeStyle = color; x.lineWidth = w; x.lineJoin = 'round'; x.lineCap = 'round';
+    x.stroke();
+  }
+  stroke('karma', '#7a5b9e', 1.4);
+  stroke('merit', '#4a7c59', 1.4);
+  stroke('life',  '#b8902c', 1.8);
+  stroke('state', '#b03a2e', 2.4);
+
+  // 终点标记
+  const last = snaps[snaps.length - 1];
+  [['state', '#b03a2e'], ['life', '#b8902c']].forEach(([k, c])=>{
+    x.beginPath();
+    x.arc(px(last.age), py(last[k]), 3, 0, Math.PI * 2);
+    x.fillStyle = c; x.fill();
+    x.strokeStyle = '#fffdf8'; x.lineWidth = 1.4; x.stroke();
+  });
+}
+
+/* ------------------------------------------------------------------ 19. 初始化与绑定 */
+function toggleFast(){
+  G.fast = !G.fast;
+  $('btnFast').textContent = '极速模式 ' + (G.fast ? '开' : '关');
+  $('btnFast').classList.toggle('on', G.fast);
+  if(G.fast && $('screen-life').classList.contains('active')){
+    if(G.pidx < G.pending.length && !G.choosing) renderLife();
+    else if(G.pidx >= G.pending.length) scheduleFast(nextYear);
+  }
+  if(!G.fast) clearTimeout(G.fastTimer);
+}
+
+function init(){
+  initBgFx();
+  fillSelects();
+  renderHome();
+
+  $('inY').addEventListener('change', fillDays);
+  $('inM').addEventListener('change', fillDays);
+  $('inUnknown').addEventListener('change', ()=>{
+    $('inH').disabled = $('inUnknown').checked;
+  });
+
+  $('btnStart').addEventListener('click', ()=>{ G.fast = false; toggleFastOff(); startGame(null); });
+  $('btnRandom').addEventListener('click', ()=>{ G.fast = false; toggleFastOff(); randomGame(); });
+  $('btnHistory').addEventListener('click', showHistory);
+  $('btnCycleHome').addEventListener('click', ()=>{ renderCycle(); show('cycle'); });
+  $('btnToLife').addEventListener('click', ()=>{ beginYear(); show('life'); updateLog(); });
+  $('btnSkipYear').addEventListener('click', skipYear);
+  $('btnAttrPanel').addEventListener('click', openAttrPanel);
+  $('btnSettleShare').addEventListener('click', ()=>{ renderShare(); show('share'); });
+  $('btnSettleCycle').addEventListener('click', ()=>{ renderCycle(); show('cycle'); });
+  $('btnNextLife').addEventListener('click', backToHomeForNext);
+  $('btnCycleBack').addEventListener('click', ()=>{ renderHome(); show('home'); });
+  $('btnShareBack').addEventListener('click', ()=> show(G.died ? 'settle' : 'home'));
+  $('btnSavePoster').addEventListener('click', savePoster);
+  $('btnCopyText').addEventListener('click', copyShare);
+  $('btnFast').addEventListener('click', toggleFast);
+}
+function toggleFastOff(){
+  if(G.fast){ G.fast = false; $('btnFast').textContent = '极速模式 关'; $('btnFast').classList.remove('on'); }
+}
+function backToHomeForNext(){
+  G.fast = false; toggleFastOff();
+  clearTimeout(G.fastTimer);
+  renderHome();
+  show('home');
+  toastModal('再活一世', '命魂与天赋碎片已存入账本。<br/><br/>'
+    + '回到首页重新输入生辰，或点「随机命盘」直接开始下一世。<br/><br/>'
+    + '<span style="color:var(--ink3)">当前累计寿命 ' + Math.round(META.totalLife) + ' / 500 年。</span>');
+}
+
+/* 暴露给内联事件 */
+window.chooseOption = chooseOption;
+window.advanceEvent = advanceEvent;
+window.nextYear = nextYear;
+window.buyTalent = buyTalent;
+
+init();
+</script>
+</body>
+</html>
