@@ -4,6 +4,13 @@
 >
 > 单文件 HTML，无后端、无依赖，双击即玩。
 
+### ▶︎ [**点此在线试玩**](https://yueyangdong.github.io/five-hundred-more-years/)
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Single File](https://img.shields.io/badge/single--file-HTML-orange.svg)](index.html)
+[![No Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen.svg)](index.html)
+[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-blueviolet.svg)](https://yueyangdong.github.io/five-hundred-more-years/)
+
 **⚠️ 娱乐模拟，不构成任何建议。** 本项目为虚构游戏，不提供真实预测、算命服务、医疗建议、投资建议或法律建议。
 
 ---
@@ -39,13 +46,17 @@
 
 ## 快速开始
 
-### 方式一：直接玩
+### 方式一：在线玩（推荐）
 
-下载 `index.html`，双击用浏览器打开。就这么简单。
+👉 **<https://yueyangdong.github.io/five-hundred-more-years/>**
 
-移动端、桌面端都能玩，**移动端优先**设计。
+打开即玩，无需下载。移动端、桌面端都能玩，**移动端优先**设计。
 
-### 方式二：本地起服务
+### 方式二：下载单文件
+
+下载仓库里的 `index.html`，双击用浏览器打开。就这么简单，不需要任何环境。
+
+### 方式三：本地起服务
 
 ```bash
 python -m http.server 8080
