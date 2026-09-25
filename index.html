@@ -738,7 +738,7 @@ body::before{opacity:.18}
 
 @media (max-width:980px){
   .sidebar{
-    position:fixed;left:0;right:0;bottom:calc(49px + var(--safe-b));z-index:45;
+    position:fixed;left:0;right:0;bottom:var(--sb-bottom,52px);z-index:45;
     display:flex;padding:5px 6px calc(5px);
     background:rgba(250,250,252,.88);border-top:1px solid var(--line2);
     -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
@@ -3619,11 +3619,21 @@ function renderSidebar(){
   if($('sbLife'))  $('sbLife').textContent  = Math.round(META.totalLife);
   if($('sbLives')) $('sbLives').textContent = META.lives;
 }
+/* 窄屏底部标签栏：贴在合规提示条上方。提示条会随字数换行，高度写死会打架，所以实测。 */
+function placeSidebar(){
+  const bar = document.querySelector ? document.querySelector('.compliance') : null;
+  const h = (bar && bar.getBoundingClientRect) ? Math.round(bar.getBoundingClientRect().height) : 50;
+  const root = document.documentElement;
+  if(root && root.style && root.style.setProperty) root.style.setProperty('--sb-bottom', h + 'px');
+  const narrow = !!(window.matchMedia && window.matchMedia('(max-width:980px)').matches);
+  if(document.body && document.body.style) document.body.style.paddingBottom = narrow ? (h + 76) + 'px' : '';
+}
 function syncNav(name){
   const target = NAV_SCREENS[name] || name;
   document.querySelectorAll('.sb-item').forEach(b=>{
     b.classList.toggle('active', b.dataset.nav === target);
   });
+  placeSidebar();
   renderSidebar();
 }
 /* 分区跳转：缺前置条件时给提示，不留白屏 */
@@ -5896,6 +5906,8 @@ function init(){
   fillSelects();
   applySavedBirth();   // 存档里的生辰八字自动回填到投胎表单
   renderHome();
+  placeSidebar();
+  window.addEventListener('resize', placeSidebar);
 
   $('inY').addEventListener('change', fillDays);
   $('inM').addEventListener('change', fillDays);
