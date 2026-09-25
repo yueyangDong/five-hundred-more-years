@@ -1233,6 +1233,37 @@ html{touch-action:manipulation}
 @media (prefers-reduced-motion:reduce){
   .fxcat,.fxrite{animation:none !important;opacity:0 !important}
 }
+
+/* ---------- 5.5 病中：卧病的年份也要有得选 ---------- */
+.event.sick{border:1px solid rgba(74,124,89,.34);box-shadow:var(--sh2)}
+.event.sick .etop{text-align:center;padding:15px 18px 10px}
+.event.sick h3{font-family:var(--font-brand);font-size:20px;letter-spacing:.08em;text-align:center}
+.event.sick .desc{text-align:center;color:var(--label2)}
+.sicktag{display:inline-block;margin:0 0 2px;padding:2px 10px;border-radius:999px;
+  font-size:11px;letter-spacing:.2em;color:#1b7439;
+  background:rgba(74,124,89,.14);border:1px solid rgba(74,124,89,.3)}
+.sicknote{margin:0 12px;padding:7px 11px;border-radius:10px;font-size:12.5px;line-height:1.6;
+  background:rgba(74,124,89,.11);border:1px dashed rgba(74,124,89,.3);color:#3d6b4a}
+.sicknote::before{content:"病 中　";font-weight:600;letter-spacing:1px}
+:root[data-theme="dark"] .event.sick{border-color:rgba(48,209,88,.3)}
+:root[data-theme="dark"] .sicktag{color:#7ce49b;background:rgba(48,209,88,.16);border-color:rgba(48,209,88,.32)}
+:root[data-theme="dark"] .sicknote{color:#7ce49b;background:rgba(48,209,88,.1)}
+
+/* ---------- 5.6 动效 token 与指针门控
+   曲线取 animate skill 给的推荐值，不再自造 cubic-bezier；指针门控是动效的
+   组成部分（触屏在 tap 时会误触发 :hover），不是可选项。 ---------- */
+:root{
+  --ease-out:cubic-bezier(0.23,1,0.32,1);       /* 进入 / 退出 */
+  --ease-in-out:cubic-bezier(0.77,0,0.175,1);   /* 屏上移动 */
+  --ease-drawer:cubic-bezier(0.32,0.72,0,1);    /* 抽屉 / 进度 */
+}
+.fill{transition:width .45s var(--ease-drawer)}
+.ambtrack i{transition:width .5s var(--ease-drawer)}
+.opt,.btn,.tbtn,.sb-item,.morebtn,.amb{transition-timing-function:var(--ease-out)}
+@media (hover:none){
+  .opt:hover{background:var(--fill2);border:none;box-shadow:none;transform:none}
+  .sb-item:hover{background:none}
+}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -1815,7 +1846,7 @@ const CAT_WX = {
 const CAT_SLUG = {
   '家庭':'home','学业':'study','事业':'career','财富':'wealth','情感':'love','健康':'health',
   '机缘':'luck','危机':'crisis','修行':'cultivate','日常':'daily','晚年':'elder','时代':'era',
-  '大限':'last','方外':'monk','问心':'heart'
+  '大限':'last','方外':'monk','问心':'heart','病中':'sick'
 };
 /* 方外身份：sec=在俗，buddha=佛门，tao=道门。
    心性与耗损机制按路线区分：道门重养生，佛门重功德。 */
@@ -3011,19 +3042,19 @@ const EVENTS_EXTRA = [
   {t:'借这次机会把生活全盘重来',e:{心性:11,健康:5,事业:-6,财富:-6,机缘:6},tg:['重生'],r:'你把断掉的那些事都断了。有人说你变了，你说对，是变了。'},
   {t:'为了家里，选最省的治疗',e:{财富:4,功德:8,情感:4,健康:-11,寿元:-5,心性:7},tg:['省己'],r:'你把进口药换成了便宜的。家里没人知道。你说得最多的一句是：我好多了。'}
  ]},
-{id:'cri12',cat:'危机',title:'一纸诉状',desc:'你成了被告。理由你看了三遍才看明白。',age:[26,62],w:13,cond:{},
+{id:'cri12',cat:'危机',title:'失窃',desc:'门锁被撬了。柜子空了一半，那是你攒了几年的东西。',age:[26,62],w:13,cond:{},
  opts:[
-  {t:'请最好的律师，正面应诉',e:{财富:-11,名望:5,心智:7,业力:3},tg:['对簿'],r:'官司打了两年。你赢了，也累掉了一层皮。'},
-  {t:'庭外和解，花钱了事',e:{财富:-9,心性:6,名望:-3},tg:['了结'],r:'你把钱付了，把事按下去。心里那口气一直没顺。'},
-  {t:'自己上，把道理讲清楚',e:{心智:9,学识:7,名望:4,健康:-5},tg:['自辩'],r:'你在法庭上把时间线一条条摆出来。法官看了你很久。'},
-  {t:'托人找关系，走门路',e:{财富:-7,机缘:7,心智:5,业力:8,名望:-5,心性:2},tg:['托门'],r:'一个饭局之后，案子的走向就变了。你赢了，但你清楚自己赢在哪儿。'}
+  {t:'报官，走正经路子',e:{财富:-11,名望:5,心智:7,业力:3},tg:['报官'],r:'案子立了。东西追回来三成，剩下的成了卷宗里的一个数字。'},
+  {t:'算了，当破财消灾',e:{财富:-9,心性:6,名望:-3},tg:['认了'],r:'你把坏了的门修好，没再提这件事。夜里有一阵子睡不安稳。'},
+  {t:'自己查，一家一家问过去',e:{心智:9,学识:7,名望:4,健康:-5},tg:['自寻'],r:'你查了两个月，查出那条线索。街坊看你的眼神从那以后有点不一样。'},
+  {t:'托道上的人把东西要回来',e:{财富:-7,机缘:7,心智:5,业力:8,名望:-5,心性:2},tg:['托人'],r:'东西回来了，一件没少。只是从此以后，有人觉得找你办这种事也行。'}
  ]},
-{id:'cri13',cat:'危机',title:'被泼的脏水',desc:'一句没有来源的话，在圈子里传得比真相快。',age:[24,58],w:13,cond:{},
+{id:'cri13',cat:'危机',title:'摊子散了',desc:'一起做事的人把话摆到桌面上——不是一个人走，是走了大半。',age:[24,58],w:13,cond:{},
  opts:[
-  {t:'公开发声，把证据摆出来',e:{名望:7,心智:8,健康:-5,业力:3},tg:['自证'],r:'你把材料发了出来。多数人信了，少数人不在乎真假。'},
-  {t:'不解释，让时间说',e:{心性:9,名望:-5,功德:4},tg:['沉默'],r:'你什么都没说。半年后没人再提，但有几个人从此没再联系你。'},
-  {t:'换个环境重新开始',e:{机缘:7,心性:6,名望:-7,财富:4},tg:['远走'],r:'你去了没人认识你的地方，重新做了一遍自我介绍。'},
-  {t:'把脏水泼回去，找出源头',e:{名望:5,心智:8,业力:9,情感:-6,健康:-4,心性:5},tg:['反泼'],r:'你查了半年，查出了那个名字，也让别人念了他的名字半年。事情干净了，你不太干净。'}
+  {t:'把话摊开，当面分清楚',e:{名望:7,心智:8,健康:-5,业力:3},tg:['摊开'],r:'账算了两天两夜。分完了，谁也没占谁的便宜，谁也没再回头。'},
+  {t:'不争，该留的留着',e:{心性:9,名望:-5,功德:4},tg:['不争'],r:'你把自己那份收了，剩下的都留给了他们。有人说你傻，你没接话。'},
+  {t:'换个地方重开一摊',e:{机缘:7,心性:6,名望:-7,财富:4},tg:['重开'],r:'你在另一个地方重新支起摊子，从头又招了一遍人。'},
+  {t:'把主事的那个拉下来',e:{名望:5,心智:8,业力:9,情感:-6,健康:-4,心性:5},tg:['拉下'],r:'你查清了他的手脚，也把话说到了明处。摊子还是散了，只是散得对你有利。'}
  ]},
 {id:'cri14',cat:'危机',title:'身后的那一刀',desc:'你最信任的人，在关键的时候站到了对面。',age:[25,58],w:13,cond:{tags:['知己','合伙','挚友','搭档','带队']},
  opts:[
@@ -3679,6 +3710,50 @@ const HEART = [
  ]}
 ];
 
+/* ------------------------------------------------------------------ 2f. 病中 · 独立事件类
+   健康见底之后，玩家能做的事不该只剩「跳过今年」——那是干熬，不是玩法。
+   与问心局同一套路：不进 EVENTS、不参与加权抽取，只在病中额外插入，
+   所以现有事件的概率与平衡不受影响。数值刻意保守：病中不是刷收益的地方，
+   想换回健康就得拿事业、财富去换。 */
+const SICK = [
+{id:'sk01',kind:'sick',cat:'病中',title:'卧床',age:[16,120],cond:{},
+ desc:'烧退了，人还起不来。窗上的光从东墙挪到西墙，你数了两遍。',
+ opts:[
+  {t:'什么也不想，就躺着',e:{健康:9,心性:5,事业:-4,财富:-3},tg:['静养'],r:'你躺了整整一个秋天。再站起来时腿是软的，人倒轻了些。'},
+  {t:'让人把书搬过来',e:{学识:7,心智:5,健康:-3},tg:['病中翻书'],r:'字在眼前浮。你还是看完了，醒过来时书压在胸口上。'}
+ ]},
+{id:'sk02',kind:'sick',cat:'病中',title:'请医',age:[18,120],cond:{},
+ desc:'家里人为请不请大夫争了几句。钱是有的，但那是另一件事的钱。',
+ opts:[
+  {t:'请，钱以后再挣',e:{健康:11,财富:-13,情感:4},tg:['舍得看病'],r:'药苦得钻心。你好了，账还了一年多。'},
+  {t:'不请，扛一扛',e:{心性:6,健康:-6,财富:4},tg:['硬扛'],r:'你扛过去了。只是从那以后，一变天你就知道要来了。'}
+ ]},
+{id:'sk03',kind:'sick',cat:'病中',title:'偏方',age:[20,120],cond:{},
+ desc:'有人送来一个方子，说得神乎其神。你看着那碗黑东西。',
+ opts:[
+  {t:'喝下去',e:{健康:8,机缘:5,心智:-3,财富:-4},tg:['试偏方'],r:'居然管用了一阵。你后来一直留着那张方子，虽然再没用过。'},
+  {t:'倒掉',e:{心智:5,健康:-4,心性:3},tg:['不信邪'],r:'你把碗端到院里倒了。土上洇出一小片黑，很久没褪。'}
+ ]},
+{id:'sk04',kind:'sick',cat:'病中',title:'放不下',age:[24,120],cond:{},
+ desc:'手里的事停了一半。每天都有人来问，什么时候能回去。',
+ opts:[
+  {t:'撑着回去做',e:{事业:9,财富:6,健康:-11,寿元:-3},tg:['硬撑'],r:'你把活干完了。那之后很长一段时间，你说话都带着气音。'},
+  {t:'把事交出去',e:{健康:8,心性:6,事业:-8,名望:-3},tg:['放手'],r:'事情别人接了，做得没你好，也过得去。你第一次发现自己没那么要紧。'}
+ ]},
+{id:'sk05',kind:'sick',cat:'病中',title:'来人',age:[26,120],cond:{},
+ desc:'有人来看你，在床边坐了很久，一直没说正事。',
+ opts:[
+  {t:'让他说下去',e:{情感:11,机缘:5,健康:-3},tg:['听人说话'],r:'他讲了一下午。后来那件事你帮上了忙，也算他那一趟没白来。'},
+  {t:'闭眼装睡',e:{健康:7,心性:4,情感:-8},tg:['不见客'],r:'他坐了一会儿走了。门响的时候，你睁着眼看天花板。'}
+ ]},
+{id:'sk06',kind:'sick',cat:'病中',title:'半夜醒着',age:[30,120],cond:{},
+ desc:'疼得睡不着。屋里很静，你听见自己心跳，一下，一下。',
+ opts:[
+  {t:'把这一生过了一遍',e:{心性:9,功德:4,心智:4,健康:-3},tg:['想明白了'],r:'天快亮的时候你想通了一件事。第二天你把它写下来了，只有一句。'},
+  {t:'起来找点事做',e:{事业:6,心性:3,健康:-8},tg:['不睡'],r:'你把能收拾的都收拾了一遍。天亮时屋子很整齐，你的脸是青的。'}
+ ]}
+];
+
 /* ------------------------------------------------------------------ 3. 结局与评分 */
 const ENDING_RULES = [
   {id:'e_break', name:'打破命簿', desc:'五千年的账，被你在这一世翻了过去。', test:g=>g.meta.totalLife >= 500 || g.score >= 100 && g.life >= 100},
@@ -3842,8 +3917,10 @@ function restoreRun(s){
   G.snapshots = s.snapshots || [];
   G.peak = s.peak || {};
   G.usedAt = s.usedAt || {};
-  // 问心局不在 EVENTS 里，恢复时两处都要查，否则暂离再回来会丢掉当年那一局
-  G.pending = (s.pendingIds || []).map(id=>EVENTS.find(e=>e.id === id) || HEART.find(e=>e.id === id)).filter(Boolean);
+  // 问心局与病中都不在 EVENTS 里，恢复时三处都要查，否则暂离再回来会丢事件
+  G.pending = (s.pendingIds || []).map(id=>
+    EVENTS.find(e=>e.id === id) || HEART.find(e=>e.id === id) || SICK.find(e=>e.id === id)
+  ).filter(Boolean);
   G.pidx = s.pidx || 0;
   G.choosing = !!s.choosing;
   G.chosenOpt = (s.chosenOpt === undefined ? null : s.chosenOpt);
@@ -5346,6 +5423,31 @@ function rollHeart(){
   return pick(pool);
 }
 
+/* 病中：健康见底时插入，让卧病的那些年份也有事可做，而不是只剩「跳过今年」。
+   同样从 G.usedAt 推历史，不新增存档字段。 */
+function lastSickAge(){
+  let last = -1;
+  for(let i = 0; i < SICK.length; i++){
+    const at = G.usedAt[SICK[i].id];
+    if(at !== undefined && at > last) last = at;
+  }
+  return last;
+}
+function rollSick(){
+  if(!G) return null;
+  if(G.attrs['健康'] > 34) return null;            // 还没病到这个份上
+  const last = lastSickAge();
+  if(last >= 0 && G.age - last < 4) return null;   // 刚病过一场，隔几岁再来
+  const pool = SICK.filter(h=>{
+    if(h.age && (G.age < h.age[0] || G.age > h.age[1])) return false;
+    if(G.usedAt[h.id] !== undefined) return false;
+    return true;
+  });
+  if(!pool.length) return null;
+  if(Math.random() > 0.6) return null;
+  return pick(pool);
+}
+
 function beginYear(){
   const prevDayun = G.curDayun;              // 交接前的那一步，用来认「换步」这一刻
   G.curDayun = curDayunAt(G.age);
@@ -5359,6 +5461,9 @@ function beginYear(){
   // 问心局排在当年最前面：先照见心，再过日子
   const heart = rollHeart();
   if(heart) G.pending.unshift(heart);
+  // 病中：卧病的年份也要有得选，不能让玩家干熬
+  const sick = rollSick();
+  if(sick) G.pending.unshift(sick);
   G.pidx = 0;
   G.choosing = false;
   G.chosenOpt = null;
@@ -5419,10 +5524,11 @@ function renderLife(){
 
   const ev = G.pending[G.pidx];
   const isHeart = ev.kind === 'heart';
-  /* 分层呈现：小事默认露 2 条，大事露 3 条，问心局固定 2 条；其余收在「再看看」里。
+  const isSick = ev.kind === 'sick';
+  /* 分层呈现：小事默认露 2 条，大事露 3 条，问心局与病中固定 2 条；其余收在「再看看」里。
      只改「一次要读几条」——选项本身、顺序与数值一律不动，所以平衡不受影响。 */
-  const shown = isHeart ? 2 : (isMajorEvent(ev) ? 3 : 2);
-  const folded = !isHeart && ev.opts.length > shown;
+  const shown = (isHeart || isSick) ? 2 : (isMajorEvent(ev) ? 3 : 2);
+  const folded = !isHeart && !isSick && ev.opts.length > shown;
   let optsHtml = '';
   ev.opts.forEach((o, i)=>{
     // 选项一律不报数值——选了之后才揭晓。「洞悉天机」也只透露牵动哪几样，不给数。
@@ -5441,11 +5547,13 @@ function renderLife(){
       + (ev.opts.length - shown) + ' 条）</button>';
   }
 
-  // 婴孩阶段：这一岁你还不会做事，能摆在面前的只有落在你身上的事
-  const optsNote = (G.age <= 3)
-    ? '<div class="babynote">这一岁你还不会做事。下面是落在你身上的事。</div>'
-    : (isAdverseYear() && G.path === 'sec'
-        ? '<div class="adversenote">流年与命局相冲 · 今年做什么都逆着风</div>' : '');
+  // 阶段提示：病中 / 婴孩 / 逆风 —— 按「当下最要紧」排优先级
+  const optsNote = isSick
+    ? '<div class="sicknote">身子起不来。这一岁能做的，只有下面这些。</div>'
+    : (G.age <= 3
+        ? '<div class="babynote">这一岁你还不会做事。下面是落在你身上的事。</div>'
+        : (isAdverseYear() && G.path === 'sec'
+            ? '<div class="adversenote">流年与命局相冲 · 今年做什么都逆着风</div>' : ''));
 
   // 出生横幅：人生头一年，先看见自己生在了什么样的家里
   let birthHtml = '';
@@ -5460,7 +5568,8 @@ function renderLife(){
 
   const evCls = 'event c-' + (CAT_SLUG[ev.cat] || 'daily')
     + (isHeart ? ' heart' : '')
-    + (!isHeart && (ev.w || 10) <= 7 ? ' rare' : '')
+    + (isSick ? ' sick' : '')
+    + (!isHeart && !isSick && (ev.w || 10) <= 7 ? ' rare' : '')
     + (ev.cat === '危机' ? ' crisis' : '')
     + (ev.id === 'zq01' ? ' will' : '');
 
@@ -5468,7 +5577,8 @@ function renderLife(){
     + '<div class="' + evCls + '">'
     + '<div class="scene">' + sceneSVG(ev.cat, ev.sub, sceneKey(ev)) + '</div>'
     + '<div class="etop">'
-    + (isHeart ? '<div class="hearttag">问 心 局</div>' : '<div class="cat">' + ev.cat + '</div>')
+    + (isHeart ? '<div class="hearttag">问 心 局</div>'
+        : (isSick ? '<div class="sicktag">病 中</div>' : '<div class="cat">' + ev.cat + '</div>'))
     + '<h3>' + ev.title + '</h3>'
     + '<div class="desc">' + ev.desc + '</div>'
     + '</div>'
@@ -5721,21 +5831,67 @@ function keyTimeline(){
 
 function makeEpitaph(reason){
   const a = G.attrs;
-  const traits = [];
-  if(a['功德'] >= 78) traits.push('一生行善，肯替别人扛事');
-  if(a['业力'] >= 68) traits.push('精于算计，欠了一些账没还');
-  if(a['财富'] >= 78) traits.push('攒下过一份厚实的家底');
-  if(a['名望'] >= 78) traits.push('名字在很远的地方都有人提');
-  if(a['学识'] >= 78) traits.push('读了一辈子书，也懂了一些事');
-  if(a['心性'] >= 78) traits.push('到老都是一副不急的样子');
-  if(a['机缘'] >= 78) traits.push('运气总在要紧的时候落在他身上');
-  if(a['情感'] <= 30) traits.push('身边的人不多，走的时候也安静');
-  if(a['健康'] <= 30) traits.push('身子早就透支了，后半程一直在还');
-  if(!traits.length) traits.push('一生平平，也没亏待过谁');
-
   const first = G.bazi.y;
   const last = G.bazi.y + G.life;
   const sc = grade(G.score);
+
+  /* 这一世真实发生过的事：从记事里挑分量最重的几件（|Δ| 之和最大的），
+     再按时间顺序讲出来。墓志铭单调的根子在于只描述终局属性——那谁看都一样。 */
+  const beats = (G.log || [])
+    .filter(l => l.cat !== '年度' && l.deltas)
+    .map(l => ({ l: l, w: Object.keys(l.deltas).reduce((s, k) => s + Math.abs(l.deltas[k]), 0) }))
+    .sort((x, y) => y.w - x.w)
+    .slice(0, 3)
+    .sort((x, y) => x.l.age - y.l.age);
+  const chronicle = beats.map(b =>
+    '　' + b.l.age + ' 岁，' + b.l.title + ' —— 他选了「' + b.l.choice + '」。').join('<br/>');
+
+  /* 性情：分层措辞，不再是一到 78 才配有一句话 */
+  const traits = [];
+  const push = t => { if(t && traits.indexOf(t) < 0) traits.push(t); };
+  const tier = (v, hi, mid) => v >= 78 ? hi : (v >= 62 ? mid : '');
+  push(tier(a['功德'], '一生行善，肯替别人扛事', '能搭把手的时候都搭了，没算计太多'));
+  push(a['业力'] >= 68 ? '精于算计，欠了一些账没还'
+       : (a['业力'] >= 48 ? '有几笔账，他自己心里是清楚的' : ''));
+  push(tier(a['财富'], '攒下过一份厚实的家底', '日子过得去，没让身边人短过什么'));
+  push(tier(a['名望'], '名字在很远的地方都有人提', '在一方地界上，是叫得出名字的人'));
+  push(tier(a['学识'], '读了一辈子书，也懂了一些事', '认得字，也想得明白'));
+  push(tier(a['心性'], '到老都是一副不急的样子', '遇事稳得住'));
+  push(tier(a['机缘'], '运气总在要紧的时候落在他身上', '关键的那几步，没吃大亏'));
+  push(tier(a['事业'], '手上的事，做成过几件', '事情做过，也就过去了'));
+  push(a['情感'] >= 78 ? '惦记他的人，比他惦记的还多'
+       : (a['情感'] <= 30 ? '身边的人不多，走的时候也安静' : ''));
+  push(a['健康'] <= 30 ? '身子早就透支了，后半程一直在还' : '');
+  push(a['心智'] <= 30 ? '后来有很多事，他已经想不动了' : '');
+  if(!traits.length) traits.push('一生平平，也没亏待过谁');
+
+  /* 志向与路线：这一世奔的是什么、奔到了没有 */
+  let course = '';
+  if(G.ambition){
+    const ap = (typeof ambitionProgress === 'function') ? ambitionProgress() : 0;
+    course = ap >= 1
+      ? '这一世奔的是「' + G.ambition.name + '」，奔到了。'
+      : (ap >= 0.6
+          ? '这一世奔的是「' + G.ambition.name + '」，终究差着一截。'
+          : '这一世奔的是「' + G.ambition.name + '」，半路就转了向。');
+  }
+  if(G.path && G.path !== 'sec' && (G.monkYears || 0) >= 6){
+    course += (G.path === 'buddha' ? '后半程入了空门，僧腊 ' : '后半程入了道门，道龄 ') + G.monkYears + ' 年。';
+  }
+
+  /* 一生站到过的最高处：峰值说明他曾经到过哪儿 */
+  let crest = '';
+  if(G.peak){
+    let best = null;
+    ATTRS.forEach(k => {
+      if(k === '业力' || k === '寿元') return;
+      const v = G.peak[k];
+      if(v === undefined || v === null) return;
+      if(!best || v > best.v) best = { k: k, v: v };
+    });
+    if(best && best.v >= 88) crest = '一生站得最高的那一处是' + best.k + '，到过 ' + Math.round(best.v) + '。';
+  }
+
   const tail = {
     'e_rich':'钱散在了该散的地方，他没带走一分。',
     'e_power':'他握过的东西很重，放下的时候也重。',
@@ -5756,9 +5912,12 @@ function makeEpitaph(reason){
     'e_ascend':'最后一次有人看见他，是在半山腰，那天有云。'
   }[G.ending ? G.ending.id : 'e_common'] || '来过，好好地过了。';
 
-  return first + ' — ' + last + '，' + reason + '，享年 ' + G.life + '。<br/>'
-    + traits.join('；') + '。<br/>'
-    + '此世评为「' + sc + '」。' + tail;
+  return first + ' — ' + last + '，' + reason + '，享年 ' + G.life + '。'
+    + (chronicle ? '<br/>' + chronicle : '')
+    + (course ? '<br/>' + course : '')
+    + '<br/>' + traits.join('；') + '。'
+    + (crest ? '<br/>' + crest : '')
+    + '<br/>此世评为「' + sc + '」。' + tail;
 }
 
 function endLife(reason){
@@ -6276,7 +6435,8 @@ const CAT_FX = {
   '学业':['60,110,158',.09], '事业':['184,144,44',.09], '财富':['184,144,44',.11],
   '情感':['193,52,42',.09],  '家庭':['138,106,42',.07], '健康':['74,124,89',.09],
   '机缘':['122,91,158',.09], '修行':['122,91,158',.11], '日常':['107,98,87',.05],
-  '晚年':['107,98,87',.07],  '时代':['60,110,158',.07], '方外':['122,91,158',.10]
+  '晚年':['107,98,87',.07],  '时代':['60,110,158',.07], '方外':['122,91,158',.10],
+  '病中':['74,124,89',.08]
 };
 function fxCategory(cat){
   const spec = CAT_FX[cat];
@@ -6407,12 +6567,14 @@ function renderLifeStats(){
 function sceneKey(ev){
   const t = (ev.title || '') + '|' + (ev.desc || '');
   /* 关键词表：越具体的排在越前面（先命中先赢），所以「油灯」要先于「火」、
-     「学堂」要先于「书」、「祠堂」要先于「庙」。 */
+     「学堂」要先于「书」、「祠堂」要先于「庙」。
+     单字关键词会误伤：「烧」命中发烧、「信」命中信任 —— 这里只用多字词或语义
+     收敛的字，宁可落回类别兜底，也不给错画面。 */
   const RULES = [
     ['snow',  ['雪','冰','冻','入冬']],
     ['rain',  ['雨','涝','水灾','洪','潮水']],
     ['lamp',  ['油灯','灯下','灯','烛火']],
-    ['fire',  ['火','烧','烛']],
+    ['fire',  ['火','起火','失火','着火','火灾','烛']],
     ['wedding',['婚','亲事','洞房','花轿','嫁','聘','红烛']],
     ['exam',  ['考场','科举','放榜','答卷','榜','开卷']],
     ['funeral',['棺','丧','白事','送行','凋零','坟','碑']],
@@ -6423,9 +6585,9 @@ function sceneKey(ev){
     ['market',['赶集','庙会','摊','铺','买卖','生意','店','银','账']],
     ['school',['学堂','私塾','上课','念书','先生','教']],
     ['sword', ['武','镖','剑','拳','打','军','兵','仗','刀']],
-    ['letter',['来信','书信','信','书','卷','笔记','报纸','录取','文']],
+    ['letter',['来信','书信','信纸','写信','书','卷','笔记','报纸','录取','文']],
     ['tea',   ['茶','酒','饭','宴','席','吃','灶']],
-    ['field', ['田','稻','麦','种','收','农','犁']],
+    ['field', ['田','稻','麦','种地','收割','农','犁']],
     ['court', ['公堂','升堂','审','官司','状纸','断案']],
     ['prison',['牢','狱','押','囚','班房']],
     ['wall',  ['城墙','城门','衙门','官府','县衙']],
@@ -6440,7 +6602,7 @@ function sceneKey(ev){
     ['temple',['寺','庙','观','香','经','神','祈福']],
     ['mountain',['山','岭','峰','崖','登高']],
     ['star',  ['星','天象','夜空']],
-    ['bridge',['桥','远行','游','迁','路']]
+    ['bridge',['桥','远行','游历','迁徙','上路']]
   ];
   for(let i = 0; i < RULES.length; i++){
     const ws = RULES[i][1];
@@ -6772,6 +6934,16 @@ function sceneSVG(cat, sub, key){
       fg = '<path d="M196,16 L168,62 L188,62 L164,104 L214,56 L190,56 L214,16 Z" fill="'+red+'" opacity=".6"/>'
          + '<path d="M96,104 L114,80 L130,92 L148,66 L166,104" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".65"/>'
          + '<path d="M236,104 L252,84 L268,96 L288,72" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".5"/>';
+      break;
+    case '病中':
+      // 卧榻 + 药碗 + 热气：病中的画面该是躺着的，不是站着看风景
+      fg = '<circle cx="214" cy="66" r="30" fill="'+green+'" opacity=".08"/>'
+         + '<rect x="112" y="80" width="136" height="9" rx="3" fill="#efe6d2" stroke="'+ink+'" stroke-width="1.8"/>'
+         + '<rect x="128" y="89" width="104" height="14" fill="#e2d5b8" stroke="'+ink+'" stroke-width="1.6"/>'
+         + '<path d="M126,80 C132,68 152,64 168,68 C176,70 182,75 184,80" fill="none" stroke="'+ink+'" stroke-width="2" stroke-linecap="round"/>'
+         + '<ellipse cx="222" cy="72" rx="16" ry="6" fill="#fdf8ec" stroke="'+ink+'" stroke-width="1.6"/>'
+         + '<path d="M216,66 C211,58 220,53 217,44" fill="none" stroke="'+ink+'" stroke-width="1.3" opacity=".38"><animateTransform attributeName="transform" type="translate" values="0 3;0 -6" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".38;0" dur="2.8s" repeatCount="indefinite"/></path>'
+         + '<path d="M228,66 C232,58 226,54 229,46" fill="none" stroke="'+ink+'" stroke-width="1.1" opacity=".26"><animateTransform attributeName="transform" type="translate" values="0 4;0 -5" dur="3.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".26;0" dur="3.4s" repeatCount="indefinite"/></path>';
       break;
     case '方外':
       if(sub === 'buddha'){
