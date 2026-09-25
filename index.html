@@ -166,6 +166,38 @@ body::before{
 .result .dl .u{color:var(--green);font-weight:600}
 .result .dl .d{color:var(--red);font-weight:600}
 
+/* ---------- 按类别区分的入场：每一类事件有自己的进来方式 ----------
+   放在稀有度规则之前，好让「稀有 / 危机」的更强表现盖过类别入场。 */
+@keyframes entHome{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes entStudy{from{opacity:0;transform:scaleY(.9)}to{opacity:1;transform:none}}
+@keyframes entCareer{from{opacity:0;transform:translateY(18px) scale(.99)}to{opacity:1;transform:none}}
+@keyframes entWealth{from{opacity:0;transform:scale(.955)}60%{transform:scale(1.008)}to{opacity:1;transform:none}}
+@keyframes entLove{from{opacity:0;filter:blur(4px);transform:scale(1.022)}to{opacity:1;filter:none;transform:none}}
+@keyframes entHealth{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes entLuck{from{opacity:0;transform:translateX(16px) rotate(.6deg)}to{opacity:1;transform:none}}
+@keyframes entCultivate{from{opacity:0;transform:scale(1.035)}to{opacity:1;transform:none}}
+@keyframes entElder{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes entEra{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
+@keyframes entMonk{from{opacity:0;transform:scale(.975)}to{opacity:1;transform:none}}
+@keyframes entCrisis{from{opacity:0;transform:scale(1.028) translateY(-5px)}to{opacity:1;transform:none}}
+@keyframes entDaily{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+@keyframes entLast{from{opacity:0;filter:blur(7px) grayscale(.45);transform:scale(1.045)}to{opacity:1;filter:none;transform:none}}
+
+.event.c-home{animation:entHome .42s cubic-bezier(.2,.85,.25,1) both}
+.event.c-study{animation:entStudy .40s cubic-bezier(.2,.85,.25,1) both}
+.event.c-career{animation:entCareer .42s cubic-bezier(.2,.85,.25,1) both}
+.event.c-wealth{animation:entWealth .46s cubic-bezier(.2,.85,.25,1) both}
+.event.c-love{animation:entLove .50s ease both}
+.event.c-health{animation:entHealth .42s ease both}
+.event.c-luck{animation:entLuck .44s cubic-bezier(.2,.85,.25,1) both}
+.event.c-cultivate{animation:entCultivate .62s ease both}
+.event.c-elder{animation:entElder .60s ease both}
+.event.c-era{animation:entEra .50s cubic-bezier(.2,.85,.25,1) both}
+.event.c-monk{animation:entMonk .55s ease both}
+.event.c-crisis{animation:entCrisis .34s cubic-bezier(.2,.85,.25,1) both}
+.event.c-daily{animation:entDaily .40s ease both}
+.event.c-last{animation:entLast .95s ease both}
+
 /* ---------- 事件稀有度与危机氛围 ---------- */
 .event.rare{
   border:1px solid rgba(184,144,44,.65);
@@ -183,6 +215,35 @@ body::before{
 .event.crisis .cat{color:var(--red);font-weight:600}
 @keyframes crisisShake{0%,100%{transform:none}18%{transform:translateX(-3px)}36%{transform:translateX(3px)}
   54%{transform:translateX(-2px)}72%{transform:translateX(1.5px)}88%{transform:translateX(-1px)}}
+
+/* ---------- 逆命：天行健 ---------- */
+.event.will{
+  border:1px solid rgba(184,144,44,.75);
+  box-shadow:0 0 0 1px rgba(184,144,44,.22), 0 6px 30px rgba(184,144,44,.22);
+  animation:entCultivate .62s ease both, willGlow 2.6s ease-in-out .4s infinite;
+}
+@keyframes willGlow{0%,100%{box-shadow:0 0 0 1px rgba(184,144,44,.22),0 6px 30px rgba(184,144,44,.20)}
+  50%{box-shadow:0 0 0 3px rgba(176,58,46,.28),0 8px 38px rgba(184,144,44,.34)}}
+.event.will .cat{color:var(--red);font-weight:600;letter-spacing:3px}
+.willaura{position:fixed;inset:0;z-index:73;pointer-events:none;
+  background:radial-gradient(58% 42% at 50% 52%,rgba(176,58,46,.24) 0%,rgba(184,144,44,.20) 46%,transparent 78%);
+  animation:auraOut 1.5s ease forwards}
+
+/* ---------- 阶段提示：婴孩 / 逆风 ---------- */
+.babynote,.adversenote{margin:0 12px;padding:7px 11px;border-radius:10px;font-size:12.5px;line-height:1.6;
+  animation:fade .35s ease}
+.babynote{background:rgba(122,91,158,.10);border:1px dashed rgba(122,91,158,.34);color:#5c4a72}
+.adversenote{background:rgba(176,58,46,.09);border:1px dashed rgba(176,58,46,.34);color:#8a3226}
+.babynote::before{content:"襁褓　";font-weight:600;letter-spacing:1px}
+.adversenote::before{content:"逆风　";font-weight:600;letter-spacing:1px}
+
+/* 洞悉天机：只透露牵动哪几样，不给数 */
+.opt .eff.names{color:var(--ink3);letter-spacing:1px}
+.opt .eff.names i{font-style:normal;margin-right:8px;opacity:.85}
+
+/* 逆命之年：整页压一层很淡的磨砺色 */
+body.adverse-year{--bg:#f3e9e2;--bg2:#eadfd6}
+body.adverse-year .card,body.adverse-year .event{background:#fffbf7}
 
 /* ---------- 选项：墨迹悬浮 ---------- */
 .opt{position:relative;overflow:hidden}
@@ -505,6 +566,9 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
 .monkbadge{display:inline-block;margin-top:2px;padding:2px 9px;border-radius:999px;
   font-size:11.5px;letter-spacing:.04em;color:#7a5b9e;
   background:rgba(122,91,158,.10);border:1px solid rgba(122,91,158,.30)}
+.zqbadge{display:inline-block;margin-top:2px;padding:2px 9px;border-radius:999px;
+  font-size:11.5px;letter-spacing:.04em;color:#8a6a1f;
+  background:rgba(184,144,44,.12);border:1px solid rgba(184,144,44,.38)}
 
 /* ---------- 特效增强：点击涟漪 ---------- */
 .ripple{position:absolute;border-radius:50%;pointer-events:none;
@@ -1086,6 +1150,12 @@ const CAT_WX = {
   '家庭':'土','学业':'木','事业':'金','财富':'金','情感':'水','健康':'土',
   '机缘':'水','危机':'火','修行':'木','日常':'土','晚年':'土','时代':'火','大限':'土','方外':'木'
 };
+/* 类别 -> CSS 后缀：让每一类事件有自己的入场方式，而不是千篇一律地淡入 */
+const CAT_SLUG = {
+  '家庭':'home','学业':'study','事业':'career','财富':'wealth','情感':'love','健康':'health',
+  '机缘':'luck','危机':'crisis','修行':'cultivate','日常':'daily','晚年':'elder','时代':'era',
+  '大限':'last','方外':'monk'
+};
 /* 方外身份：sec=在俗，buddha=佛门，tao=道门。
    心性与耗损机制按路线区分：道门重养生，佛门重功德。 */
 const MONK_LABEL = {buddha:'僧', tao:'道'};
@@ -1279,6 +1349,58 @@ function buildDayun(yIdx, monthIdx, yGan, gender, startAge){
 
 /* ------------------------------------------------------------------ 2. 事件库 */
 const EVENTS = [
+/* ============ 婴孩（0–3 岁）============
+   这一段你还不会做事。能"选"的只有：哭还是睡、认人还是不认、大人怎么待你。
+   所以选项写的都是落在你身上的事，而不是你去做的事——1 岁的孩子不会下地，也不会打官司。 */
+{id:'baby01',cat:'日常',title:'夜啼',desc:'你夜里总是哭。母亲抱着你在屋里来回走，走到窗纸发白。',age:[0,3],w:15,cond:{},
+ opts:[
+  {t:'一沾那件旧衣裳就不哭了',e:{情感:8,健康:3},tg:['认味'],r:'那是外婆的衣裳。你后来一直记得那个味道，却说不出是谁的。'},
+  {t:'哭到天亮，谁哄都不停',e:{健康:-6,心性:6,情感:-5},tg:['拧'],r:'母亲第二天眼睛肿着去上工。这些你都不知道。'},
+  {t:'换了个姿势，自己睡过去了',e:{健康:5,机缘:3},tg:['随和'],r:'你睡得很沉。窗外下了半夜的雨。'},
+  {t:'外婆来了，说这是"惊着了"',e:{机缘:3,功德:5,健康:2},tg:['叫魂'],r:'她对着门口叫了三声你的小名。那天夜里你果然没哭。'}
+ ]},
+{id:'baby02',cat:'家庭',title:'第一声',desc:'满屋子人围着，等你说出第一个字。你张了张嘴。',age:[1,2],w:18,cond:{},
+ opts:[
+  {t:'叫的是"娘"',e:{情感:9,功德:2},tg:['先认娘'],r:'母亲当场就哭了，转过身去假装揉眼睛。'},
+  {t:'叫的是"爹"',e:{情感:5,名望:8,心性:2},tg:['先认爹'],r:'父亲把你举起来转了一圈，那天他多喝了两盅。'},
+  {t:'谁也没叫，先迈了一步',e:{健康:5,心性:4},tg:['先会走'],r:'你摇摇晃晃走了三步就坐下了。满屋子人比听见你说话还高兴。'},
+  {t:'指着门外，说了个没人听懂的字',e:{机缘:5,心性:6,学识:3},tg:['望向远'],r:'没人听懂。但你手指的方向，是巷口。'}
+ ]},
+{id:'baby03',cat:'情感',title:'认生',desc:'生人一伸手，你就把脸埋进母亲肩窝里，哭得整条巷子都听见。',age:[1,3],w:13,cond:{},
+ opts:[
+  {t:'就是不让抱，谁都不行',e:{情感:7,心性:6,名望:-7},tg:['只认一个'],r:'母亲只好一直抱着。她胳膊酸了好几天。'},
+  {t:'被一颗糖哄过去了',e:{机缘:3,心智:3,情感:-5},tg:['好哄'],r:'你伸手接了。母亲站在旁边，笑了一下，又没笑完。'},
+  {t:'哭到那人自己走了',e:{名望:-7,心性:6,情感:-2},tg:['怕生'],r:'那人讪讪地走了。你在母亲怀里偷偷看了他一眼。'},
+  {t:'盯着那人看了很久，忽然笑了',e:{机缘:5,情感:5},tg:['不认生'],r:'那人受宠若惊。这是你第一次主动朝外人笑。'}
+ ]},
+{id:'baby04',cat:'日常',title:'学步',desc:'你扶着墙站起来，松开手，站了三秒。',age:[1,2],w:15,cond:{},
+ opts:[
+  {t:'扑向最近的那个人',e:{情感:8,健康:3},tg:['扑人'],r:'你扑了个满怀。那个人一整天都哼着调子。'},
+  {t:'摔了，坐在地上自己爬起来',e:{心性:8,健康:4,情感:-5},tg:['自己起'],r:'没人扶。你也没哭。这件事你以后会重复很多次。'},
+  {t:'一步没走，先学会扶着东西挪',e:{心智:6,心性:4},tg:['稳'],r:'你扶着桌沿挪了一整年。稳当，但是慢。'},
+  {t:'摔得狠了，磕在门槛上',e:{健康:-8,心性:6,机缘:2},tg:['留疤'],r:'额角留了个小疤。很多年后你还会摸它。'}
+ ]},
+{id:'baby05',cat:'健康',title:'出疹子',desc:'你烧了三天，身上起了一片红点。大人把窗户蒙上，说不能见风。',age:[1,3],w:13,cond:{},
+ opts:[
+  {t:'按老法子，捂汗',e:{健康:4,心性:4,心智:-2},tg:['土法'],r:'被子捂得严严实实。你出了一身汗，第二天退了烧。'},
+  {t:'请了郎中来',e:{健康:5,财富:-14,学识:3},tg:['请郎中'],r:'药很苦。但你三天就下地了。家里为此卖了一担粮。'},
+  {t:'烧得厉害，母亲抱着你走了一夜',e:{情感:9,健康:-6,功德:7},tg:['走夜路'],r:'天黑路滑，她摔了一跤，把你举得高高的，没让你碰到地。'},
+  {t:'自己熬过去了',e:{健康:-5,心性:8,机缘:3},tg:['硬底子'],r:'你烧了两夜，第三夜自己退了。从此家里人叫你"命硬"。'}
+ ]},
+{id:'baby06',cat:'机缘',title:'记名',desc:'长辈抱你去了庙里，说要把你记在佛前，好养活。',age:[0,3],w:12,cond:{},
+ opts:[
+  {t:'记了，取个法名压在佛前',e:{功德:10,机缘:8,心性:4},tg:['寄名'],r:'你有了一个自己都不知道的名字。它一直压在那里。'},
+  {t:'记了半程，长辈又反悔了',e:{机缘:-8,心性:6,功德:2},tg:['未了'],r:'香烧了一半，长辈把你抱了回来。这事没跟人提过。'},
+  {t:'没记，长辈说命里没有这一节',e:{心性:6,健康:3},tg:['不信'],r:'长辈抱着你出了山门，说：路是自己走的。'},
+  {t:'顺路在山门前看了很久的云',e:{机缘:5,心性:6,情感:3},tg:['望云'],r:'你什么也不记得。但很多年后你会梦见一个山门。'}
+ ]},
+{id:'baby07',cat:'家庭',title:'换人带',desc:'母亲要上工了。你被交到另一个人手里。',age:[0,3],w:14,cond:{},
+ opts:[
+  {t:'交给祖母',e:{情感:7,心性:6,功德:7},tg:['祖母带'],r:'祖母把你背在背上干活。你听着她的呼吸声长大。'},
+  {t:'送去托儿的地方',e:{心智:6,情感:-6,机缘:3},tg:['托儿'],r:'一屋子小孩都在哭。你没哭，你在看别人哭。'},
+  {t:'锁在家里，母亲中午回来一趟',e:{心性:8,情感:-8,健康:-5},tg:['锁家'],r:'你一个人趴在窗台上看了半天巷子。这本领你后来很熟。'},
+  {t:'跟着母亲去上工',e:{情感:5,健康:-5,心智:4,财富:4},tg:['跟着'],r:'你在角落里睡了一整天。机器的响声是你的摇篮曲。'}
+ ]},
 /* ============ 家庭 ============ */
 {id:'fam01',cat:'家庭',title:'抓周',desc:'周岁宴上，桌上摆满物件。满屋人的目光都落在你的小手上。',age:[1,1],w:60,
  cond:{wuxing:['木','金','土']},
@@ -1288,7 +1410,7 @@ const EVENTS = [
   {t:'抓起印章',e:{名望:4,事业:4,业力:2},tg:['官迷'],r:'父亲连夜把印章擦了三遍，说要供起来。'},
   {t:'谁都不抓，抓了块点心',e:{健康:5,心性:5,机缘:3},tg:['随性'],r:'满堂哄笑。祖母说：这娃有福气，不争才有福。'}
  ]},
-{id:'fam02',cat:'家庭',title:'夜里的争吵',desc:'你被吵醒。父母房门缝里透出光，声音一高一低，像两把钝刀在磨。',age:[3,14],w:16,cond:{},
+{id:'fam02',cat:'家庭',title:'夜里的争吵',desc:'你被吵醒。父母房门缝里透出光，声音一高一低，像两把钝刀在磨。',age:[4,14],w:16,cond:{},
  opts:[
   {t:'蒙头装睡',e:{心性:6,情感:-5},tg:['早熟'],r:'你学会了把耳朵关起来。这个本领你会用一辈子。'},
   {t:'推门进去大哭',e:{情感:4,心智:-3,健康:-2},tg:[],r:'争吵停了。你被抱起来哄，可你知道，那只是停了。'},
@@ -1309,7 +1431,7 @@ const EVENTS = [
   {t:'带头打架立威',e:{名望:5,健康:-4,业力:6},tg:['刺头'],r:'你打赢了，也挨了处分。但没人再叫你外地佬。'},
   {t:'给旧友每人写了封信',e:{情感:7,学识:3,健康:-1,心性:2},tg:['惜别'],r:'你把信投进邮筒。半年后收到一封回信，你翻来覆去读了十遍。'}
  ]},
-{id:'fam05',cat:'家庭',title:'家中添丁',desc:'弟弟或妹妹出生了。所有人的注意力忽然都转向了那张小床。',age:[2,16],w:14,cond:{},
+{id:'fam05',cat:'家庭',title:'家中添丁',desc:'弟弟或妹妹出生了。所有人的注意力忽然都转向了那张小床。',age:[4,16],w:14,cond:{},
  opts:[
   {t:'主动帮着照看',e:{情感:7,心性:4,学识:-2},tg:['长兄如父'],r:'你学会了换尿布，也学会了什么叫责任先来。'},
   {t:'故意闹一场',e:{情感:-5,名望:2,心性:-3},tg:['争宠'],r:'你挨了骂。但那天晚上，母亲还是来亲了你一下。'},
@@ -1700,14 +1822,14 @@ const EVENTS = [
   {t:'抄一遍，送出去一遍',e:{功德:9,学识:4,心性:5,财富:-2},tg:['结缘'],r:'你抄的册子去了四面八方。有一本转了三道手，又回到了你桌上，夹着一朵干花。'}
  ]},
 /* ============ 日常 / 通用 ============ */
-{id:'gen01',cat:'日常',title:'四季流转',desc:'这一年没什么大事。春天种下的东西，秋天收了。',age:[0,14],w:22,cond:{},
+{id:'gen01',cat:'日常',title:'四季流转',desc:'这一年没什么大事。春天种下的东西，秋天收了。',age:[4,14],w:22,cond:{},
  opts:[
   {t:'跟着大人下地',e:{健康:6,心性:4,学识:-2},tg:['接地气'],r:'你晒黑了，也长高了。你记住了泥土的味道。'},
   {t:'趴在窗边看天',e:{心智:5,机缘:3,情感:2},tg:['发呆'],r:'你看了一整个下午的云。多年后你还记得那天的形状。'},
   {t:'缠着大人讲故事',e:{学识:5,情感:5,心智:3},tg:['听古'],r:'你听了一肚子故事。这些故事后来在你心里长成了别的样子。'},
   {t:'在田埂上抓了一下午蚂蚱',e:{健康:5,机缘:3,心性:2},tg:['野趣'],r:'你抓了放，放了抓。裤腿上的泥印子，是那一年你最得意的作品。'}
  ]},
-{id:'gen02',cat:'日常',title:'小病',desc:'不算严重，但躺在床上什么都干不了。',age:[2,88],w:16,cond:{},
+{id:'gen02',cat:'日常',title:'小病',desc:'不算严重，但躺在床上什么都干不了。',age:[4,88],w:16,cond:{},
  opts:[
   {t:'乖乖躺着',e:{健康:6,心性:4,事业:-2},tg:[],r:'你睡了两天。醒来时窗外有鸟叫。'},
   {t:'带病硬撑',e:{事业:3,健康:-7,寿元:-1},tg:['逞强'],r:'你撑过去了。但身体记了一笔账。'},
@@ -1735,7 +1857,7 @@ const EVENTS = [
   {t:'走开',e:{心性:-5,功德:-6,健康:2},tg:['绕道'],r:'你走了。路上你走得很慢，一直在想刚刚那一幕。'},
   {t:'把被欺负的人拉到自家店里/家里',e:{功德:8,情感:4,财富:-2,机缘:3},tg:['收留'],r:'你没跟那些人照面，只把门打开了。那个人在你家躲到天黑，走时给你鞠了一躬。'}
  ]},
-{id:'gen06',cat:'日常',title:'一顿好饭',desc:'今天桌上有你最爱吃的那样东西，还冒着热气。',age:[1,98],w:13,cond:{},
+{id:'gen06',cat:'日常',title:'一顿好饭',desc:'今天桌上有你最爱吃的那样东西，还冒着热气。',age:[4,98],w:13,cond:{},
  opts:[
   {t:'慢慢吃，吃干净',e:{健康:6,心性:5,情感:3},tg:['知足'],r:'你吃得很慢。你忽然觉得，这样的日子再来五百年也不嫌多。'},
   {t:'分给身边的人',e:{情感:7,功德:6,健康:-2},tg:['分享'],r:'你分出去了大半。他们吃的时候，你比他们还高兴。'},
@@ -1778,6 +1900,133 @@ const EVENTS = [
   {t:'拼一把，求医问药',e:{寿元:6,财富:-20,健康:-8,心性:-4},tg:['挣扎'],r:'你又拖了几年。那几年很苦，但你还是想活着。'},
   {t:'独自走远，不告而别',e:{心性:12,机缘:8,情感:-8},tg:['自去'],die:'不知所终',r:'某天早上你的床空了。没有人知道你去了哪里。'},
   {t:'把最后的心愿托付出去',e:{功德:12,情感:9,心性:8},tg:['托愿'],die:'寿终正寝',r:'你把那件事说给了最信得过的人。他红着眼应下了。你闭眼前说：那就好。'}
+ ]},
+/* ============ 活动：让每一年有不一样的玩法 ============ */
+{id:'act01',cat:'日常',title:'河边的夏天',desc:'天热得站不住。河湾里已经有几个半大孩子在喊你的名字。',age:[5,13],w:14,cond:{},
+ opts:[
+  {t:'脱了鞋就下水',e:{健康:5,机缘:3,心性:4},tg:['水性'],r:'你学会了踩水。这项本领后来救过你一次。'},
+  {t:'坐在岸上给他们看衣服',e:{心性:6,情感:4,心智:3,功德:4},tg:['看衣服'],r:'他们把衣服全扔给你。回来时一件不少。'},
+  {t:'被母亲拎着耳朵拽回去',e:{情感:-5,健康:3,心性:6},tg:['挨拎'],r:'你被拽回家，一路上街坊都在笑。'},
+  {t:'一个人游到了对岸',e:{机缘:14,健康:5,心性:6,寿元:-5,名望:6},tg:['过河'],r:'对岸什么也没有，只有一片芦苇。你还是游回来了，一路上都在笑。'}
+ ]},
+{id:'act02',cat:'日常',title:'戏台底下',desc:'村里请了戏班子，台子就搭在晒场上。你从人腿的缝里往里挤。',age:[6,16],w:13,cond:{},
+ opts:[
+  {t:'挤到最前面，一看看一晚上',e:{心性:6,学识:5,情感:4},tg:['戏迷'],r:'你记住了那句唱词，虽然不懂它是什么意思。'},
+  {t:'在人群里卖瓜子',e:{财富:16,事业:6,心智:4,名望:10,功德:-5},tg:['会做买卖'],r:'一晚上挣了几个铜板。你把它们攥出了汗。'},
+  {t:'找后台的琴师搭话',e:{机缘:12,学识:6,事业:4},tg:['认人'],r:'他教了你一个指法。你练了半年。'},
+  {t:'看到一半就困了，睡在草垛上',e:{健康:4,情感:3,心性:4},tg:['贪睡'],r:'散场时母亲找了你半个村。你睡得很香。'}
+ ]},
+{id:'act03',cat:'情感',title:'一只跟来的狗',desc:'一条瘦狗跟了你三条巷子，你停下它也停下，你走它又跟着。',age:[6,14],w:14,cond:{},
+ opts:[
+  {t:'带回家养着',e:{情感:12,健康:3,财富:-7,功德:4},tg:['养狗'],r:'它跟了你十一年。第十一年冬天，它没再醒来。'},
+  {t:'掰了半个饼给它，然后走开',e:{功德:12,情感:4},tg:['一饭'],r:'它吃完了，抬头看你的方向看了很久。'},
+  {t:'赶它走，赶了三次',e:{心性:6,情感:-6,心智:3},tg:['狠心'],r:'第三次它就不跟了。你回头看了一眼，它还在原地。'},
+  {t:'偷偷养在柴房里',e:{情感:7,机缘:6,业力:-3},tg:['藏起来'],r:'你每天省下半碗饭。这事瞒了家里两个月。'}
+ ]},
+{id:'act04',cat:'情感',title:'打了一架',desc:'有人当着全场喊了你最不愿听的那个称呼。',age:[7,16],w:14,cond:{},
+ opts:[
+  {t:'当场动手',e:{名望:13,健康:-9,业力:17,功德:-9},tg:['动手'],r:'你把他按在地上。你也挂了彩。'},
+  {t:'忍住，转身走开',e:{心性:10,名望:-11,情感:-5},tg:['忍了'],r:'你走开了。那天晚上你对着墙捶了一下。'},
+  {t:'笑着接过来，自己先喊一遍',e:{心智:6,名望:16,心性:6},tg:['自嘲'],r:'全场都愣了，然后笑了。那个称呼从此不好使了。'},
+  {t:'记下这个人，慢慢算',e:{心智:6,业力:13,情感:-6,功德:-6},tg:['记仇'],r:'你没动手。你把这张脸记住了，记了很多年。'}
+ ]},
+{id:'act05',cat:'财富',title:'替人跑腿',desc:'街口那家铺子缺个跑腿的，一天几个铜板。',age:[8,15],w:13,cond:{},
+ opts:[
+  {t:'接下来，风里雨里都跑',e:{财富:18,健康:-6,事业:6},tg:['跑腿'],r:'你把半条街的门都敲熟了。'},
+  {t:'只接晴天和顺路的',e:{财富:10,心智:6,健康:2},tg:['挑活'],r:'你挑得精明，掌柜的嘴上骂，还是留着。'},
+  {t:'拉上两个同伴一起跑，抽一点头',e:{财富:16,事业:8,名望:16,功德:-6},tg:['分工'],r:'你第一次发现，让别人干活比自己干更划算。'},
+  {t:'不接，把工夫都用在上学上',e:{学识:10,心智:4,财富:-7},tg:['专心'],r:'你没挣那几个铜板。多年后你算过，这笔账是划得来的。'}
+ ]},
+{id:'act06',cat:'财富',title:'第一次赶集',desc:'天不亮就出发，走了二十里，集上人挤人。',age:[7,16],w:13,cond:{},
+ opts:[
+  {t:'把家里多余的东西挑去卖',e:{财富:20,事业:6,健康:-6,名望:6},tg:['开张'],r:'你喊了一天嗓子都哑了。卖了七成。'},
+  {t:'不卖，先看别人怎么卖',e:{心智:6,学识:5,事业:6,机缘:9},tg:['看行情'],r:'你站了三个摊子，看出了谁在亏本。'},
+  {t:'把身上的钱全花在了书本上',e:{学识:13,财富:-22,心智:4},tg:['买书'],r:'回家挨了一顿骂。那本书你读了一辈子。'},
+  {t:'在集上跟人打听了外面的世道',e:{机缘:14,心智:6,学识:6},tg:['打听'],r:'有人说山那边在修铁路。你记住了这句话。'}
+ ]},
+{id:'act07',cat:'事业',title:'想学手艺',desc:'街尾的师傅手艺很好，脾气很差，至今没带过徒弟。',age:[10,18],w:14,cond:{},
+ opts:[
+  {t:'天天去门口站着，站到他开口',e:{事业:13,心性:8,健康:-6,名望:8},tg:['站门口'],r:'你站了四十天。第四十一天他扔给你一把工具。'},
+  {t:'托人送礼，走门路',e:{事业:8,财富:-18,情感:4,机缘:8},tg:['走门路'],r:'礼送到了，他也收了。但你总觉得那门手艺没学到根上。'},
+  {t:'自己琢磨，不拜师',e:{事业:8,心智:6,心性:6,功德:4},tg:['自学'],r:'你做得不成体系，可有一两样比谁都精。'},
+  {t:'一门心思读书，放弃学手艺',e:{学识:11,事业:-6,心智:4},tg:['弃艺'],r:'你把工具还了回去。师傅哼了一声，没说话。'}
+ ]},
+{id:'act08',cat:'学业',title:'夜里点灯',desc:'家里只点得起一盏灯。灯油要省着用。',age:[9,20],w:14,cond:{},
+ opts:[
+  {t:'把灯芯拨细，读到最晚',e:{学识:16,健康:-8,心性:6,名望:5},tg:['夜读'],r:'灯芯细得像根线。你读了三年这样的书。'},
+  {t:'白天把活干完，把白天让给书',e:{学识:10,健康:3,事业:-6,心性:6},tg:['挤时间'],r:'你天不亮就起。村里人都说这孩子有点怪。'},
+  {t:'跟几个同伴凑钱合买灯油',e:{学识:8,情感:7,财富:-7,机缘:5},tg:['凑份子'],r:'四个人一盏灯。你们后来各自去了不同的地方。'},
+  {t:'不读了，把灯让给弟妹',e:{功德:13,情感:7,学识:-6,心性:6},tg:['让灯'],r:'你坐在黑里听他们念。你居然也记住了大半。'}
+ ]},
+{id:'act09',cat:'情感',title:'有人被欺负',desc:'巷子里四五个人围着一个，那个人的书包被扔在地上踩。',age:[8,18],w:13,cond:{},
+ opts:[
+  {t:'冲进去把人拉开',e:{功德:14,名望:14,健康:-9,业力:-3},tg:['出头'],r:'你挨了两下，但人被你拉出来了。'},
+  {t:'去叫大人来',e:{功德:12,心智:6,机缘:3},tg:['找大人'],r:'大人来了，人都散了。被围的那个看了你一眼。'},
+  {t:'装作没看见，快步走开',e:{心性:-18,情感:-8,健康:2,功德:-10},tg:['绕开'],r:'你走了很远还听得见。这件事你记了很久。'},
+  {t:'把书包捡起来还给他，然后走',e:{功德:11,情感:5,名望:6},tg:['捡书包'],r:'他抓着书包没说话。后来他帮过你一次。'}
+ ]},
+{id:'act10',cat:'机缘',title:'偷学一样没用的本事',desc:'有人会一样本事，谁都说没用，可你就是想学。',age:[8,18],w:13,cond:{},
+ opts:[
+  {t:'偷偷学会，谁也不告诉',e:{机缘:16,心性:6,心智:4},tg:['藏技'],r:'这项本事在当时确实没用。二十年后的某一天，它救了你。'},
+  {t:'学了一半，觉得没意思就放下了',e:{机缘:3,心智:3,心性:-9},tg:['半途'],r:'你后来偶尔想起，会有点后悔。'},
+  {t:'学成了，还当众演了一回',e:{机缘:6,名望:15,情感:5},tg:['露一手'],r:'满场叫好。你得意了整整一年。'},
+  {t:'拿它换了一顿饭钱',e:{财富:16,机缘:3,学识:-3},tg:['换钱'],r:'你当场演，人家当场给钱。你忽然觉得它也没那么有意思了。'}
+ ]},
+{id:'act11',cat:'情感',title:'一个人过年',desc:'今年家里人凑不齐。爆竹在别人家门口响了一夜。',age:[10,20],w:12,cond:{},
+ opts:[
+  {t:'自己把年夜饭做了',e:{心性:8,健康:4,情感:-5},tg:['自己过'],r:'你炒了两个菜，摆了两双筷子。吃完收了。'},
+  {t:'去邻居家蹭了一顿',e:{情感:8,机缘:3,心性:4},tg:['蹭饭'],r:'邻居把最好的那块肉夹给了你。'},
+  {t:'一个人走到村口看别人放炮',e:{心性:8,机缘:8,情感:-6},tg:['看炮'],r:'你站到炮声停了才回去。'},
+  {t:'把这一年的事写了下来',e:{学识:8,心智:6,心性:6,功德:4},tg:['记下来'],r:'你写了三页纸。多年后再看，那一年的字比后来都硬。'}
+ ]},
+{id:'act12',cat:'机缘',title:'出远门',desc:'有人说一百里外有活路。你收拾了一个包袱。',age:[12,22],w:13,cond:{},
+ opts:[
+  {t:'去，一个人上路',e:{机缘:14,心性:8,财富:8,健康:-8,情感:-6},tg:['闯'],r:'你走了六天。第六天你把包袱里的干粮吃完了，也把害怕吃完了。'},
+  {t:'去，但约上两个同乡一起',e:{机缘:10,情感:8,财富:8,事业:6,功德:5},tg:['结伴'],r:'三个人挤一张床。谁也没嫌弃谁。'},
+  {t:'不去，留在家里守着',e:{心性:6,健康:3,名望:-7,情感:4,功德:-4},tg:['留守'],r:'你留下了。后来听说出去的人有的发了，有的没了。'},
+  {t:'先去看一趟，再决定',e:{心智:6,机缘:3,学识:5,财富:-7},tg:['先看看'],r:'你走了一半就回来了。但你已经知道了路怎么走。'}
+ ]},
+{id:'act13',cat:'财富',title:'朋友来借钱',desc:'一起长大的那个人站在门口，手一直在袖子里搓。',age:[14,30],w:13,cond:{},
+ opts:[
+  {t:'把能拿出来的都借了',e:{情感:9,功德:13,财富:-29},tg:['倾囊'],r:'他没说谢谢。很多年后他连本带利还了回来，还多给了一份。'},
+  {t:'借一半，留一半',e:{心智:6,情感:5,财富:-14},tg:['量力'],r:'他拿着钱看了你一会儿，说：够了。'},
+  {t:'不借，但陪他想别的办法',e:{功德:10,心智:6,情感:4,财富:-4},tg:['想别的'],r:'你陪他跑了三天。第四天他自己想通了。'},
+  {t:'不借，也不想掺和',e:{财富:8,情感:-11,业力:11,功德:-12},tg:['关门'],r:'他把手从袖子里抽出来，走了。以后再没来过。'}
+ ]},
+{id:'act14',cat:'日常',title:'上树',desc:'最高那棵树上的果子已经熟透了，谁也够不着。',age:[5,12],w:12,cond:{},
+ opts:[
+  {t:'爬到最高处',e:{名望:14,健康:-6,机缘:4},tg:['爬高'],r:'你爬到顶尖，看见了大半个村子。果子也摘到了。'},
+  {t:'在下面用石子打',e:{健康:3,心智:4,机缘:2},tg:['打果子'],r:'打了半个时辰，掉下来三个。够吃了。'},
+  {t:'找根长竹竿来',e:{心智:6,事业:6,健康:2},tg:['想办法'],r:'你借来了竹竿。整个巷子的小孩都来分果子。'},
+  {t:'不摘，就看着',e:{心性:6,机缘:3,健康:2},tg:['看看就好'],r:'你看了一会儿就走了。第二天果子被鸟吃光了。'}
+ ]},
+{id:'act15',cat:'情感',title:'一件像样的东西',desc:'你终于有了属于自己的、像样的那样东西。',age:[4,10],w:12,cond:{},
+ opts:[
+  {t:'天天带在身上，谁都不许碰',e:{情感:5,心性:4,名望:-7},tg:['宝贝'],r:'你把它擦得发亮。有一天它还是丢了。'},
+  {t:'分给弟妹一起玩',e:{功德:13,情感:5,心性:6,名望:4},tg:['一起玩'],r:'被弄坏了。你心疼了好几天，但没发火。'},
+  {t:'拿它跟人换了一样更稀罕的',e:{财富:10,机缘:10,心智:6},tg:['换东西'],r:'你换回来的那样东西，别人都说亏了。你觉得自己赚了。'},
+  {t:'收起来，舍不得用',e:{心性:6,财富:8,情感:-6},tg:['收着'],r:'你把它放进了箱底。多年后翻出来，它还是新的，你已经不需要它了。'}
+ ]},
+{id:'act16',cat:'日常',title:'场院上的电影',desc:'队里来了放映队，白色的幕布挂在场院中央，半个村的人都来了。',age:[7,18],w:12,cond:{},
+ opts:[
+  {t:'挤到最前面，仰着头看',e:{心智:6,机缘:10,健康:-5},tg:['仰头看'],r:'脖子酸了一晚上。但你看见了外面的样子。'},
+  {t:'爬到麦垛上看',e:{机缘:4,健康:4,名望:10},tg:['上垛'],r:'视野最好。半个村的人都羡慕你。'},
+  {t:'顾着跟旁边的人说话',e:{情感:7,机缘:2,心智:2},tg:['聊天'],r:'电影演了什么你记不清了，但记住了那个人说的话。'},
+  {t:'看了一半就回去了',e:{心性:6,健康:3,情感:-5,功德:4},tg:['早退'],r:'你走的时候幕布上正在放一段很亮的画面。'}
+ ]},
+/* ============ 逆命：天行健 ============
+   只在「忌神流年」出现——今年的气数与命局相冲，做什么都逆着风。
+   这是全游戏唯一一处能把命盘的劣势直接换成机会的地方。 */
+{id:'zq01',cat:'修行',title:'天行健',desc:'今年的气数与你的命局相冲，忌神当值——做什么都像顶着风走。夜里翻来覆去睡不着，忽然想起一句话：天行健，君子以自强不息。',age:[8,88],w:16,cond:{require:{adverse:true}},
+ opts:[
+  {t:'自强不息——硬扛过去',e:{心性:11,学识:6,事业:6,机缘:2,健康:-12,寿元:-5},tg:['自强'],zq:1,r:'你没有躲。这一年过得很苦，但你是站着过完的。'},
+  {t:'顺势养晦，不与命争',e:{健康:5,心性:6,财富:4},tg:['养晦'],r:'你收了一整年。人家说你没出息，你不辩。'},
+  {t:'去找人搭把手',e:{情感:8,功德:7,事业:-6,机缘:-8},tg:['借力'],r:'你张了口。有人真的来了。这比你想的要难，也比你想的要暖。'},
+  {t:'逆着风赌一把',e:{财富:26,事业:11,业力:14,健康:-8},tg:['赌性'],r:'你押上了能押的东西。这一年你赢了一些，也欠了一些。'}
+ ]},
+{id:'zq02',cat:'修行',title:'自强不息',desc:'这是你第二次在逆风里站住了。命盘上一直压着你的那个地方，好像松了一点。',age:[8,88],w:0,noRoll:true,cond:{},
+ opts:[
+  {t:'把这句话刻进骨头里',e:{心性:13,功德:10,名望:13,业力:-12,寿元:2},tg:['改命'],r:'你什么也没说。但从这一年起，命里那点不顺，不太压得住你了。'}
  ]}
 ];
 
@@ -2755,7 +3004,7 @@ const TALENTS = [
    boost:['功德','情感'], apply:a=>{a['功德']+=10; a['情感']+=4; }},
   {id:'t_social', name:'情丝绵长', desc:'初始 情感 +10，且提高 情感 上限', max:3, cost:[4,9,18],
    boost:['情感'], apply:a=>{a['情感']+=10; }},
-  {id:'t_eye',    name:'洞悉天机', desc:'永久显示选项的属性增减（1 级即生效）', max:1, cost:[10],
+  {id:'t_eye',    name:'洞悉天机', desc:'选项上只标出它会牵动哪几样属性——只给名字，不给数值（数值一律选完才揭晓）', max:1, cost:[10],
    boost:null, apply:a=>{}}
 ];
 /* 属性天花板：天赋抬高上限，命盘喜用神也会给一点额外空间 */
@@ -2813,7 +3062,8 @@ function saveRun(){
   // 节流：状态无实质变化就不重复写盘（renderLife 会被高频调用）
   const sig = G.age + '|' + G.pidx + '|' + (G.choosing ? 1 : 0) + '|' + G.chosenOpt
             + '|' + Math.round(G.attrs['寿元']) + '|' + G.tags.length + '|' + G.timeline.length
-            + '|' + G.path + (G.monkName || '') + (G.monkYears || 0) + (G.leaves || 0);
+            + '|' + G.path + (G.monkName || '') + (G.monkYears || 0) + (G.leaves || 0)
+            + '|' + (G.zq || 0) + (G.zqBroke ? 'B' : '');
   if(sig === _runSig) return true;
   _runSig = sig;
   try{
@@ -2832,6 +3082,7 @@ function saveRun(){
       path: G.path || 'sec', monkName: G.monkName || null,
       monkYears: G.monkYears || 0, monkAge: (G.monkAge === undefined ? null : G.monkAge),
       leaves: G.leaves || 0, famId: G.famId || null,
+      zq: G.zq || 0, zqBroke: !!G.zqBroke,
       attrBase: G.attrBase, cap: G.cap, lastDecay: G.lastDecay || 0
     }));
     return true;
@@ -2875,6 +3126,8 @@ function restoreRun(s){
   G.monkYears = s.monkYears || 0;
   G.monkAge = (s.monkAge === undefined ? null : s.monkAge);
   G.leaves = s.leaves || 0;
+  G.zq = s.zq || 0;
+  G.zqBroke = !!s.zqBroke;
   G.famId = s.famId || null;
   G.attrBase = s.attrBase || JSON.parse(JSON.stringify(G.attrs));
   G.cap = s.cap || buildCaps();
@@ -3173,6 +3426,16 @@ function curDayunAt(age){
   for(const d of G.dayun){ if(age >= d.from && age <= d.to) return d; }
   return null;
 }
+/* 逆命之年：流年五行落忌神，或当前大运的干为忌神。
+   这是「自强不息」唯一会出现的时机——命局与今年的气数相冲，做什么都逆着风。 */
+function isAdverseYear(){
+  const fav = G.bazi && G.bazi.fav;
+  if(!fav) return false;
+  if(G.liunian && G.liunian.wx === fav.avoid) return true;
+  const dy = G.curDayun;
+  if(dy && dy.wx === fav.avoid) return true;
+  return false;
+}
 function liunianAt(age, birthYear){
   const y = birthYear + age;
   const idx = ((y - 4) % 60 + 60) % 60;
@@ -3186,6 +3449,7 @@ function weightOf(ev){
   if(last !== undefined && G.age - last < 5) return 0;
   if(ev.cond && ev.cond.require){
     if(ev.cond.require.lowLife && G.attrs['寿元'] > 12) return 0;
+    if(ev.cond.require.adverse && !isAdverseYear()) return 0;   // 天行健：只在忌神流年露面
   }
   // 方外路线：身份过滤。path:'out' 表示任一出家身份，具体值表示指定路线
   const cp = ev.cond && ev.cond.path;
@@ -3765,6 +4029,7 @@ function startGame(bz){
   G.score = 0;
   // 新的一世从在俗状态开始（方外路线需在人生中自行选择）
   G.path = 'sec'; G.monkName = null; G.monkYears = 0; G.monkAge = null; G.leaves = 0;
+  G.zq = 0; G.zqBroke = false;    // 自强不息：本世的逆风次数与「改命」是否已触发
   G.ending = null;
   G.birthYear = bz.y;
   applyEraClass();
@@ -3907,6 +4172,7 @@ function renderLife(){
   }
   meta += '<br/>寿元 <b>' + Math.round(G.attrs['寿元']) + '</b>';
   if(G.path !== 'sec') meta += '<br/><span class="monkbadge">' + monkTitle() + '</span>';
+  if(G.zq) meta += '<br/><span class="zqbadge">自强 ×' + G.zq + (G.zqBroke ? '　已改命' : '　／ 2') + '</span>';
   $('lifeMeta').innerHTML = meta;
 
   // 志向进度
@@ -3946,17 +4212,20 @@ function renderLife(){
   const ev = G.pending[G.pidx];
   let optsHtml = '';
   ev.opts.forEach((o, i)=>{
+    // 选项一律不报数值——选了之后才揭晓。「洞悉天机」也只透露牵动哪几样，不给数。
     let effHtml = '';
     if(talentLv('t_eye') > 0){
-      const parts = Object.keys(o.e).map(k=>{
-        const v = o.e[k];
-        const good = (v > 0) === (NEG_ATTRS.indexOf(k) < 0);
-        return '<i class="' + (good ? 'u' : 'd') + '">' + k + ' ' + (v > 0 ? '+' : '') + v + '</i>';
-      });
-      effHtml = '<span class="eff">' + parts.join('') + '</span>';
+      const names = Object.keys(o.e).filter(k=>o.e[k]).map(k=>'<i>' + k + '</i>').join('');
+      if(names) effHtml = '<span class="eff names">' + names + '</span>';
     }
     optsHtml += '<button class="opt" onclick="chooseOption(' + i + ')">' + o.t + effHtml + '</button>';
   });
+
+  // 婴孩阶段：这一岁你还不会做事，能摆在面前的只有落在你身上的事
+  const optsNote = (G.age <= 3)
+    ? '<div class="babynote">这一岁你还不会做事。下面是落在你身上的事。</div>'
+    : (isAdverseYear() && G.path === 'sec'
+        ? '<div class="adversenote">流年与命局相冲 · 今年做什么都逆着风</div>' : '');
 
   // 出生横幅：人生头一年，先看见自己生在了什么样的家里
   let birthHtml = '';
@@ -3969,9 +4238,10 @@ function renderLife(){
       + '</div>';
   }
 
-  const evCls = 'event'
+  const evCls = 'event c-' + (CAT_SLUG[ev.cat] || 'daily')
     + ((ev.w || 10) <= 7 ? ' rare' : '')
-    + (ev.cat === '危机' ? ' crisis' : '');
+    + (ev.cat === '危机' ? ' crisis' : '')
+    + (ev.id === 'zq01' ? ' will' : '');
 
   wrap.innerHTML = birthHtml
     + '<div class="' + evCls + '">'
@@ -3981,6 +4251,7 @@ function renderLife(){
     + '<h3>' + ev.title + '</h3>'
     + '<div class="desc">' + ev.desc + '</div>'
     + '</div>'
+    + optsNote
     + '<div class="opts">' + optsHtml + '</div>'
     + '</div>';
 
@@ -3988,11 +4259,18 @@ function renderLife(){
 
   // 氛围特效：危机压一层红光、稀有事件泼一蓬金光（极速模式下略过，免得晃眼）
   if(!G.fast){
-    if(ev.cat === '危机') fxFlash('crisis');
+    if(ev.id === 'zq01') fxWill();
+    else if(ev.cat === '危机') fxFlash('crisis');
     else if((ev.w || 10) <= 7){
       fxFlash('rare');
       fxSparks(wrap.querySelector ? wrap.querySelector('.event') : null);
     }
+  }
+
+  // 逆命之年：整页换一层很淡的磨砺色，让人一眼看出「今年不一样」
+  if(document.body && document.body.classList){
+    if(isAdverseYear() && G.path === 'sec') document.body.classList.add('adverse-year');
+    else document.body.classList.remove('adverse-year');
   }
 
   if(G.fast) scheduleFast(()=>chooseOption(rnd(ev.opts.length)));
@@ -4023,6 +4301,17 @@ function doChoose(ev, o){
     G.leaves = (G.leaves || 0) + 1;
     G.monkName = null;
     pushTag('退转');
+  }
+  // 自强不息：在逆风里站住一次，记一笔。站住两次，命盘上那处压制就松一分。
+  if(o.zq){
+    G.zq = (G.zq || 0) + 1;
+    if(G.zq >= 2 && !G.zqBroke){
+      G.zqBroke = true;
+      // 改命之效：本世属性上限 +4，并把「自强不息」那一条因果接上
+      ATTRS.forEach(k=>{ if(NEG_ATTRS.indexOf(k) < 0) G.cap[k] = Math.min(126, (G.cap[k] || 100) + 4); });
+      const nx = EVENTS.find(e=>e.id === 'zq02');
+      if(nx && !G.died) G.pending.splice(G.pidx + 1, 0, nx);
+    }
   }
   G.usedAt[ev.id] = G.age;
   META.events[ev.id] = 1;
@@ -4763,6 +5052,14 @@ function fxPathAura(){
   d.className = 'pathaura';
   document.body.appendChild(d);
   setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 1360);
+}
+/* 天行健：一层金红气环，像有人在你背后推了一把 */
+function fxWill(){
+  const d = document.createElement('div');
+  d.className = 'willaura';
+  document.body.appendChild(d);
+  setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 1560);
+  fxFlash('rare');
 }
 
 /* ---------- 人生页实时属性条：每一次增减都被看见 ---------- */
