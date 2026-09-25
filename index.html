@@ -1167,6 +1167,72 @@ html{touch-action:manipulation}
   transform:scale(.97);
   transition:transform 100ms ease-out}
 .tbar-act{display:flex;gap:8px;align-items:center}
+
+/* =========================================================================
+   v5 层：问心局 · 选项分层呈现 · 配图光影 · 特效分层
+   不改任何事件数据、数值与抽取逻辑，只增表现层与一条独立的问心局链路。
+   ========================================================================= */
+
+/* ---------- 5.1 问心局：两条路都要失去点什么 ---------- */
+.event.heart{border:1px solid rgba(193,52,42,.3);box-shadow:var(--sh2)}
+.event.heart .scene{height:134px;border-bottom:none}
+.event.heart .etop{border-bottom:none;text-align:center;padding:16px 18px 4px}
+.event.heart .cat{color:var(--accent);font-weight:600;letter-spacing:.34em}
+.event.heart h3{font-family:var(--font-brand);font-size:21px;letter-spacing:.08em;margin:5px 0 9px}
+.event.heart .desc{text-align:center;color:var(--label2);font-size:14.5px}
+.event.heart .opts{padding:12px 13px 15px}
+.event.heart .opt{
+  text-align:left;padding:14px 15px;border:1px solid rgba(193,52,42,.22);
+  background:linear-gradient(180deg,rgba(193,52,42,.05),transparent);
+  font-size:15px;line-height:1.55;
+}
+.event.heart .opt:hover{border-color:rgba(193,52,42,.45);background:rgba(193,52,42,.08)}
+.event.heart .opt:active{background:rgba(193,52,42,.12)}
+.event.heart .opt.picked{background:rgba(193,52,42,.12);box-shadow:inset 0 0 0 1.5px var(--accent)}
+/* 中间那道裂痕：两条路之间的分界，也是「不能两全」的视觉 */
+.heartseam{display:flex;align-items:center;gap:10px;margin:10px 4px;color:var(--accent);opacity:.7}
+.heartseam::before,.heartseam::after{content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(193,52,42,.55),transparent)}
+.heartseam i{font-style:normal;font-family:var(--font-brand);font-size:11px;letter-spacing:.34em;white-space:nowrap}
+.hearttag{display:inline-block;margin:0 0 2px;padding:2px 10px;border-radius:999px;
+  font-size:11px;letter-spacing:.2em;color:var(--accent);
+  background:rgba(193,52,42,.09);border:1px solid rgba(193,52,42,.22)}
+:root[data-theme="dark"] .event.heart{border-color:rgba(224,85,74,.38)}
+:root[data-theme="dark"] .event.heart .opt{border-color:rgba(224,85,74,.26);background:linear-gradient(180deg,rgba(224,85,74,.08),transparent)}
+
+/* ---------- 5.2 分层呈现：默认露 2~3 条，其余收在「再看看」 ---------- */
+.morebtn{display:block;width:100%;border:none;background:none;cursor:pointer;
+  font-family:var(--font-ui);font-size:13.5px;font-weight:600;letter-spacing:.04em;
+  color:var(--sys-blue);padding:10px 0 4px;touch-action:manipulation;
+  transition:transform 100ms ease-out,opacity .16s ease}
+.morebtn:active{transform:scale(.97);opacity:.7}
+.opts-folded .opt.more{display:none}
+.opts-folded.open .opt.more{display:block}
+
+/* ---------- 5.3 事件配图：近中远景分离后压一层天光与暗角 ---------- */
+.scene{position:relative;overflow:hidden}
+.scene::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 40%,
+    rgba(90,68,36,.07) 78%,rgba(90,68,36,.14))}
+:root[data-theme="dark"] .scene::after{
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,0) 40%,
+    rgba(0,0,0,.24) 78%,rgba(0,0,0,.38))}
+
+/* ---------- 5.4 特效分层：类别氛围 + 关键节点仪式感 ---------- */
+.fxcat{position:fixed;inset:0;z-index:69;pointer-events:none;opacity:0;
+  animation:fxcatIn 1.15s ease-out forwards}
+@keyframes fxcatIn{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+.fxrite{position:fixed;inset:0;z-index:71;pointer-events:none;opacity:0;
+  animation:fxRite 1.6s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes fxRite{0%{opacity:0}16%{opacity:1}100%{opacity:0}}
+/* 浮动数字按属性语义分色 */
+.floatnum.growth{color:var(--sys-blue)}
+.floatnum.cost{color:var(--sys-orange)}
+.floatnum.karma{color:var(--sys-purple)}
+.floatnum.fate{color:var(--accent)}
+@media (prefers-reduced-motion:reduce){
+  .fxcat,.fxrite{animation:none !important;opacity:0 !important}
+}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -1749,7 +1815,7 @@ const CAT_WX = {
 const CAT_SLUG = {
   '家庭':'home','学业':'study','事业':'career','财富':'wealth','情感':'love','健康':'health',
   '机缘':'luck','危机':'crisis','修行':'cultivate','日常':'daily','晚年':'elder','时代':'era',
-  '大限':'last','方外':'monk'
+  '大限':'last','方外':'monk','问心':'heart'
 };
 /* 方外身份：sec=在俗，buddha=佛门，tao=道门。
    心性与耗损机制按路线区分：道门重养生，佛门重功德。 */
@@ -3546,6 +3612,73 @@ EVENTS.push.apply(EVENTS, EVENTS_EXTRA);
 EVENTS.push.apply(EVENTS, EVENTS_FANGWAI);
 EVENTS.push.apply(EVENTS, EVENTS_LIFE2);
 
+/* ------------------------------------------------------------------ 2e. 问心局 · 独立事件类
+   只由 rollHeart() 在人生关口插入，**不 push 进 EVENTS** —— 现有事件的抽取概率、
+   净贡献与 _rate.js 口径一律不变。每局只有两条路，两条都要失去点什么，
+   没有支配解（不存在一条在所有维度上都更好的）。 */
+const HEART = [
+{id:'hx01',kind:'heart',cat:'问心',title:'药钱',age:[28,52],cond:{},
+ desc:'母亲的药和孩子的学费，都在同一个抽屉里。你把抽屉拉开，又关上。',
+ opts:[
+  {t:'先给母亲抓药',e:{情感:12,功德:6,财富:-13,心性:3},tg:['先母'],r:'母亲多撑了两年。孩子的课本是从同学那儿借的，封皮上写着别人的名字。'},
+  {t:'先把学费交上',e:{财富:8,学识:5,情感:-12,业力:6},tg:['先子'],r:'孩子进了学堂。母亲说这病不要紧，你信了。她走的那年冬天特别冷。'}
+ ]},
+{id:'hx02',kind:'heart',cat:'问心',title:'担保',age:[24,50],cond:{},
+ desc:'朋友出了事，需要一个人站出来把话认下。他看着你，什么都没说。',
+ opts:[
+  {t:'认下来',e:{情感:11,名望:7,事业:-12,财富:-6},tg:['担下'],r:'你替他挡了。很多年后他还记得，但你们再没坐在一起喝过酒。'},
+  {t:'说不知道',e:{事业:9,财富:6,情感:-12,业力:7},tg:['推了'],r:'你说得很干净。事情过去得很快，只是每次听见他的名字，你会停顿一下。'}
+ ]},
+{id:'hx03',kind:'heart',cat:'问心',title:'归期',age:[18,34],cond:{},
+ desc:'外面有人在等你。家里也有人，病着，不肯说。',
+ opts:[
+  {t:'留下来',e:{情感:12,心性:6,事业:-13,机缘:-6},tg:['留'],r:'你留下了。夜里给老人翻身的时候，你会想起那个没去成的地方。'},
+  {t:'走',e:{事业:11,机缘:9,情感:-13,功德:-5},tg:['走'],r:'你在车上哭了一路，到了地方就再没哭过。信写得越来越短。'}
+ ]},
+{id:'hx04',kind:'heart',cat:'问心',title:'签字',age:[26,54],cond:{},
+ desc:'桌上那份东西，签下去你能上去一大截。里面的门道，你看得懂。',
+ opts:[
+  {t:'签',e:{财富:12,事业:11,心性:-10,业力:8},tg:['签了'],r:'你上去了。后来每次在会上讲话，你都能听见自己声音里多出来的那点东西。'},
+  {t:'不签',e:{心性:11,名望:7,事业:-12,财富:-7},tg:['没签'],r:'你把笔放下了。那一年你原地没动，看着人一个个从你身边过去。'}
+ ]},
+{id:'hx05',kind:'heart',cat:'问心',title:'那句话',age:[22,58],cond:{},
+ desc:'你知道一件事。说出来会得罪人，不说出来，那个人会一直不明不白。',
+ opts:[
+  {t:'说出来',e:{功德:11,名望:8,事业:-11,情感:-5},tg:['说了'],r:'话说出口，屋子里安静了。之后很多年里，有人提起你，语气里带着点别的意思。'},
+  {t:'咽下去',e:{事业:10,名望:6,功德:-11,心性:-7},tg:['咽了'],r:'你什么也没说。那人到死都不知道，而你偶尔会在半夜醒过来。'}
+ ]},
+{id:'hx06',kind:'heart',cat:'问心',title:'水里的人',age:[16,62],cond:{},
+ desc:'河里有个人在扑腾。岸上只有你，还有一群站着看的人。',
+ opts:[
+  {t:'跳下去',e:{功德:13,名望:9,健康:-14,寿元:-4},tg:['下水'],r:'你把人拖上来了。你的腿从那以后一直怕冷，阴天就疼。'},
+  {t:'大声喊人，自己没动',e:{机缘:6,健康:5,心性:-8,功德:-9,名望:-5},tg:['喊人'],r:'人救上来了，是别人下的水。你站在原地，手一直是凉的。'}
+ ]},
+{id:'hx07',kind:'heart',cat:'问心',title:'老屋',age:[38,66],cond:{},
+ desc:'老屋要拆了，补偿款够换一套新房。老屋的门槛，是你小时候坐着数过雨的地方。',
+ opts:[
+  {t:'留着，不拆',e:{情感:11,功德:6,财富:-12,事业:-4},tg:['留着'],r:'老屋空着，你也常回去坐一坐。房顶漏过一次，你自己上去补的。'},
+  {t:'拆了换钱',e:{财富:13,事业:8,情感:-12,机缘:-4},tg:['拆了'],r:'新房子很亮，什么都不缺。你在阳台上站了很久，说不清在找什么。'}
+ ]},
+{id:'hx08',kind:'heart',cat:'问心',title:'功劳',age:[27,56],cond:{},
+ desc:'这件事是你做的，功劳簿上写的是别人。说与不说，你都过得去。',
+ opts:[
+  {t:'让给他',e:{情感:10,功德:8,名望:-6,事业:-5},tg:['让了'],r:'你什么也没提。他后来提了你一次，在酒桌上，说你是他最信得过的人。'},
+  {t:'把话说明白',e:{名望:11,事业:9,情感:-10,心性:-3},tg:['要了'],r:'功劳回到了你头上。你们从此客气了很多，客气了十几年。'}
+ ]},
+{id:'hx09',kind:'heart',cat:'问心',title:'那笔账',age:[26,64],cond:{},
+ desc:'当年那个人踩着你上去，如今他落了难，位置就在你手边。',
+ opts:[
+  {t:'讨回来',e:{事业:11,名望:8,功德:-11,心性:-6},tg:['讨了'],r:'他没挡住。你站在那儿看完了全过程，心里没有预想的痛快。'},
+  {t:'算了',e:{功德:12,心性:9,事业:-9,名望:-3},tg:['算了'],r:'你从他门口走过去了。那之后的很多年，你睡得很沉。'}
+ ]},
+{id:'hx10',kind:'heart',cat:'问心',title:'最后一笔',age:[56,80],cond:{},
+ desc:'这一辈子的余钱，摆在你面前。孩子等着接手，外面也有等着的人。',
+ opts:[
+  {t:'都留给孩子',e:{情感:12,财富:-4,功德:-4,心性:-3},tg:['留子'],r:'孩子们把日子过得很好，也再没跟你红过脸。你走的时候，什么都没带走。'},
+  {t:'捐出去',e:{功德:14,名望:8,情感:-12,机缘:4},tg:['捐了'],r:'钱散出去了，有的地方立了块碑。孩子的电话，那一年少了很多。'}
+ ]}
+];
+
 /* ------------------------------------------------------------------ 3. 结局与评分 */
 const ENDING_RULES = [
   {id:'e_break', name:'打破命簿', desc:'五千年的账，被你在这一世翻了过去。', test:g=>g.meta.totalLife >= 500 || g.score >= 100 && g.life >= 100},
@@ -3709,7 +3842,8 @@ function restoreRun(s){
   G.snapshots = s.snapshots || [];
   G.peak = s.peak || {};
   G.usedAt = s.usedAt || {};
-  G.pending = (s.pendingIds || []).map(id=>EVENTS.find(e=>e.id === id)).filter(Boolean);
+  // 问心局不在 EVENTS 里，恢复时两处都要查，否则暂离再回来会丢掉当年那一局
+  G.pending = (s.pendingIds || []).map(id=>EVENTS.find(e=>e.id === id) || HEART.find(e=>e.id === id)).filter(Boolean);
   G.pidx = s.pidx || 0;
   G.choosing = !!s.choosing;
   G.chosenOpt = (s.chosenOpt === undefined ? null : s.chosenOpt);
@@ -5185,7 +5319,35 @@ function monasticDrift(){
   return d;
 }
 
+/* ------------------------------------------------------------------ 2e-1. 问心局：关口插入
+   与 rollEvents 完全平行：既不参与加权抽取，也不挤掉任何现有事件，所以现有事件的
+   出现概率与数值平衡一字不变。同一世同一局只问一次，两局至少隔 12 年；整十岁的关口
+   更容易遇上。触发历史全部从 G.usedAt 推出来，不新增存档字段，旧存档照样能读。 */
+function lastHeartAge(){
+  let last = -1;
+  for(let i = 0; i < HEART.length; i++){
+    const at = G.usedAt[HEART[i].id];
+    if(at !== undefined && at > last) last = at;
+  }
+  return last;
+}
+function rollHeart(){
+  if(!G || G.age < 10) return null;                 // 太早还不谈问心
+  const last = lastHeartAge();
+  if(last >= 0 && G.age - last < 12) return null;   // 问得太密就不叫问心，叫折磨
+  const pool = HEART.filter(h=>{
+    if(h.age && (G.age < h.age[0] || G.age > h.age[1])) return false;
+    if(G.usedAt[h.id] !== undefined) return false;  // 这一世已经问过这一局
+    return true;
+  });
+  if(!pool.length) return null;
+  const gate = (G.age % 10 === 0);                  // 关口年：大运交界那一带
+  if(Math.random() > (gate ? 0.85 : 0.34)) return null;
+  return pick(pool);
+}
+
 function beginYear(){
+  const prevDayun = G.curDayun;              // 交接前的那一步，用来认「换步」这一刻
   G.curDayun = curDayunAt(G.age);
   G.liunian  = liunianAt(G.age, G.birthYear);
   const n = 2 + rnd(2);
@@ -5194,9 +5356,14 @@ function beginYear(){
     const g = EVENTS.filter(e=>e.cat === '日常');
     G.pending = [pick(g)];
   }
+  // 问心局排在当年最前面：先照见心，再过日子
+  const heart = rollHeart();
+  if(heart) G.pending.unshift(heart);
   G.pidx = 0;
   G.choosing = false;
   G.chosenOpt = null;
+  // 大运交接：十年才换一次步，值得给一层仪式感
+  if(!G.fast && prevDayun && G.curDayun && prevDayun.gz !== G.curDayun.gz) fxRite('dayun');
   renderLife();   // 落盘由 renderLife 统一负责
 }
 
@@ -5251,6 +5418,11 @@ function renderLife(){
   }
 
   const ev = G.pending[G.pidx];
+  const isHeart = ev.kind === 'heart';
+  /* 分层呈现：小事默认露 2 条，大事露 3 条，问心局固定 2 条；其余收在「再看看」里。
+     只改「一次要读几条」——选项本身、顺序与数值一律不动，所以平衡不受影响。 */
+  const shown = isHeart ? 2 : (isMajorEvent(ev) ? 3 : 2);
+  const folded = !isHeart && ev.opts.length > shown;
   let optsHtml = '';
   ev.opts.forEach((o, i)=>{
     // 选项一律不报数值——选了之后才揭晓。「洞悉天机」也只透露牵动哪几样，不给数。
@@ -5259,8 +5431,15 @@ function renderLife(){
       const names = Object.keys(o.e).filter(k=>o.e[k]).map(k=>'<i>' + k + '</i>').join('');
       if(names) effHtml = '<span class="eff names">' + names + '</span>';
     }
-    optsHtml += '<button class="opt" onclick="chooseOption(' + i + ')">' + o.t + effHtml + '</button>';
+    optsHtml += '<button class="opt' + (folded && i >= shown ? ' more' : '')
+      + '" onclick="chooseOption(' + i + ')">' + o.t + effHtml + '</button>';
+    // 两条路之间那道裂痕：「不能两全」是这一局的全部意思
+    if(isHeart && i === 0) optsHtml += '<div class="heartseam"><i>不 能 两 全</i></div>';
   });
+  if(folded){
+    optsHtml += '<button class="morebtn" onclick="unfoldOpts(this)">再看看（还有 '
+      + (ev.opts.length - shown) + ' 条）</button>';
+  }
 
   // 婴孩阶段：这一岁你还不会做事，能摆在面前的只有落在你身上的事
   const optsNote = (G.age <= 3)
@@ -5280,7 +5459,8 @@ function renderLife(){
   }
 
   const evCls = 'event c-' + (CAT_SLUG[ev.cat] || 'daily')
-    + ((ev.w || 10) <= 7 ? ' rare' : '')
+    + (isHeart ? ' heart' : '')
+    + (!isHeart && (ev.w || 10) <= 7 ? ' rare' : '')
     + (ev.cat === '危机' ? ' crisis' : '')
     + (ev.id === 'zq01' ? ' will' : '');
 
@@ -5288,23 +5468,26 @@ function renderLife(){
     + '<div class="' + evCls + '">'
     + '<div class="scene">' + sceneSVG(ev.cat, ev.sub, sceneKey(ev)) + '</div>'
     + '<div class="etop">'
-    + '<div class="cat">' + ev.cat + '</div>'
+    + (isHeart ? '<div class="hearttag">问 心 局</div>' : '<div class="cat">' + ev.cat + '</div>')
     + '<h3>' + ev.title + '</h3>'
     + '<div class="desc">' + ev.desc + '</div>'
     + '</div>'
     + optsNote
-    + '<div class="opts">' + optsHtml + '</div>'
+    + '<div class="opts' + (folded ? ' opts-folded' : '') + '">' + optsHtml + '</div>'
     + '</div>';
 
   renderLifeStats();
 
-  // 氛围特效：危机压一层红光、稀有事件泼一蓬金光（极速模式下略过，免得晃眼）
+  // 氛围特效：问心局有自己那一种沉；危机压红光、稀有泼金光，其余按类别给一层薄的
   if(!G.fast){
-    if(ev.id === 'zq01') fxWill();
+    if(isHeart) fxHeart();
+    else if(ev.id === 'zq01') fxWill();
     else if(ev.cat === '危机') fxFlash('crisis');
     else if((ev.w || 10) <= 7){
       fxFlash('rare');
       fxSparks(wrap.querySelector ? wrap.querySelector('.event') : null);
+    }else{
+      fxCategory(ev.cat);
     }
   }
 
@@ -5426,7 +5609,7 @@ function renderResult(ev, o, rec, silent){
     const dx = clamp(rect.left + 30 + (fi % 4) * 70, 16, window.innerWidth - 96);
     const dy = clamp(rect.top + 118 + Math.floor(fi / 4) * 22, 56, window.innerHeight - 96);
     const txt = k + ' ' + (v > 0 ? '+' : '') + v;
-    setTimeout(()=>floatNum(dx, dy, txt, good), fi * 85);
+    setTimeout(()=>floatNum(dx, dy, txt, good, ATTR_TONE[k]), fi * 85);
     fi++;
   });
 }
@@ -5657,6 +5840,8 @@ function endLife(reason){
 function renderSettle(reason){
   const a = G.attrs;
   const sc = grade(G.score);
+  // 一世走完：给一次只此一回的仪式感，之后才谈轮回
+  if(!G.fast) fxRite('cycle');
   $('stSub').textContent = reason + ' · 终 年 ' + G.life
     + (G.path !== 'sec' ? ' · ' + monkTitle() : '');
 
@@ -6036,9 +6221,94 @@ function initBgFx(){
 }
 
 /* ---------- 浮动增减数字 ---------- */
-function floatNum(x, y, text, up){
+/* ---------- 分层呈现 · 问心局 · 特效分层的支撑函数 ---------- */
+
+/* 大事还是小事：看这一局的分量，而不是它落在哪一类。
+   影响力 = 各选项效果绝对值之和 ÷ 选项数（选项多寡不影响判据）。 */
+const MAJOR_CATS = ['事业','财富','情感','危机','修行','大限','晚年','学业','方外'];
+function isMajorEvent(ev){
+  if(ev.kind === 'heart') return true;
+  let sum = 0;
+  const opts = ev.opts || [];
+  for(let i = 0; i < opts.length; i++){
+    const eff = opts[i].e || {};
+    for(const k in eff) sum += Math.abs(eff[k]);
+  }
+  const impact = sum / Math.max(1, opts.length);
+  if(impact >= 30) return true;               // 牵动面大，就是大事
+  if(impact < 20) return false;               // 只轻轻推一下的，是小事
+  return MAJOR_CATS.indexOf(ev.cat) >= 0;     // 中间地带再看类别
+}
+
+/* 「再看看」：把收起来的几条放出来，用同一根弹簧依次进场，而不是直接跳出来 */
+function unfoldOpts(btn){
+  const box = btn && btn.parentNode;
+  if(!box) return;
+  box.classList.add('open');
+  btn.style.display = 'none';
+  const more = box.querySelectorAll ? box.querySelectorAll('.opt.more') : [];
+  for(let i = 0; i < more.length; i++){
+    const el = more[i];
+    el.classList.remove('more');
+    el.style.display = 'block';
+    if(typeof v4SpringTo === 'function'){
+      v4Stop(el);
+      v4State.set(el, {opacity:0, x:0, y:8, scale:1, blur:0});
+      v4SpringTo(el, {opacity:1, x:0, y:0, scale:1, blur:0},
+        {damping:1, response:.34, delay:i * 45});
+    }
+  }
+}
+
+/* 问心局：整页压一层很沉的暗红，像有人在你对面坐下来 */
+function fxHeart(){
+  if(v4Reduce()) return;
+  const d = document.createElement('div');
+  d.className = 'fxcat';
+  d.style.animationDuration = '1.6s';
+  d.style.background = 'radial-gradient(130% 92% at 50% 42%,transparent 36%,rgba(96,28,22,.32) 100%)';
+  document.body.appendChild(d);
+  setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 1800);
+}
+
+/* 类别氛围：不再是「只有稀有和危机才有特效」，每一类都有自己的那点光 */
+const CAT_FX = {
+  '学业':['60,110,158',.09], '事业':['184,144,44',.09], '财富':['184,144,44',.11],
+  '情感':['193,52,42',.09],  '家庭':['138,106,42',.07], '健康':['74,124,89',.09],
+  '机缘':['122,91,158',.09], '修行':['122,91,158',.11], '日常':['107,98,87',.05],
+  '晚年':['107,98,87',.07],  '时代':['60,110,158',.07], '方外':['122,91,158',.10]
+};
+function fxCategory(cat){
+  const spec = CAT_FX[cat];
+  if(!spec || v4Reduce()) return;
+  const d = document.createElement('div');
+  d.className = 'fxcat';
+  d.style.background = 'radial-gradient(122% 84% at 50% 36%,transparent 44%,rgba('
+    + spec[0] + ',' + spec[1] + ') 100%)';
+  document.body.appendChild(d);
+  setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 1400);
+}
+
+/* 关键节点的一次性仪式感：大运交接 / 轮回结算 */
+const RITE_FX = {
+  dayun: 'radial-gradient(140% 92% at 50% 50%,transparent 40%,rgba(184,144,44,.26) 100%)',
+  cycle: 'radial-gradient(152% 100% at 50% 55%,transparent 36%,rgba(122,91,158,.28) 100%)'
+};
+function fxRite(kind){
+  const bg = RITE_FX[kind];
+  if(!bg || v4Reduce()) return;
+  const d = document.createElement('div');
+  d.className = 'fxrite';
+  d.style.background = bg;
+  document.body.appendChild(d);
+  setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 2000);
+}
+
+/* 属性浮动数字：寿元 / 业力 / 健康 各有各的颜色，其余仍按增减走红绿 */
+const ATTR_TONE = {'寿元':'fate','业力':'karma','健康':'cost'};
+function floatNum(x, y, text, up, tone){
   const el = document.createElement('div');
-  el.className = 'floatnum ' + (up ? 'up' : 'dn');
+  el.className = 'floatnum ' + (up ? 'up' : 'dn') + (tone ? ' ' + tone : '');
   el.textContent = text;
   el.style.left = Math.round(x) + 'px';
   el.style.top = Math.round(y) + 'px';
@@ -6136,9 +6406,12 @@ function renderLifeStats(){
 /* ---------- 事件画面关键词化：从标题与描述里嗅出画面该有的东西 ---------- */
 function sceneKey(ev){
   const t = (ev.title || '') + '|' + (ev.desc || '');
+  /* 关键词表：越具体的排在越前面（先命中先赢），所以「油灯」要先于「火」、
+     「学堂」要先于「书」、「祠堂」要先于「庙」。 */
   const RULES = [
     ['snow',  ['雪','冰','冻','入冬']],
     ['rain',  ['雨','涝','水灾','洪','潮水']],
+    ['lamp',  ['油灯','灯下','灯','烛火']],
     ['fire',  ['火','烧','烛']],
     ['wedding',['婚','亲事','洞房','花轿','嫁','聘','红烛']],
     ['exam',  ['考场','科举','放榜','答卷','榜','开卷']],
@@ -6146,12 +6419,26 @@ function sceneKey(ev){
     ['night', ['夜里','半夜','夜晚','月色','梦','失眠','睡不着']],
     ['medicine',['药','医','诊','养身','养病','病']],
     ['boat',  ['船','舟','渡口','漕','码头','过江','下海','海']],
+    ['river', ['江','河','溪','水边','岸边']],
     ['market',['赶集','庙会','摊','铺','买卖','生意','店','银','账']],
+    ['school',['学堂','私塾','上课','念书','先生','教']],
     ['sword', ['武','镖','剑','拳','打','军','兵','仗','刀']],
     ['letter',['来信','书信','信','书','卷','笔记','报纸','录取','文']],
     ['tea',   ['茶','酒','饭','宴','席','吃','灶']],
     ['field', ['田','稻','麦','种','收','农','犁']],
+    ['court', ['公堂','升堂','审','官司','状纸','断案']],
+    ['prison',['牢','狱','押','囚','班房']],
+    ['wall',  ['城墙','城门','衙门','官府','县衙']],
+    ['workshop',['作坊','手艺','匠','打铁','木工','学徒']],
+    ['factory',['工厂','车间','机器','工人','厂子']],
+    ['train', ['火车','车站','月台','列车','铁路']],
+    ['city',  ['城里','都市','洋楼','高楼','大楼','街']],
+    ['famine',['饥','荒','逃荒','断粮','饿']],
+    ['mirror',['镜']],
+    ['well',  ['井']],
+    ['shrine',['祠堂','牌位','祭','上坟','香案']],
     ['temple',['寺','庙','观','香','经','神','祈福']],
+    ['mountain',['山','岭','峰','崖','登高']],
     ['star',  ['星','天象','夜空']],
     ['bridge',['桥','远行','游','迁','路']]
   ];
@@ -6281,6 +6568,125 @@ function sceneSVG(cat, sub, key){
         + '<path d="M'+(60+i*50)+',62 C'+(54+i*50)+',58 '+(52+i*50)+',52 '+(56+i*50)+',48 C'+(62+i*50)+',50 '+(64+i*50)+',56 '+(60+i*50)+',62 Z" fill="'+gold+'" opacity=".5"><animateTransform attributeName="transform" type="rotate" values="-3 '+(60+i*50)+' 106;3 '+(60+i*50)+' 106;-3 '+(60+i*50)+' 106" dur="'+(2.6+i*0.3)+'s" repeatCount="indefinite"/></path>').join('')
         + '<circle cx="300" cy="34" r="15" fill="'+gold+'" opacity=".2"><animate attributeName="opacity" values=".2;.3;.2" dur="5s" repeatCount="indefinite"/></circle>'
         + '<path d="M40,108 C120,102 240,102 330,108" stroke="'+ink+'" stroke-width="1.2" opacity=".25" fill="none"/>';
+      break;
+    case 'mountain': // 山：层叠远峰 + 云带
+      keyed = '<path d="M60,104 L122,42 L164,88 L208,34 L262,96 L300,66 L332,104 Z" fill="'+ink+'" opacity=".68"/>'
+        + '<path d="M40,104 L104,64 L150,96 L200,58 L252,100 L292,76 L324,104 Z" fill="'+ink+'" opacity=".3"/>'
+        + '<path d="M198,34 L220,34 L209,24 Z" fill="#fdfaf3" opacity=".8"/>'
+        + [112,152,192].map((cx,i)=>'<ellipse cx="'+cx+'" cy="'+(28+i*9)+'" rx="'+(30+i*8)+'" ry="5" fill="#fdfaf3" opacity=".45"><animate attributeName="cx" values="'+(cx-16)+';'+(cx+16)+';'+(cx-16)+'" dur="'+(9+i*3)+'s" repeatCount="indefinite"/></ellipse>').join('');
+      break;
+    case 'river': // 江：两岸 + 流水
+      keyed = '<path d="M0,74 L74,64 L140,72 L210,62 L282,72 L360,64" fill="none" stroke="'+ink+'" stroke-width="2" opacity=".5"/>'
+        + '<rect x="0" y="76" width="360" height="32" fill="'+blue+'" opacity=".12"/>'
+        + [0,1,2,3,4,5,6,7].map(i=>'<path d="M'+(10+i*46)+','+(84+(i%3)*6)+' C'+(24+i*46)+','+(80+(i%3)*6)+' '+(36+i*46)+','+(90+(i%3)*6)+' '+(50+i*46)+','+(84+(i%3)*6)+'" fill="none" stroke="'+blue+'" stroke-width="1.3" opacity=".4"><animateTransform attributeName="transform" type="translate" values="0 0;18 0;0 0" dur="'+(3.4+i*0.5)+'s" repeatCount="indefinite"/></path>').join('');
+      break;
+    case 'wall': // 墙：城墙 + 门洞
+      keyed = '<rect x="70" y="56" width="220" height="48" fill="#e8dcc2" stroke="'+ink+'" stroke-width="2"/>'
+        + [78,114,150,186,222,258].map(x=>'<rect x="'+x+'" y="46" width="20" height="12" fill="#e8dcc2" stroke="'+ink+'" stroke-width="1.6"/>').join('')
+        + '<path d="M152,104 L152,74 C152,64 208,64 208,74 L208,104 Z" fill="#5c5142" opacity=".55"/>'
+        + '<circle cx="126" cy="42" r="8" fill="'+red+'" opacity=".7"><animate attributeName="opacity" values=".7;.4;.7" dur="2.6s" repeatCount="indefinite"/></circle>'
+        + '<circle cx="234" cy="42" r="8" fill="'+red+'" opacity=".7"><animate attributeName="opacity" values=".7;.4;.7" dur="3.1s" repeatCount="indefinite"/></circle>';
+      break;
+    case 'court': // 堂：公案 + 匾
+      keyed = '<rect x="120" y="78" width="120" height="10" rx="2" fill="#8a6a3a" stroke="'+ink+'" stroke-width="1.8"/>'
+        + '<rect x="134" y="88" width="92" height="16" fill="#7a5f34" stroke="'+ink+'" stroke-width="1.6" opacity=".8"/>'
+        + '<rect x="164" y="64" width="32" height="14" rx="2" fill="'+red+'" opacity=".7" stroke="'+ink+'" stroke-width="1.4"/>'
+        + '<rect x="140" y="24" width="80" height="24" rx="3" fill="#5c5142" opacity=".72"/>'
+        + '<text x="180" y="41" text-anchor="middle" font-size="13" fill="#f6ecd6" font-family="serif">明镜</text>'
+        + '<circle cx="284" cy="70" r="16" fill="'+gold+'" opacity=".12"/>';
+      break;
+    case 'workshop': // 作：木架 + 刨花
+      keyed = '<rect x="120" y="40" width="120" height="10" fill="#8a6a3a" stroke="'+ink+'" stroke-width="1.8"/>'
+        + '<line x1="134" y1="50" x2="134" y2="104" stroke="'+ink+'" stroke-width="2.4"/>'
+        + '<line x1="226" y1="50" x2="226" y2="104" stroke="'+ink+'" stroke-width="2.4"/>'
+        + '<rect x="150" y="60" width="60" height="8" rx="3" fill="#c9b184" stroke="'+ink+'" stroke-width="1.4"/>'
+        + '<path d="M158,72 L200,72 L196,84 L162,84 Z" fill="#d8c49a" stroke="'+ink+'" stroke-width="1.4"/>'
+        + [0,1,2,3].map(i=>'<path d="M'+(150+i*18)+',92 C'+(154+i*18)+',86 '+(162+i*18)+',90 '+(166+i*18)+',82" fill="none" stroke="'+gold+'" stroke-width="1.4" opacity=".45"><animateTransform attributeName="transform" type="rotate" values="0 '+(158+i*18)+' 90;20 '+(158+i*18)+' 90" dur="2.2s" repeatCount="indefinite"/></path>').join('');
+      break;
+    case 'school': // 学：书案 + 戒尺
+      keyed = '<rect x="118" y="72" width="124" height="10" rx="2" fill="#8a6a3a" stroke="'+ink+'" stroke-width="1.8"/>'
+        + '<path d="M150,70 L150,50 L206,50 L206,70 Z" fill="#fdf8ec" stroke="'+ink+'" stroke-width="1.6" transform="rotate(-4 178 60)"/>'
+        + '<line x1="158" y1="58" x2="198" y2="56" stroke="'+ink+'" stroke-width="1" opacity=".38"/>'
+        + '<line x1="158" y1="64" x2="198" y2="62" stroke="'+ink+'" stroke-width="1" opacity=".38"/>'
+        + '<rect x="230" y="50" width="8" height="54" rx="2" fill="#a8845a" stroke="'+ink+'" stroke-width="1.4"/>'
+        + '<circle cx="118" cy="42" r="12" fill="'+gold+'" opacity=".12"/>';
+      break;
+    case 'train': // 车：蒸汽机车 + 轨道
+      keyed = '<rect x="112" y="58" width="118" height="36" rx="5" fill="#5c5142" opacity=".78"/>'
+        + '<rect x="176" y="38" width="42" height="22" rx="3" fill="#6b5f4c" opacity=".85"/>'
+        + '<rect x="122" y="42" width="34" height="18" rx="3" fill="#7a6e58" opacity=".78"/>'
+        + '<circle cx="134" cy="96" r="8" fill="none" stroke="'+ink+'" stroke-width="2.6"/>'
+        + '<circle cx="160" cy="96" r="8" fill="none" stroke="'+ink+'" stroke-width="2.6"/>'
+        + '<circle cx="212" cy="96" r="8" fill="none" stroke="'+ink+'" stroke-width="2.6"/>'
+        + '<line x1="20" y1="105" x2="340" y2="105" stroke="'+ink+'" stroke-width="2.2" opacity=".5"/>'
+        + [0,1,2,3].map(i=>'<circle cx="'+(196+i*6)+'" cy="'+(34-i*8)+'" r="'+(5+i*2.4)+'" fill="#fdfaf3" opacity="'+(0.45-i*0.1)+'"><animate attributeName="cy" values="'+(36-i*8)+';16" dur="'+(2.4+i*0.6)+'s" repeatCount="indefinite"/><animate attributeName="opacity" values="'+(0.45-i*0.1)+';0" dur="'+(2.4+i*0.6)+'s" repeatCount="indefinite"/></circle>').join('');
+      break;
+    case 'city': // 城：楼群 + 窗灯
+      keyed = [0,1,2,3,4].map(i=>{
+        const x = 78 + i * 46, h = 42 + (i % 3) * 20, y = 104 - h;
+        return '<rect x="' + x + '" y="' + y + '" width="34" height="' + h + '" fill="#5c5142" opacity="' + (0.3 + (i % 3) * 0.14).toFixed(2) + '"/>'
+          + [0,1,2].map(j=>'<rect x="' + (x+6) + '" y="' + (y+10+j*16) + '" width="7" height="8" fill="'+gold+'" opacity=".5"><animate attributeName="opacity" values=".5;.18;.5" dur="'+(2+i+j*0.7)+'s" repeatCount="indefinite"/></rect>').join('');
+      }).join('');
+      break;
+    case 'factory': // 厂：厂房 + 齿轮 + 烟
+      keyed = '<rect x="96" y="56" width="168" height="48" fill="#e2d5b8" stroke="'+ink+'" stroke-width="1.8"/>'
+        + '<path d="M96,56 L120,40 L144,56 Z" fill="#e8dcc2" stroke="'+ink+'" stroke-width="1.6"/>'
+        + '<rect x="228" y="20" width="21" height="46" fill="#c9b184" stroke="'+ink+'" stroke-width="1.8"/>'
+        + '<rect x="118" y="76" width="34" height="28" fill="#5c5142" opacity=".45"/>'
+        + '<g><animateTransform attributeName="transform" type="rotate" values="0 188 82;360 188 82" dur="9s" repeatCount="indefinite"/>'
+        + '<circle cx="188" cy="82" r="14" fill="none" stroke="'+ink+'" stroke-width="2.2"/>'
+        + '<line x1="188" y1="68" x2="188" y2="96" stroke="'+ink+'" stroke-width="1.6"/>'
+        + '<line x1="174" y1="82" x2="202" y2="82" stroke="'+ink+'" stroke-width="1.6"/></g>'
+        + '<circle cx="188" cy="82" r="4.5" fill="'+ink+'" opacity=".45"/>'
+        + [0,1,2].map(i=>'<circle cx="238" cy="'+(14-i*6)+'" r="'+(5+i*3)+'" fill="#fdfaf3" opacity="'+(0.45-i*0.12)+'"><animate attributeName="cy" values="'+(16-i*6)+';2" dur="'+(2.6+i*0.8)+'s" repeatCount="indefinite"/><animate attributeName="opacity" values="'+(0.45-i*0.12)+';0" dur="'+(2.6+i*0.8)+'s" repeatCount="indefinite"/></circle>').join('');
+      break;
+    case 'prison': // 牢：铁栅 + 锁
+      keyed = '<rect x="112" y="34" width="136" height="70" fill="#3f3a33" opacity=".45"/>'
+        + [128,152,176,200,224].map(x=>'<line x1="'+x+'" y1="34" x2="'+x+'" y2="104" stroke="'+ink+'" stroke-width="3.2"/>').join('')
+        + '<line x1="112" y1="58" x2="248" y2="58" stroke="'+ink+'" stroke-width="2.4"/>'
+        + '<line x1="112" y1="84" x2="248" y2="84" stroke="'+ink+'" stroke-width="2.4"/>'
+        + '<rect x="166" y="62" width="28" height="22" rx="3" fill="#b9aa8c" stroke="'+ink+'" stroke-width="2"/>'
+        + '<path d="M172,62 C172,52 188,52 188,62" fill="none" stroke="'+ink+'" stroke-width="2.4"/>'
+        + '<circle cx="180" cy="73" r="3" fill="'+ink+'"/>';
+      break;
+    case 'famine': // 荒：枯树 + 裂土
+      keyed = '<path d="M180,104 L180,54 M180,72 L156,54 M180,82 L206,62 M180,64 L164,44" stroke="'+ink+'" stroke-width="3" stroke-linecap="round" fill="none"/>'
+        + '<path d="M0,104 L360,104" stroke="'+ink+'" stroke-width="1.6" opacity=".35"/>'
+        + [0,1,2,3,4,5].map(i=>'<path d="M'+(20+i*62)+',104 L'+(36+i*62)+',90" stroke="'+ink+'" stroke-width="1.2" opacity=".26" fill="none"/>').join('')
+        + '<ellipse cx="294" cy="88" rx="22" ry="7" fill="#c9b184" opacity=".45" stroke="'+ink+'" stroke-width="1.4"/>'
+        + '<circle cx="252" cy="64" r="18" fill="'+gold+'" opacity=".09"/>';
+      break;
+    case 'lamp': // 灯：油灯 + 光
+      keyed = '<circle cx="180" cy="58" r="34" fill="'+gold+'" opacity=".12"><animate attributeName="r" values="34;42;34" dur="2.8s" repeatCount="indefinite"/></circle>'
+        + '<path d="M158,96 L158,74 C158,68 166,64 180,64 C194,64 202,68 202,74 L202,96 Z" fill="#e8dcc2" stroke="'+ink+'" stroke-width="2"/>'
+        + '<ellipse cx="180" cy="64" rx="18" ry="4" fill="#d8c49a" stroke="'+ink+'" stroke-width="1.6"/>'
+        + '<path d="M180,62 C176,54 177,48 180,42 C183,48 184,54 180,62 Z" fill="'+gold+'" opacity=".85"><animate attributeName="opacity" values=".85;.5;.85" dur="0.85s" repeatCount="indefinite"/></path>'
+        + '<line x1="180" y1="34" x2="180" y2="18" stroke="'+ink+'" stroke-width="1.4" opacity=".35"/>';
+      break;
+    case 'mirror': // 镜：铜镜 + 影
+      keyed = '<circle cx="180" cy="62" r="36" fill="#e6e0d2" stroke="'+ink+'" stroke-width="2.6"/>'
+        + '<circle cx="180" cy="62" r="29" fill="#f6f2e6" opacity=".9"/>'
+        + '<path d="M166,74 C170,56 192,52 198,64" fill="none" stroke="'+ink+'" stroke-width="1.6" opacity=".4"/>'
+        + '<circle cx="172" cy="54" r="7" fill="'+ink+'" opacity=".16"/>'
+        + '<circle cx="180" cy="62" r="40" fill="none" stroke="'+ink+'" stroke-width="1" opacity=".2"><animate attributeName="r" values="40;48;40" dur="3.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".22;.06;.22" dur="3.6s" repeatCount="indefinite"/></circle>'
+        + '<rect x="176" y="98" width="8" height="14" rx="2" fill="#a8845a" stroke="'+ink+'" stroke-width="1.4"/>';
+      break;
+    case 'well': // 井：石栏 + 绳桶
+      keyed = '<line x1="128" y1="34" x2="232" y2="34" stroke="'+ink+'" stroke-width="2.4"/>'
+        + '<ellipse cx="180" cy="72" rx="52" ry="16" fill="#cfc3a6" stroke="'+ink+'" stroke-width="2"/>'
+        + '<ellipse cx="180" cy="72" rx="38" ry="11" fill="#3f3a33" opacity=".5"/>'
+        + '<path d="M128,72 L136,100 L224,100 L232,72" fill="#e8dcc2" stroke="'+ink+'" stroke-width="2"/>'
+        + '<line x1="136" y1="98" x2="224" y2="98" stroke="'+ink+'" stroke-width="1.6"/>'
+        + '<line x1="180" y1="34" x2="180" y2="58" stroke="'+ink+'" stroke-width="1.6"/>'
+        + '<rect x="168" y="58" width="24" height="16" rx="2" fill="#b9aa8c" stroke="'+ink+'" stroke-width="1.6"><animateTransform attributeName="transform" type="translate" values="0 -7;0 5;0 -7" dur="4.2s" repeatCount="indefinite"/></rect>';
+      break;
+    case 'shrine': // 祠：牌位 + 香
+      keyed = '<rect x="118" y="76" width="124" height="10" rx="2" fill="#8a6a3a" stroke="'+ink+'" stroke-width="1.8"/>'
+        + '<rect x="150" y="88" width="60" height="16" fill="#7a5f34" stroke="'+ink+'" stroke-width="1.6" opacity=".8"/>'
+        + '<rect x="164" y="42" width="32" height="34" fill="#f2e7cf" stroke="'+ink+'" stroke-width="1.8"/>'
+        + '<text x="180" y="66" text-anchor="middle" font-size="15" fill="'+ink+'" font-family="serif" opacity=".62">位</text>'
+        + [164,180,196].map(cx=>'<line x1="'+cx+'" y1="40" x2="'+cx+'" y2="28" stroke="'+red+'" stroke-width="1.6"/>').join('')
+        + [166,180,194].map((cx,i)=>'<path d="M'+cx+',26 C'+(cx-4)+',18 '+(cx+4)+',14 '+cx+',6" fill="none" stroke="'+ink+'" stroke-width="1.1" opacity=".32"><animateTransform attributeName="transform" type="translate" values="0 3;0 -6" dur="'+(2.4+i*0.5)+'s" repeatCount="indefinite"/><animate attributeName="opacity" values=".32;0" dur="'+(2.4+i*0.5)+'s" repeatCount="indefinite"/></path>').join('');
       break;
     case 'temple': // 庙：香炉烟
       keyed = '<path d="M158,100 L158,72 C158,66 164,62 180,62 C196,62 202,66 202,72 L202,100 Z" fill="#efe6d2" stroke="'+ink+'" stroke-width="2"/>'
