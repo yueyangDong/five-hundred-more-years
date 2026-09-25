@@ -10,13 +10,12 @@ desktop.ini
 *.swo
 
 # 无头模拟与校验脚手架（本地调试用，不入库）
-_mksim.js
-_core.js
-_sim.js
-_diag.js
-_verify.js
-_check.js
-_final.js
+# 复用工具：_diag.js（单文件对照台/归因开关）、_multi.js（多种子均值）、_lib.js（加载器）、_sim.js（玩法模拟）
+_*.js
+_*.txt
+_*.json
+_*.log
+_*.html
 
 # 日志与临时文件
 *.log
