@@ -4943,15 +4943,19 @@ function v5RollNumber(el, target, dur){
   if(!el) return;
   if(v4Reduce() || document.hidden){ el.textContent = target; return; }
   const t0 = performance.now();
+  let stop = false;
   el.textContent = '0';
   requestAnimationFrame(function step(now){
-    const p = Math.min((now - t0) / dur, 1);
+    if(stop) return;
+    // 必须夹住两端：rAF 时间戳早于 performance.now() 时 p 会为负，
+    // 负的 p 经 ease 变换后会把数字带成负数（实测出现过 -20944）
+    const p = Math.max(0, Math.min((now - t0) / dur, 1));
     const e = 1 - Math.pow(1 - p, 3);       // 强 ease-out，与 --ease-out 同族
     el.textContent = Math.round(target * e);
     if(p < 1) requestAnimationFrame(step);
   });
-  // 兜底：同上，分数不能停在 0
-  setTimeout(() => { el.textContent = target; }, dur + 300);
+  // 兜底：rAF 被饿死时数字不能停在 0；同时停掉循环，免得它反过来把值覆盖回去
+  setTimeout(() => { stop = true; el.textContent = target; }, dur + 300);
 }
 
 /* ------------------------------------------------------------------ 11. 渲染：命盘页 */
@@ -6147,9 +6151,15 @@ function renderSettle(reason){
 
 /* ------------------------------------------------------------------ 17. 轮回 */
 function renderCycle(){
-  $('cySoul').textContent = Math.round(META.soul);
+  // 轮回是一局一次的高光：命魂与累计寿命滚上来（delight 预算只花在稀有层级）
+  if(G.fast){
+    $('cySoul').textContent = Math.round(META.soul);
+    $('cyLife').textContent = Math.round(META.totalLife);
+  }else{
+    v5RollNumber($('cySoul'), Math.round(META.soul), 800);
+    v5RollNumber($('cyLife'), Math.round(META.totalLife), 800);
+  }
   $('cyFrag').textContent = META.frag;
-  $('cyLife').textContent = Math.round(META.totalLife);
   $('cyLives').textContent = META.lives;
   const p = clamp(META.totalLife / 500 * 100, 0, 100);
   $('cyProgress').innerHTML = META.brokeBook
@@ -6183,6 +6193,28 @@ function renderCycle(){
   $('codexEvent').innerHTML = EVENTS.map(e=>
     '<span class="c' + (META.events[e.id] ? ' got' : '') + '">' + (META.events[e.id] ? e.title : '？？') + '</span>'
   ).join('');
+
+  /* 天赋卡依次点亮：用 CSS transition 而不是 JS spring —— 一次性入场不该依赖 rAF，
+     后台标签页里也能照常落位。55ms 的错峰落在 30–80ms 的推荐区间。 */
+  const tals = $('talentList') ? $('talentList').querySelectorAll('.tal') : [];
+  for(let i = 0; i < tals.length; i++){
+    const el = tals[i];
+    if(G.fast || v4Reduce()){ el.style.opacity = '1'; el.style.transform = 'none'; continue; }
+    el.style.transition = 'none';
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(8px)';
+    setTimeout(() => {
+      el.style.transition = 'opacity .3s var(--ease-out), transform .3s var(--ease-out)';
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    }, Math.min(i * 55, 440));
+  }
+  // 兜底：定时器被节流时，卡片也不能留在不可见状态
+  setTimeout(() => {
+    for(let i = 0; i < tals.length; i++){
+      if(tals[i].style.opacity !== '1'){ tals[i].style.opacity = '1'; tals[i].style.transform = 'none'; }
+    }
+  }, 1200);
 }
 
 function buyTalent(id){
@@ -6356,7 +6388,18 @@ function buildShareText(){
 let posterURL = '';
 function renderShare(){
   posterURL = buildPoster();
-  $('posterImg').src = posterURL;
+  /* 海报是 canvas 现生成的：图片从无到有会「跳」出来，淡入一下把它接住。
+     用 transition + onload，不依赖 rAF；再挂一道兜底，加载失败也不会留在透明。 */
+  const img = $('posterImg');
+  if(img){
+    img.style.opacity = '0';
+    img.style.transition = 'opacity .32s var(--ease-out)';
+    const show = () => { img.style.opacity = '1'; };
+    img.onload = show;
+    img.onerror = show;
+    img.src = posterURL;
+    setTimeout(show, 600);
+  }
   $('shareText').textContent = buildShareText();
 }
 
