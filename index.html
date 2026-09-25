@@ -628,11 +628,240 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
 }
+
+/* =========================================================================
+   v3 视觉层：Apple 式界面（中性色 + 毛玻璃 + 大圆角 + 侧边栏分区导航）
+   仅覆盖视觉表现：不改变任何事件、数值、特效触发逻辑
+   ========================================================================= */
+:root{
+  --bg:#f5f5f7;--bg2:#ececed;--card:#ffffff;
+  --ink:#1c1c1e;--ink2:#4a4a4f;--ink3:#8a8a8e;
+  --line:rgba(60,60,67,.14);--line2:rgba(60,60,67,.08);
+  --red:#c1342a;--red2:#d94a3d;--gold:#96690f;
+  --green:#2f7d4f;--blue:#0b62c4;--purple:#7a4fb5;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.06);
+  --glass:rgba(255,255,255,.72);
+  --surface:rgba(120,120,128,.10);
+  --sb-w:236px;--safe-b:env(safe-area-inset-bottom,0px);
+}
+body{
+  background:
+    radial-gradient(1200px 560px at 50% -12%,#ffffff 0%,rgba(255,255,255,0) 62%),
+    linear-gradient(180deg,#f7f7f9 0%,#ededf0 100%);
+  background-attachment:fixed;
+}
+body::before{opacity:.18}
+
+/* ---------- 卡片：毛玻璃 ---------- */
+.card{
+  background:var(--glass);border:1px solid rgba(255,255,255,.7);border-radius:18px;padding:15px;
+  box-shadow:var(--shadow);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+}
+.card::after{background-image:none}
+.card.tight{padding:12px 13px}
+.sec-title{margin:17px 2px 8px;font-size:13.5px;color:var(--ink2)}
+.sec-title::before{height:13px;border-radius:2px}
+
+/* ---------- 控件 ---------- */
+.field label{font-size:13px;color:var(--ink2)}
+.field input,.field select{
+  background-color:var(--surface);border:1px solid transparent;border-radius:12px;padding:11px 12px;font-size:15px;
+  transition:background-color .16s,border-color .16s,box-shadow .16s;
+}
+.field select{background-position:calc(100% - 17px) 20px,calc(100% - 12px) 20px}
+.field input:focus,.field select:focus{background-color:#fff;border-color:var(--red);box-shadow:0 0 0 4px rgba(193,52,42,.13)}
+.chk input{accent-color:var(--red)}
+.btn{
+  background:var(--red);border-radius:14px;padding:13px 16px;font-size:15.5px;font-weight:600;letter-spacing:.6px;
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 18px rgba(193,52,42,.20);
+  transition:transform .16s cubic-bezier(.2,.85,.3,1),filter .16s,background .16s;
+}
+.btn:active{transform:scale(.975);box-shadow:0 1px 2px rgba(0,0,0,.08);filter:brightness(.96)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:none;box-shadow:none;font-weight:600}
+.btn.ghost:active{background:rgba(120,120,128,.18);transform:scale(.975)}
+.btn.gold{background:linear-gradient(180deg,#c99a2b,#a97a12);box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 18px rgba(169,122,18,.22)}
+.tbtn{
+  background:var(--surface);border:none;border-radius:999px;padding:7px 13px;font-weight:600;color:var(--ink2);
+  transition:transform .16s,background .16s;
+}
+.tbtn.on{background:var(--red);color:#fff}
+.track{background:rgba(120,120,128,.16);height:8px;border-radius:4px}
+.fill{border-radius:4px}
+.pill{border:none;background:var(--surface)}
+.log,.share-txt,.chartwrap,.lifestats,.dayun-item,.tal,.codex .c{
+  background:rgba(120,120,128,.06);border-color:var(--line2);border-radius:14px;
+}
+.chartwrap{background:rgba(120,120,128,.05)}
+.share-txt{border-style:solid}
+
+/* ---------- 事件与选项 ---------- */
+.event{
+  background:var(--glass);border:1px solid rgba(255,255,255,.7);border-radius:18px;box-shadow:var(--shadow);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+}
+.event .etop{border-bottom:1px solid var(--line2);padding:13px 15px 9px}
+.opts{padding:9px 13px 13px}
+.opt{
+  background:rgba(120,120,128,.07);border:1px solid transparent;border-radius:14px;padding:12px 13px;
+  transition:background .16s,transform .16s,box-shadow .16s,border-color .16s;
+}
+.opt:hover{background:rgba(255,255,255,.9);border-color:rgba(193,52,42,.28);box-shadow:0 6px 18px rgba(0,0,0,.06)}
+.opt:active{background:rgba(120,120,128,.14);transform:scale(.994)}
+.result{border-top:1px solid var(--line2)}
+
+/* ---------- 弹窗与底栏 ---------- */
+.mask{background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.modal{border-radius:22px;border:none;box-shadow:0 24px 60px rgba(0,0,0,.22);padding:20px;max-width:382px}
+.modal h3{font-family:inherit;font-size:17px;font-weight:600;letter-spacing:.5px}
+.compliance{
+  background:rgba(247,247,250,.86);border-top:1px solid var(--line2);
+  -webkit-backdrop-filter:saturate(180%) blur(16px);backdrop-filter:saturate(180%) blur(16px);
+}
+.kv{border-bottom:1px solid var(--line2)}
+
+/* ---------- 侧边栏：窄屏=底部标签栏 ---------- */
+.sb-item{
+  font-family:inherit;border:none;background:none;cursor:pointer;color:var(--ink2);
+  -webkit-tap-highlight-color:transparent;
+}
+.sb-item svg{display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sb-btn{
+  display:block;width:100%;margin-top:8px;border:none;border-radius:12px;padding:10px;font-size:13px;
+  font-family:inherit;font-weight:600;background:var(--red);color:#fff;cursor:pointer;letter-spacing:.5px;
+}
+.sb-btn.ghost{background:var(--surface);color:var(--ink2)}
+.sb-btn:active{transform:scale(.98)}
+.sb-gz{font-family:"Songti SC","STSong",serif;font-size:14.5px;letter-spacing:1px;color:var(--ink);margin:2px 0}
+.sb-k{font-size:11px;color:var(--ink3);letter-spacing:.5px}
+.sb-v{font-size:11.5px;color:var(--ink2)}
+.sb-hr{height:1px;background:var(--line2);margin:9px 0}
+
+@media (max-width:980px){
+  .sidebar{
+    position:fixed;left:0;right:0;bottom:calc(49px + var(--safe-b));z-index:45;
+    display:flex;padding:5px 6px calc(5px);
+    background:rgba(250,250,252,.88);border-top:1px solid var(--line2);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  }
+  .sb-brand,.sb-save,.sb-foot{display:none}
+  .sb-nav{display:flex;flex:1;justify-content:space-around}
+  .sb-item{
+    flex:1;max-width:96px;display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:6px 2px;border-radius:13px;font-size:10.5px;letter-spacing:.6px;transition:background .16s,color .16s;
+  }
+  .sb-item svg{width:22px;height:22px}
+  .sb-item.active{color:var(--red);background:rgba(193,52,42,.09)}
+  .sb-item:active{transform:scale(.94)}
+  body{padding-bottom:134px}
+}
+
+
+/* ---------- v3 收尾：把暖纸底色的部件统一到中性玻璃面 ---------- */
+.pillar{background:rgba(120,120,128,.06);border-color:var(--line2)}
+.dayun-item{background:rgba(120,120,128,.06)}
+.dayun-item.cur{background:rgba(193,52,42,.07)}
+.birthline{background:rgba(255,255,255,.72);box-shadow:var(--shadow)}
+.result{background:linear-gradient(180deg,rgba(150,105,15,.06),transparent)}
+.epitaph{background:rgba(150,105,15,.06);border-radius:0 12px 12px 0}
+.amb{background:rgba(120,120,128,.07);border-color:transparent;border-radius:15px}
+.amb.on{background:rgba(184,144,44,.10);border-color:rgba(150,105,15,.4)}
+.tal{background:rgba(120,120,128,.06);border-color:transparent;border-radius:15px}
+.tal button{background:rgba(120,120,128,.10);border:none;border-radius:10px}
+.tal button:not(:disabled):active{background:rgba(120,120,128,.18)}
+.codex .c{background:rgba(120,120,128,.07);border-color:transparent}
+.opt .eff.names i{color:var(--ink3)}
+.lifestats .ls{background:rgba(120,120,128,.10)}
+
+@media (min-width:981px){
+  .app{
+    max-width:1060px;display:grid;grid-template-columns:var(--sb-w) minmax(0,588px);
+    gap:26px;justify-content:center;padding:0 22px;align-items:start;
+  }
+  .content{min-width:0}
+  .sidebar{
+    position:sticky;top:18px;max-height:calc(100vh - 118px);overflow-y:auto;
+    display:flex;flex-direction:column;gap:14px;padding:16px 14px;
+    background:var(--glass);border:1px solid rgba(255,255,255,.7);border-radius:20px;box-shadow:var(--shadow);
+    -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+  }
+  .sb-brand{display:flex;align-items:center;gap:10px}
+  .sb-mark{
+    width:34px;height:34px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(180deg,var(--red2),var(--red));color:#fff;
+    font-family:"Songti SC","STSong",serif;font-size:17px;font-weight:700;box-shadow:0 4px 12px rgba(193,52,42,.28);
+  }
+  .sb-title{font-size:13.5px;font-weight:600;letter-spacing:.5px}
+  .sb-sub{font-size:10.5px;color:var(--ink3);letter-spacing:.4px}
+  .sb-nav{display:flex;flex-direction:column;gap:1px}
+  .sb-item{
+    display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 11px;border-radius:12px;
+    font-size:14px;letter-spacing:.3px;transition:background .16s,color .16s;
+  }
+  .sb-item svg{width:19px;height:19px;flex:none;opacity:.7}
+  .sb-item:hover{background:rgba(120,120,128,.09)}
+  .sb-item.active{background:rgba(193,52,42,.10);color:var(--red);font-weight:600}
+  .sb-item.active svg{opacity:1}
+  .sb-save{background:rgba(120,120,128,.07);border-radius:15px;padding:12px}
+  .sb-save-t{font-size:10.5px;letter-spacing:1.2px;color:var(--ink3);margin-bottom:7px}
+  .sb-save-b{font-size:12.5px;color:var(--ink2);line-height:1.7}
+  .sb-foot{display:flex;flex-direction:column;gap:1px;margin-top:auto}
+  .sb-line{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--ink2);padding:3px 2px}
+  .sb-line b{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:600}
+  .topbar{padding:16px 2px 0;justify-content:flex-end}
+  .topbar .brand{display:none}
+  body{padding-bottom:96px}
+}
 </style>
 </head>
 <body>
 <canvas id="bgFx"></canvas>
 <div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-mark">五</div>
+      <div>
+        <div class="sb-title">还想再活五百年</div>
+        <div class="sb-sub">八字轮回 · 人生模拟</div>
+      </div>
+    </div>
+
+    <nav class="sb-nav" id="sbNav">
+      <button class="sb-item active" data-nav="home" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.5h8l3 3v14h-11z"/><path d="M9.5 9h5"/><path d="M9.5 12.5h5"/><path d="M9.5 16h3"/></svg>
+        <span>投胎</span>
+      </button>
+      <button class="sb-item" data-nav="chart" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M12 3.8v16.4"/><path d="M3.8 12h16.4"/><circle cx="12" cy="12" r="2.3"/></svg>
+        <span>命盘</span>
+      </button>
+      <button class="sb-item" data-nav="life" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.4"/><path d="M5.4 20.2a6.6 6.6 0 0 1 13.2 0"/></svg>
+        <span>人生</span>
+      </button>
+      <button class="sb-item" data-nav="cycle" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.2 12a7.8 7.8 0 0 1 13.3-5.5"/><path d="M19.8 12a7.8 7.8 0 0 1-13.3 5.5"/><path d="M17.5 2.8v3.7h-3.7"/><path d="M6.5 21.2v-3.7h3.7"/></svg>
+        <span>轮回</span>
+      </button>
+      <button class="sb-item" data-nav="share" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5V4.2"/><path d="M8.2 7.8 12 4l3.8 3.8"/><path d="M5.2 13.6v4.6a2 2 0 0 0 2 2h9.6a2 2 0 0 0 2-2v-4.6"/></svg>
+        <span>海报</span>
+      </button>
+    </nav>
+
+    <div class="sb-save" id="sbSave">
+      <div class="sb-save-t">本 机 存 档</div>
+      <div class="sb-save-b" id="sbSaveBody"></div>
+    </div>
+
+    <div class="sb-foot">
+      <div class="sb-line"><span>命魂</span><b id="sbSoul">0</b></div>
+      <div class="sb-line"><span>天赋碎片</span><b id="sbFrag">0</b></div>
+      <div class="sb-line"><span>累计寿命</span><b id="sbLife">0</b></div>
+      <div class="sb-line"><span>轮回</span><b id="sbLives">0</b> <span class="sb-v">世</span></div>
+    </div>
+  </aside>
+
+  <div class="content">
   <div class="topbar">
     <div class="brand">
       <h1>还想再活五百年</h1>
@@ -673,6 +902,7 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
           <select id="inG"><option value="男">男</option><option value="女">女</option></select></div>
         <label class="chk"><input type="checkbox" id="inUnknown"/>时辰未知（按随机时辰起盘）</label>
         <div class="hint" style="text-align:left;margin-left:66px">出生信息仅在本机浏览器内计算，不上传任何服务器。</div>
+        <div class="hint" id="birthMemo" style="text-align:left;margin-left:66px"></div>
         <button class="btn" id="btnStart">开 始 这 一 世</button>
         <div class="row2">
           <button class="btn ghost" id="btnRandom">随机命盘</button>
@@ -888,6 +1118,7 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
     </section>
 
   </main>
+  </div>
 </div>
 
 <div class="compliance">
@@ -1357,11 +1588,11 @@ const EVENTS = [
   {t:'一沾那件旧衣裳就不哭了',e:{情感:8,健康:3},tg:['认味'],r:'那是外婆的衣裳。你后来一直记得那个味道，却说不出是谁的。'},
   {t:'哭到天亮，谁哄都不停',e:{健康:-6,心性:6,情感:-5},tg:['拧'],r:'母亲第二天眼睛肿着去上工。这些你都不知道。'},
   {t:'换了个姿势，自己睡过去了',e:{健康:5,机缘:3},tg:['随和'],r:'你睡得很沉。窗外下了半夜的雨。'},
-  {t:'外婆来了，说这是"惊着了"',e:{机缘:3,功德:5,健康:2},tg:['叫魂'],r:'她对着门口叫了三声你的小名。那天夜里你果然没哭。'}
+  {t:'外婆来了，说这是"惊着了"',e:{机缘:3,功德:3,健康:2},tg:['叫魂'],r:'她对着门口叫了三声你的小名。那天夜里你果然没哭。'}
  ]},
 {id:'baby02',cat:'家庭',title:'第一声',desc:'满屋子人围着，等你说出第一个字。你张了张嘴。',age:[1,2],w:18,cond:{},
  opts:[
-  {t:'叫的是"娘"',e:{情感:9,功德:2},tg:['先认娘'],r:'母亲当场就哭了，转过身去假装揉眼睛。'},
+  {t:'叫的是"娘"',e:{情感:9,功德:1},tg:['先认娘'],r:'母亲当场就哭了，转过身去假装揉眼睛。'},
   {t:'叫的是"爹"',e:{情感:5,名望:8,心性:2},tg:['先认爹'],r:'父亲把你举起来转了一圈，那天他多喝了两盅。'},
   {t:'谁也没叫，先迈了一步',e:{健康:5,心性:4},tg:['先会走'],r:'你摇摇晃晃走了三步就坐下了。满屋子人比听见你说话还高兴。'},
   {t:'指着门外，说了个没人听懂的字',e:{机缘:5,心性:6,学识:3},tg:['望向远'],r:'没人听懂。但你手指的方向，是巷口。'}
@@ -1384,19 +1615,19 @@ const EVENTS = [
  opts:[
   {t:'按老法子，捂汗',e:{健康:4,心性:4,心智:-2},tg:['土法'],r:'被子捂得严严实实。你出了一身汗，第二天退了烧。'},
   {t:'请了郎中来',e:{健康:5,财富:-14,学识:3},tg:['请郎中'],r:'药很苦。但你三天就下地了。家里为此卖了一担粮。'},
-  {t:'烧得厉害，母亲抱着你走了一夜',e:{情感:9,健康:-6,功德:7},tg:['走夜路'],r:'天黑路滑，她摔了一跤，把你举得高高的，没让你碰到地。'},
+  {t:'烧得厉害，母亲抱着你走了一夜',e:{情感:9,健康:-6,功德:4},tg:['走夜路'],r:'天黑路滑，她摔了一跤，把你举得高高的，没让你碰到地。'},
   {t:'自己熬过去了',e:{健康:-5,心性:8,机缘:3},tg:['硬底子'],r:'你烧了两夜，第三夜自己退了。从此家里人叫你"命硬"。'}
  ]},
 {id:'baby06',cat:'机缘',title:'记名',desc:'长辈抱你去了庙里，说要把你记在佛前，好养活。',age:[0,3],w:12,cond:{},
  opts:[
-  {t:'记了，取个法名压在佛前',e:{功德:10,机缘:8,心性:4},tg:['寄名'],r:'你有了一个自己都不知道的名字。它一直压在那里。'},
-  {t:'记了半程，长辈又反悔了',e:{机缘:-8,心性:6,功德:2},tg:['未了'],r:'香烧了一半，长辈把你抱了回来。这事没跟人提过。'},
+  {t:'记了，取个法名压在佛前',e:{功德:5,机缘:8,心性:4},tg:['寄名'],r:'你有了一个自己都不知道的名字。它一直压在那里。'},
+  {t:'记了半程，长辈又反悔了',e:{机缘:-8,心性:6,功德:1},tg:['未了'],r:'香烧了一半，长辈把你抱了回来。这事没跟人提过。'},
   {t:'没记，长辈说命里没有这一节',e:{心性:6,健康:3},tg:['不信'],r:'长辈抱着你出了山门，说：路是自己走的。'},
   {t:'顺路在山门前看了很久的云',e:{机缘:5,心性:6,情感:3},tg:['望云'],r:'你什么也不记得。但很多年后你会梦见一个山门。'}
  ]},
 {id:'baby07',cat:'家庭',title:'换人带',desc:'母亲要上工了。你被交到另一个人手里。',age:[0,3],w:14,cond:{},
  opts:[
-  {t:'交给祖母',e:{情感:7,心性:6,功德:7},tg:['祖母带'],r:'祖母把你背在背上干活。你听着她的呼吸声长大。'},
+  {t:'交给祖母',e:{情感:7,心性:6,功德:4},tg:['祖母带'],r:'祖母把你背在背上干活。你听着她的呼吸声长大。'},
   {t:'送去托儿的地方',e:{心智:6,情感:-6,机缘:3},tg:['托儿'],r:'一屋子小孩都在哭。你没哭，你在看别人哭。'},
   {t:'锁在家里，母亲中午回来一趟',e:{心性:8,情感:-8,健康:-5},tg:['锁家'],r:'你一个人趴在窗台上看了半天巷子。这本领你后来很熟。'},
   {t:'跟着母亲去上工',e:{情感:5,健康:-5,心智:4,财富:4},tg:['跟着'],r:'你在角落里睡了一整天。机器的响声是你的摇篮曲。'}
@@ -1905,36 +2136,36 @@ const EVENTS = [
 {id:'act01',cat:'日常',title:'河边的夏天',desc:'天热得站不住。河湾里已经有几个半大孩子在喊你的名字。',age:[5,13],w:14,cond:{},
  opts:[
   {t:'脱了鞋就下水',e:{健康:5,机缘:3,心性:4},tg:['水性'],r:'你学会了踩水。这项本领后来救过你一次。'},
-  {t:'坐在岸上给他们看衣服',e:{心性:6,情感:4,心智:3,功德:4},tg:['看衣服'],r:'他们把衣服全扔给你。回来时一件不少。'},
+  {t:'坐在岸上给他们看衣服',e:{心性:6,情感:4,心智:3,功德:2},tg:['看衣服'],r:'他们把衣服全扔给你。回来时一件不少。'},
   {t:'被母亲拎着耳朵拽回去',e:{情感:-5,健康:3,心性:6},tg:['挨拎'],r:'你被拽回家，一路上街坊都在笑。'},
   {t:'一个人游到了对岸',e:{机缘:14,健康:5,心性:6,寿元:-5,名望:6},tg:['过河'],r:'对岸什么也没有，只有一片芦苇。你还是游回来了，一路上都在笑。'}
  ]},
 {id:'act02',cat:'日常',title:'戏台底下',desc:'村里请了戏班子，台子就搭在晒场上。你从人腿的缝里往里挤。',age:[6,16],w:13,cond:{},
  opts:[
   {t:'挤到最前面，一看看一晚上',e:{心性:6,学识:5,情感:4},tg:['戏迷'],r:'你记住了那句唱词，虽然不懂它是什么意思。'},
-  {t:'在人群里卖瓜子',e:{财富:16,事业:6,心智:4,名望:10,功德:-5},tg:['会做买卖'],r:'一晚上挣了几个铜板。你把它们攥出了汗。'},
+  {t:'在人群里卖瓜子',e:{财富:16,事业:6,心智:4,名望:10,功德:-2},tg:['会做买卖'],r:'一晚上挣了几个铜板。你把它们攥出了汗。'},
   {t:'找后台的琴师搭话',e:{机缘:12,学识:6,事业:4},tg:['认人'],r:'他教了你一个指法。你练了半年。'},
   {t:'看到一半就困了，睡在草垛上',e:{健康:4,情感:3,心性:4},tg:['贪睡'],r:'散场时母亲找了你半个村。你睡得很香。'}
  ]},
 {id:'act03',cat:'情感',title:'一只跟来的狗',desc:'一条瘦狗跟了你三条巷子，你停下它也停下，你走它又跟着。',age:[6,14],w:14,cond:{},
  opts:[
-  {t:'带回家养着',e:{情感:12,健康:3,财富:-7,功德:4},tg:['养狗'],r:'它跟了你十一年。第十一年冬天，它没再醒来。'},
-  {t:'掰了半个饼给它，然后走开',e:{功德:12,情感:4},tg:['一饭'],r:'它吃完了，抬头看你的方向看了很久。'},
+  {t:'带回家养着',e:{情感:12,健康:3,财富:-7,功德:2},tg:['养狗'],r:'它跟了你十一年。第十一年冬天，它没再醒来。'},
+  {t:'掰了半个饼给它，然后走开',e:{功德:6,情感:4},tg:['一饭'],r:'它吃完了，抬头看你的方向看了很久。'},
   {t:'赶它走，赶了三次',e:{心性:6,情感:-6,心智:3},tg:['狠心'],r:'第三次它就不跟了。你回头看了一眼，它还在原地。'},
   {t:'偷偷养在柴房里',e:{情感:7,机缘:6,业力:-3},tg:['藏起来'],r:'你每天省下半碗饭。这事瞒了家里两个月。'}
  ]},
 {id:'act04',cat:'情感',title:'打了一架',desc:'有人当着全场喊了你最不愿听的那个称呼。',age:[7,16],w:14,cond:{},
  opts:[
-  {t:'当场动手',e:{名望:13,健康:-9,业力:17,功德:-9},tg:['动手'],r:'你把他按在地上。你也挂了彩。'},
+  {t:'当场动手',e:{名望:13,健康:-9,业力:17,功德:-4},tg:['动手'],r:'你把他按在地上。你也挂了彩。'},
   {t:'忍住，转身走开',e:{心性:10,名望:-11,情感:-5},tg:['忍了'],r:'你走开了。那天晚上你对着墙捶了一下。'},
   {t:'笑着接过来，自己先喊一遍',e:{心智:6,名望:16,心性:6},tg:['自嘲'],r:'全场都愣了，然后笑了。那个称呼从此不好使了。'},
-  {t:'记下这个人，慢慢算',e:{心智:6,业力:13,情感:-6,功德:-6},tg:['记仇'],r:'你没动手。你把这张脸记住了，记了很多年。'}
+  {t:'记下这个人，慢慢算',e:{心智:6,业力:13,情感:-6,功德:-3},tg:['记仇'],r:'你没动手。你把这张脸记住了，记了很多年。'}
  ]},
 {id:'act05',cat:'财富',title:'替人跑腿',desc:'街口那家铺子缺个跑腿的，一天几个铜板。',age:[8,15],w:13,cond:{},
  opts:[
   {t:'接下来，风里雨里都跑',e:{财富:18,健康:-6,事业:6},tg:['跑腿'],r:'你把半条街的门都敲熟了。'},
   {t:'只接晴天和顺路的',e:{财富:10,心智:6,健康:2},tg:['挑活'],r:'你挑得精明，掌柜的嘴上骂，还是留着。'},
-  {t:'拉上两个同伴一起跑，抽一点头',e:{财富:16,事业:8,名望:16,功德:-6},tg:['分工'],r:'你第一次发现，让别人干活比自己干更划算。'},
+  {t:'拉上两个同伴一起跑，抽一点头',e:{财富:16,事业:8,名望:16,功德:-3},tg:['分工'],r:'你第一次发现，让别人干活比自己干更划算。'},
   {t:'不接，把工夫都用在上学上',e:{学识:10,心智:4,财富:-7},tg:['专心'],r:'你没挣那几个铜板。多年后你算过，这笔账是划得来的。'}
  ]},
 {id:'act06',cat:'财富',title:'第一次赶集',desc:'天不亮就出发，走了二十里，集上人挤人。',age:[7,16],w:13,cond:{},
@@ -1948,7 +2179,7 @@ const EVENTS = [
  opts:[
   {t:'天天去门口站着，站到他开口',e:{事业:13,心性:8,健康:-6,名望:8},tg:['站门口'],r:'你站了四十天。第四十一天他扔给你一把工具。'},
   {t:'托人送礼，走门路',e:{事业:8,财富:-18,情感:4,机缘:8},tg:['走门路'],r:'礼送到了，他也收了。但你总觉得那门手艺没学到根上。'},
-  {t:'自己琢磨，不拜师',e:{事业:8,心智:6,心性:6,功德:4},tg:['自学'],r:'你做得不成体系，可有一两样比谁都精。'},
+  {t:'自己琢磨，不拜师',e:{事业:8,心智:6,心性:6,功德:2},tg:['自学'],r:'你做得不成体系，可有一两样比谁都精。'},
   {t:'一门心思读书，放弃学手艺',e:{学识:11,事业:-6,心智:4},tg:['弃艺'],r:'你把工具还了回去。师傅哼了一声，没说话。'}
  ]},
 {id:'act08',cat:'学业',title:'夜里点灯',desc:'家里只点得起一盏灯。灯油要省着用。',age:[9,20],w:14,cond:{},
@@ -1956,14 +2187,14 @@ const EVENTS = [
   {t:'把灯芯拨细，读到最晚',e:{学识:16,健康:-8,心性:6,名望:5},tg:['夜读'],r:'灯芯细得像根线。你读了三年这样的书。'},
   {t:'白天把活干完，把白天让给书',e:{学识:10,健康:3,事业:-6,心性:6},tg:['挤时间'],r:'你天不亮就起。村里人都说这孩子有点怪。'},
   {t:'跟几个同伴凑钱合买灯油',e:{学识:8,情感:7,财富:-7,机缘:5},tg:['凑份子'],r:'四个人一盏灯。你们后来各自去了不同的地方。'},
-  {t:'不读了，把灯让给弟妹',e:{功德:13,情感:7,学识:-6,心性:6},tg:['让灯'],r:'你坐在黑里听他们念。你居然也记住了大半。'}
+  {t:'不读了，把灯让给弟妹',e:{功德:7,情感:7,学识:-6,心性:6},tg:['让灯'],r:'你坐在黑里听他们念。你居然也记住了大半。'}
  ]},
 {id:'act09',cat:'情感',title:'有人被欺负',desc:'巷子里四五个人围着一个，那个人的书包被扔在地上踩。',age:[8,18],w:13,cond:{},
  opts:[
-  {t:'冲进去把人拉开',e:{功德:14,名望:14,健康:-9,业力:-3},tg:['出头'],r:'你挨了两下，但人被你拉出来了。'},
-  {t:'去叫大人来',e:{功德:12,心智:6,机缘:3},tg:['找大人'],r:'大人来了，人都散了。被围的那个看了你一眼。'},
-  {t:'装作没看见，快步走开',e:{心性:-18,情感:-8,健康:2,功德:-10},tg:['绕开'],r:'你走了很远还听得见。这件事你记了很久。'},
-  {t:'把书包捡起来还给他，然后走',e:{功德:11,情感:5,名望:6},tg:['捡书包'],r:'他抓着书包没说话。后来他帮过你一次。'}
+  {t:'冲进去把人拉开',e:{功德:7,名望:14,健康:-9,业力:-3},tg:['出头'],r:'你挨了两下，但人被你拉出来了。'},
+  {t:'去叫大人来',e:{功德:6,心智:6,机缘:3},tg:['找大人'],r:'大人来了，人都散了。被围的那个看了你一眼。'},
+  {t:'装作没看见，快步走开',e:{心性:-18,情感:-8,健康:2,功德:-5},tg:['绕开'],r:'你走了很远还听得见。这件事你记了很久。'},
+  {t:'把书包捡起来还给他，然后走',e:{功德:6,情感:5,名望:6},tg:['捡书包'],r:'他抓着书包没说话。后来他帮过你一次。'}
  ]},
 {id:'act10',cat:'机缘',title:'偷学一样没用的本事',desc:'有人会一样本事，谁都说没用，可你就是想学。',age:[8,18],w:13,cond:{},
  opts:[
@@ -1977,21 +2208,21 @@ const EVENTS = [
   {t:'自己把年夜饭做了',e:{心性:8,健康:4,情感:-5},tg:['自己过'],r:'你炒了两个菜，摆了两双筷子。吃完收了。'},
   {t:'去邻居家蹭了一顿',e:{情感:8,机缘:3,心性:4},tg:['蹭饭'],r:'邻居把最好的那块肉夹给了你。'},
   {t:'一个人走到村口看别人放炮',e:{心性:8,机缘:8,情感:-6},tg:['看炮'],r:'你站到炮声停了才回去。'},
-  {t:'把这一年的事写了下来',e:{学识:8,心智:6,心性:6,功德:4},tg:['记下来'],r:'你写了三页纸。多年后再看，那一年的字比后来都硬。'}
+  {t:'把这一年的事写了下来',e:{学识:8,心智:6,心性:6,功德:2},tg:['记下来'],r:'你写了三页纸。多年后再看，那一年的字比后来都硬。'}
  ]},
 {id:'act12',cat:'机缘',title:'出远门',desc:'有人说一百里外有活路。你收拾了一个包袱。',age:[12,22],w:13,cond:{},
  opts:[
   {t:'去，一个人上路',e:{机缘:14,心性:8,财富:8,健康:-8,情感:-6},tg:['闯'],r:'你走了六天。第六天你把包袱里的干粮吃完了，也把害怕吃完了。'},
-  {t:'去，但约上两个同乡一起',e:{机缘:10,情感:8,财富:8,事业:6,功德:5},tg:['结伴'],r:'三个人挤一张床。谁也没嫌弃谁。'},
-  {t:'不去，留在家里守着',e:{心性:6,健康:3,名望:-7,情感:4,功德:-4},tg:['留守'],r:'你留下了。后来听说出去的人有的发了，有的没了。'},
+  {t:'去，但约上两个同乡一起',e:{机缘:10,情感:8,财富:8,事业:6,功德:3},tg:['结伴'],r:'三个人挤一张床。谁也没嫌弃谁。'},
+  {t:'不去，留在家里守着',e:{心性:6,健康:3,名望:-7,情感:4,功德:-2},tg:['留守'],r:'你留下了。后来听说出去的人有的发了，有的没了。'},
   {t:'先去看一趟，再决定',e:{心智:6,机缘:3,学识:5,财富:-7},tg:['先看看'],r:'你走了一半就回来了。但你已经知道了路怎么走。'}
  ]},
 {id:'act13',cat:'财富',title:'朋友来借钱',desc:'一起长大的那个人站在门口，手一直在袖子里搓。',age:[14,30],w:13,cond:{},
  opts:[
-  {t:'把能拿出来的都借了',e:{情感:9,功德:13,财富:-29},tg:['倾囊'],r:'他没说谢谢。很多年后他连本带利还了回来，还多给了一份。'},
+  {t:'把能拿出来的都借了',e:{情感:9,功德:7,财富:-29},tg:['倾囊'],r:'他没说谢谢。很多年后他连本带利还了回来，还多给了一份。'},
   {t:'借一半，留一半',e:{心智:6,情感:5,财富:-14},tg:['量力'],r:'他拿着钱看了你一会儿，说：够了。'},
-  {t:'不借，但陪他想别的办法',e:{功德:10,心智:6,情感:4,财富:-4},tg:['想别的'],r:'你陪他跑了三天。第四天他自己想通了。'},
-  {t:'不借，也不想掺和',e:{财富:8,情感:-11,业力:11,功德:-12},tg:['关门'],r:'他把手从袖子里抽出来，走了。以后再没来过。'}
+  {t:'不借，但陪他想别的办法',e:{功德:5,心智:6,情感:4,财富:-4},tg:['想别的'],r:'你陪他跑了三天。第四天他自己想通了。'},
+  {t:'不借，也不想掺和',e:{财富:8,情感:-11,业力:11,功德:-6},tg:['关门'],r:'他把手从袖子里抽出来，走了。以后再没来过。'}
  ]},
 {id:'act14',cat:'日常',title:'上树',desc:'最高那棵树上的果子已经熟透了，谁也够不着。',age:[5,12],w:12,cond:{},
  opts:[
@@ -2003,7 +2234,7 @@ const EVENTS = [
 {id:'act15',cat:'情感',title:'一件像样的东西',desc:'你终于有了属于自己的、像样的那样东西。',age:[4,10],w:12,cond:{},
  opts:[
   {t:'天天带在身上，谁都不许碰',e:{情感:5,心性:4,名望:-7},tg:['宝贝'],r:'你把它擦得发亮。有一天它还是丢了。'},
-  {t:'分给弟妹一起玩',e:{功德:13,情感:5,心性:6,名望:4},tg:['一起玩'],r:'被弄坏了。你心疼了好几天，但没发火。'},
+  {t:'分给弟妹一起玩',e:{功德:7,情感:5,心性:6,名望:4},tg:['一起玩'],r:'被弄坏了。你心疼了好几天，但没发火。'},
   {t:'拿它跟人换了一样更稀罕的',e:{财富:10,机缘:10,心智:6},tg:['换东西'],r:'你换回来的那样东西，别人都说亏了。你觉得自己赚了。'},
   {t:'收起来，舍不得用',e:{心性:6,财富:8,情感:-6},tg:['收着'],r:'你把它放进了箱底。多年后翻出来，它还是新的，你已经不需要它了。'}
  ]},
@@ -2012,7 +2243,7 @@ const EVENTS = [
   {t:'挤到最前面，仰着头看',e:{心智:6,机缘:10,健康:-5},tg:['仰头看'],r:'脖子酸了一晚上。但你看见了外面的样子。'},
   {t:'爬到麦垛上看',e:{机缘:4,健康:4,名望:10},tg:['上垛'],r:'视野最好。半个村的人都羡慕你。'},
   {t:'顾着跟旁边的人说话',e:{情感:7,机缘:2,心智:2},tg:['聊天'],r:'电影演了什么你记不清了，但记住了那个人说的话。'},
-  {t:'看了一半就回去了',e:{心性:6,健康:3,情感:-5,功德:4},tg:['早退'],r:'你走的时候幕布上正在放一段很亮的画面。'}
+  {t:'看了一半就回去了',e:{心性:6,健康:3,情感:-5,功德:2},tg:['早退'],r:'你走的时候幕布上正在放一段很亮的画面。'}
  ]},
 /* ============ 逆命：天行健 ============
    只在「忌神流年」出现——今年的气数与命局相冲，做什么都逆着风。
@@ -2021,12 +2252,12 @@ const EVENTS = [
  opts:[
   {t:'自强不息——硬扛过去',e:{心性:11,学识:6,事业:6,机缘:2,健康:-12,寿元:-5},tg:['自强'],zq:1,r:'你没有躲。这一年过得很苦，但你是站着过完的。'},
   {t:'顺势养晦，不与命争',e:{健康:5,心性:6,财富:4},tg:['养晦'],r:'你收了一整年。人家说你没出息，你不辩。'},
-  {t:'去找人搭把手',e:{情感:8,功德:7,事业:-6,机缘:-8},tg:['借力'],r:'你张了口。有人真的来了。这比你想的要难，也比你想的要暖。'},
+  {t:'去找人搭把手',e:{情感:8,功德:-2,事业:-6,机缘:-8},tg:['借力'],r:'你张了口。有人真的来了。这比你想的要难，也比你想的要暖。'},
   {t:'逆着风赌一把',e:{财富:26,事业:11,业力:14,健康:-8},tg:['赌性'],r:'你押上了能押的东西。这一年你赢了一些，也欠了一些。'}
  ]},
 {id:'zq02',cat:'修行',title:'自强不息',desc:'这是你第二次在逆风里站住了。命盘上一直压着你的那个地方，好像松了一点。',age:[8,88],w:0,noRoll:true,cond:{},
  opts:[
-  {t:'把这句话刻进骨头里',e:{心性:13,功德:10,名望:13,业力:-12,寿元:2},tg:['改命'],r:'你什么也没说。但从这一年起，命里那点不顺，不太压得住你了。'}
+  {t:'把这句话刻进骨头里',e:{心性:13,功德:5,名望:13,业力:-12,寿元:2},tg:['改命'],r:'你什么也没说。但从这一年起，命里那点不顺，不太压得住你了。'}
  ]}
 ];
 
@@ -3299,7 +3530,144 @@ function show(name){
   window.scrollTo({top:0, behavior:'instant'});
   const app = document.querySelector('.app');
   if(app) app.scrollIntoView({block:'start'});
+  syncNav(name);   // 侧边栏高亮 + 存档卡片刷新
 }
+/* ------------------------------------------------------------------ 7a. 侧边栏：分区导航 + 本机存档
+   桌面端是左侧固定栏，窄屏收成底部标签栏。存档卡片始终显示「未了之世」的
+   完整生辰八字（公历年月日 + 时辰 + 四柱干支），以及上次用过的生辰。 */
+const NAV_SCREENS = {home:'home', chart:'chart', life:'life', settle:'life', cycle:'cycle', share:'share'};
+function hourName(h){
+  const o = HOURS.reduce((a,b)=>Math.abs(b.v - h) < Math.abs(a.v - h) ? b : a, HOURS[0]);
+  return o.t.split(' ')[0];
+}
+/* 完整生辰八字文案：公历 + 四柱（存档回填与展示共用同一套口径） */
+function baziText(bz){
+  if(!bz) return '';
+  return bz.y + ' 年 ' + bz.m + ' 月 ' + bz.d + ' 日 '
+    + (bz.unknownHour ? '（时辰未知）' : hourName(bz.h))
+    + '　' + [bz.yearGz, bz.monthGz, bz.dayGz, bz.hourGz].join(' ');
+}
+function gzOf(bz){
+  return bz ? [bz.yearGz, bz.monthGz, bz.dayGz, bz.hourGz].join(' ') : '';
+}
+/* 从暂离存档里取出可回填的生辰 */
+function birthFromRun(s){
+  if(!s || !s.bazi) return null;
+  const b = s.bazi;
+  return {y:b.y, m:b.m, d:b.d, h:b.h, gender:b.gender, unknown:!!b.unknownHour, gz:gzOf(b), sx:b.shengxiao};
+}
+/* 记下这一次的生辰：写进账本，下次投胎自动回填 */
+function rememberBirth(bz){
+  if(!bz) return;
+  let form = null;
+  try{
+    form = {y:parseInt($('inY').value,10), m:parseInt($('inM').value,10), d:parseInt($('inD').value,10),
+            h:parseInt($('inH').value,10), gender:$('inG').value, unknown:!!$('inUnknown').checked};
+  }catch(e){ form = null; }
+  const same = form && form.y === bz.y && form.m === bz.m && form.d === bz.d;
+  META.lastBirth = same
+    ? {y:form.y, m:form.m, d:form.d, h:form.h, gender:form.gender, unknown:form.unknown, gz:gzOf(bz), sx:bz.shengxiao}
+    : {y:bz.y, m:bz.m, d:bz.d, h:bz.h, gender:bz.gender, unknown:!!bz.unknownHour, gz:gzOf(bz), sx:bz.shengxiao};
+  saveMeta();
+}
+/* 用存档里的生辰回填首页表单 */
+function applySavedBirth(){
+  let b = META.lastBirth || birthFromRun(peekRun());
+  if(!b) return false;
+  if(b.y >= 1900 && b.y <= 2025) $('inY').value = b.y;
+  if(b.m >= 1 && b.m <= 12) $('inM').value = b.m;
+  fillDays();
+  if(b.d >= 1) $('inD').value = b.d;
+  $('inH').value = HOURS.reduce((a,c)=>Math.abs(c.v - b.h) < Math.abs(a.v - b.h) ? c : a, HOURS[0]).v;
+  if(b.gender) $('inG').value = b.gender;
+  $('inUnknown').checked = !!b.unknown;
+  $('inH').disabled = !!b.unknown;
+  return true;
+}
+/* 侧边栏存档卡片 + 账本 */
+function renderSidebar(){
+  const body = $('sbSaveBody');
+  const s = peekRun();
+  if(body){
+    let h = '';
+    if(s){
+      h += '<div class="sb-k">未了之世 · 已活到 ' + s.age + ' 岁</div>'
+         + '<div class="sb-gz">' + gzOf(s.bazi) + '</div>'
+         + '<div class="sb-v">' + baziText(s.bazi) + '<br/>' + s.bazi.gender + '命 · 属' + s.bazi.shengxiao
+         + ' · 寿数上限 ' + s.maxAge + ' 岁</div>'
+         + '<button class="sb-btn" data-act="resume" type="button">继续这一世</button>'
+         + '<button class="sb-btn ghost" data-act="discard" type="button">放弃此世</button>';
+    }else if(G.bazi && G.attrs && !G.died){
+      h += '<div class="sb-k">本世命盘 · ' + G.age + ' 岁</div>'
+         + '<div class="sb-gz">' + gzOf(G.bazi) + '</div>'
+         + '<div class="sb-v">' + baziText(G.bazi) + '</div>'
+         + '<button class="sb-btn" data-act="life" type="button">回到人生</button>';
+    }else if(META.lastBirth){
+      const b = META.lastBirth;
+      h += '<div class="sb-k">上次生辰 · 下次投胎自动填入</div>'
+         + '<div class="sb-gz">' + (b.gz || '') + '</div>'
+         + '<div class="sb-v">' + b.y + ' 年 ' + b.m + ' 月 ' + b.d + ' 日 '
+         + (b.unknown ? '（时辰未知）' : hourName(b.h)) + (b.sx ? ' · 属' + b.sx : '') + '</div>'
+         + '<button class="sb-btn ghost" data-act="home" type="button">去投胎</button>';
+    }else{
+      h += '<div class="sb-k">尚无存档</div><div class="sb-v">投胎后，这一世的生辰八字会留在本机，下次打开自动回填。</div>';
+    }
+    body.innerHTML = h;
+  }
+  if($('sbSoul'))  $('sbSoul').textContent  = Math.round(META.soul);
+  if($('sbFrag'))  $('sbFrag').textContent  = META.frag;
+  if($('sbLife'))  $('sbLife').textContent  = Math.round(META.totalLife);
+  if($('sbLives')) $('sbLives').textContent = META.lives;
+}
+function syncNav(name){
+  const target = NAV_SCREENS[name] || name;
+  document.querySelectorAll('.sb-item').forEach(b=>{
+    b.classList.toggle('active', b.dataset.nav === target);
+  });
+  renderSidebar();
+}
+/* 分区跳转：缺前置条件时给提示，不留白屏 */
+function navGo(name){
+  const running = !!(G.bazi && G.attrs && !G.died);
+  if(name === 'home'){
+    if(!G.died){ G.fast = false; toggleFastOff(); }
+    renderHome(); show('home'); return;
+  }
+  if(name === 'chart' || name === 'life'){
+    if(!running){
+      if(peekRun()){          // 有暂离存档：先接着活，再切过去
+        resumeRun();
+        if(name === 'chart'){ renderChart(); show('chart'); }
+        return;
+      }
+      renderHome(); show('home');
+      toastModal('先 投 胎', '还没有这一世的命盘。<br/><br/><span style="color:var(--ink3)">先在首页填写生辰或点「随机命盘」，再来看命盘与人生。</span>');
+      return;
+    }
+    if(name === 'chart'){ renderChart(); show('chart'); }
+    else { show('life'); renderLife(); updateLog(); }
+    return;
+  }
+  if(name === 'cycle'){ renderCycle(); show('cycle'); return; }
+  if(name === 'share'){
+    if(!G.died){
+      toastModal('暂 无 海 报', '这一世还没有走完。<br/><br/><span style="color:var(--ink3)">结算之后，这里可以生成本世的海报与分享文案。</span>');
+      return;
+    }
+    renderShare(); show('share'); return;
+  }
+}
+/* 首页表单下方：提示已被记住的生辰 */
+function renderBirthMemo(){
+  const el = $('birthMemo');
+  if(!el) return;
+  const b = META.lastBirth || birthFromRun(peekRun());
+  el.innerHTML = b
+    ? '已记住上次生辰：<b>' + b.y + ' 年 ' + b.m + ' 月 ' + b.d + ' 日 '
+      + (b.unknown ? '（时辰未知）' : hourName(b.h)) + '</b>　' + (b.gz || '')
+    : '';
+}
+
 function toastModal(title, html){
   $('modal').innerHTML = '<h3>'+title+'</h3><div style="font-size:13.5px;color:var(--ink2);line-height:1.9">'+html+'</div>'
     + '<button class="btn mt12" onclick="closeMask()">知道了</button>';
@@ -3858,6 +4226,8 @@ function renderHome(){
     ? '你已经打破过一次命簿。'
     : '目标：累计活满 <b>五百</b> 年。当前进度 <b>' + p.toFixed(1) + '%</b>（' + Math.round(META.totalLife) + ' / 500 年）';
   renderResumeCard();
+  renderBirthMemo();
+  renderSidebar();
 }
 
 /* 首页「未了之世」：只有存在未完成的存档时才出现 */
@@ -3870,8 +4240,9 @@ function renderResumeCard(){
   const amb = AMBITIONS.find(a=>a.id === s.ambitionId);
   card.style.display = '';
   $('resumeInfo').innerHTML =
-      '命盘 <b>' + bz.yearGz + ' ' + bz.monthGz + ' ' + bz.dayGz + ' ' + bz.hourGz + '</b>　'
-    + bz.gender + '命<br/>'
+      '生辰 <b>' + bz.y + ' 年 ' + bz.m + ' 月 ' + bz.d + ' 日 '
+    + (bz.unknownHour ? '（时辰未知）' : hourName(bz.h)) + '</b>　属' + bz.shengxiao + '<br/>'
+    + '命盘 <b>' + bz.yearGz + ' ' + bz.monthGz + ' ' + bz.dayGz + ' ' + bz.hourGz + '</b>　' + bz.gender + '命<br/>'
     + '已活到 <b>' + s.age + '</b> 岁　已记事 <b>' + ((s.timeline || []).length) + '</b> 件'
     + '　寿数上限 <b>' + s.maxAge + '</b> 岁<br/>'
     + (amb ? '本世志向 <b>' + amb.name + '</b><br/>' : '')
@@ -3907,6 +4278,7 @@ function resumeRun(){
   const s = peekRun();
   if(!s){ renderHome(); toastModal('没有存档', '本机没有未完成的人生存档。'); return; }
   restoreRun(s);
+  rememberBirth(G.bazi);   // 续玩时同样把生辰留在账本里
   G.curDayun = curDayunAt(G.age);
   G.liunian  = liunianAt(G.age, G.birthYear);
   // 兜底：存档若落在年份交界而待办事件缺失，就地重抽这一年
@@ -3998,6 +4370,7 @@ function startGame(bz){
   if(!bz) bz = buildFromForm();
   if(!bz) return;
   G.bazi = bz;
+  rememberBirth(bz);   // 生辰八字写进账本：下次投胎自动回填
   G.dayun = bz.dayun || [];   // 大运表来自命盘；不接上它 curDayunAt() 会永远返回 null
   G.attrs = makeAttrs(bz);
   // 出生家境：时代掷出身，家境改写初始属性
@@ -4067,7 +4440,9 @@ function showHistory(){
   }
   let html = '<div style="max-height:52vh;overflow-y:auto">';
   META.history.slice().reverse().slice(0,20).forEach((h,i)=>{
-    html += '<div class="kv"><span>' + h.date + '　' + h.bazi + '</span><b>' + h.ending + '</b></div>';
+    html += '<div class="kv"><span>' + h.date
+      + (h.birth ? '<br/><span style="color:var(--ink3);font-size:11.5px">' + h.birth + '</span>' : '')
+      + '<br/>' + h.bazi + '</span><b>' + h.ending + '</b></div>';
   });
   html += '</div>';
   toastModal('历史命盘（最近 20 世）', html);
@@ -4599,6 +4974,8 @@ function endLife(reason){
 
   META.history.push({
     date: new Date().toISOString().slice(0,10),
+    birth: G.bazi.y + ' 年 ' + G.bazi.m + ' 月 ' + G.bazi.d + ' 日 '
+         + (G.bazi.unknownHour ? '（时辰未知）' : hourName(G.bazi.h)) + ' · 属' + G.bazi.shengxiao,
     bazi: G.bazi.yearGz + ' ' + G.bazi.monthGz + ' ' + G.bazi.dayGz + ' ' + G.bazi.hourGz,
     life: G.life, score: G.score, ending: G.ending.name
   });
@@ -5517,6 +5894,7 @@ function toggleFast(){
 function init(){
   initBgFx();
   fillSelects();
+  applySavedBirth();   // 存档里的生辰八字自动回填到投胎表单
   renderHome();
 
   $('inY').addEventListener('change', fillDays);
@@ -5544,6 +5922,19 @@ function init(){
   $('btnSavePoster').addEventListener('click', savePoster);
   $('btnCopyText').addEventListener('click', copyShare);
   $('btnFast').addEventListener('click', toggleFast);
+  $('sbNav').addEventListener('click', e=>{
+    const b = e.target.closest ? e.target.closest('.sb-item') : null;
+    if(b && b.dataset.nav) navGo(b.dataset.nav);
+  });
+  $('sbSave').addEventListener('click', e=>{
+    const b = e.target.closest ? e.target.closest('[data-act]') : null;
+    if(!b) return;
+    const act = b.dataset.act;
+    if(act === 'resume') resumeRun();
+    else if(act === 'discard') discardRun();
+    else if(act === 'life'){ show('life'); renderLife(); updateLog(); }
+    else if(act === 'home'){ renderHome(); show('home'); }
+  });
 
   // 委托式涟漪：选项按钮是每次 renderLife 重建的，绑不上，只能从 document 代理
   document.addEventListener('click', e=>{
