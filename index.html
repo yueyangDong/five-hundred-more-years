@@ -1248,6 +1248,94 @@ html{touch-action:manipulation}
 @keyframes famPop6{from{opacity:0;transform:scale(.85) translateY(6px)}to{opacity:1;transform:none}}
 .result .dl span{animation:chipPop6 .4s var(--ease-pop) both}
 .birthline .fambadge{animation:famPop6 .6s var(--ease-pop) .5s both}
+
+/* =========================================================================
+   v7 视觉层：让界面从「干净」走到「有层次」
+   Apple 的克制不等于简单 —— 高级感来自焦点、层次与留白，不是花哨。
+   这一层不改结构、不改数据、不加动画，只调视觉分量。
+   ========================================================================= */
+
+/* ---------- 7.1 背景：给白卡片一个能「浮起来」的环境 ---------- */
+body{
+  background:
+    radial-gradient(1100px 520px at 50% -12%,#ffffff 0%,rgba(255,255,255,0) 60%),
+    radial-gradient(900px 620px at 102% 100%,rgba(184,144,44,.05) 0%,rgba(184,144,44,0) 68%),
+    linear-gradient(180deg,#f4f4f7 0%,#eeeef2 100%);
+  background-attachment:fixed;
+}
+:root[data-theme="dark"] body{
+  background:
+    radial-gradient(1100px 520px at 50% -12%,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 58%),
+    radial-gradient(900px 620px at 102% 100%,rgba(217,167,44,.055) 0%,rgba(217,167,44,0) 68%),
+    linear-gradient(180deg,#0a0a0c 0%,#000000 100%);
+  background-attachment:fixed;
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] body{
+    background:
+      radial-gradient(1100px 520px at 50% -12%,rgba(255,255,255,.06) 0%,rgba(255,255,255,0) 58%),
+      radial-gradient(900px 620px at 102% 100%,rgba(217,167,44,.055) 0%,rgba(217,167,44,0) 68%),
+      linear-gradient(180deg,#0a0a0c 0%,#000000 100%);
+    background-attachment:fixed;
+  }
+}
+
+/* ---------- 7.2 卡片分层：主卡更厚，次级信息卡更平（有主次才不显得平） ---------- */
+.card{box-shadow:0 1px 2px rgba(0,0,0,.04),0 14px 34px rgba(0,0,0,.06)}
+.card.tight{box-shadow:0 1px 2px rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.035)}
+:root[data-theme="dark"] .card{box-shadow:0 1px 2px rgba(0,0,0,.5),0 14px 34px rgba(0,0,0,.4)}
+:root[data-theme="dark"] .card.tight{box-shadow:0 1px 2px rgba(0,0,0,.45),0 6px 18px rgba(0,0,0,.3)}
+
+/* ---------- 7.3 人生页：让「年龄」成为这一屏的焦点，而不是左上角一行小字 ---------- */
+.lifehead{align-items:flex-end;padding:20px 2px 10px}
+.lifehead .age{font-size:58px;line-height:.9}
+/* #lifeAge 也是 span，会被下面的 .age span 规则一起压小 —— 用 id 特异性把它拎出来 */
+.lifehead .age #lifeAge{font-size:58px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.lifehead .age span{font-size:13px;margin-left:7px;letter-spacing:.06em}
+.lifehead .meta{background:var(--fill2);border-radius:13px;padding:9px 13px;font-size:11.5px;line-height:1.75}
+.lifehead .meta b{font-size:15.5px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ---------- 7.4 事件卡：配图更高、标题更醒目、选项更好按 ---------- */
+.event .scene{height:152px}
+.event .etop{padding:15px 18px 11px}
+.event h3{font-size:21.5px;letter-spacing:.01em;margin:4px 0 7px}
+.event .cat{font-size:11.5px;letter-spacing:.2em}
+.event .desc{font-size:15px;line-height:1.72}
+.event .opt{font-size:15.5px;padding:14px 15px}
+
+/* ---------- 7.5 属性 chip：按数值着色，分布不用读数字也能看出来 ---------- */
+.lifestats{padding:10px 12px;gap:6px 8px}
+.lifestats .ls{font-size:12px;padding:4px 9px;border-radius:9px;transition:background-color .25s var(--ease-out)}
+.lifestats .ls b{font-size:14px;font-variant-numeric:tabular-nums}
+.lifestats .ls.hi{background:rgba(184,144,44,.14);color:#7d5e0d}
+.lifestats .ls.lo{background:rgba(255,59,48,.11);color:#b23a30}
+:root[data-theme="dark"] .lifestats .ls.hi{background:rgba(217,167,44,.18);color:#e8c470}
+:root[data-theme="dark"] .lifestats .ls.lo{background:rgba(255,69,58,.16);color:#ff9a90}
+
+/* ---------- 7.6 四柱：更像命盘，而不是四个格子 ---------- */
+.pillars{gap:7px}
+.pillar{
+  padding:14px 4px 12px;border-radius:var(--r-md);
+  background:linear-gradient(180deg,var(--card),var(--fill2));
+  border:1px solid var(--line2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+:root[data-theme="dark"] .pillar{box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.pillar .lbl{font-size:10.5px;letter-spacing:.22em;margin-bottom:6px}
+.pillar .gz{font-size:28px;line-height:1.08}
+.pillar .ny{font-size:10px;margin-top:5px}
+
+/* ---------- 7.7 五行：更强的数据感 ---------- */
+#radar svg{width:100%;height:auto;max-width:320px}
+.bar{margin:8px 0}
+.bar .track{height:9px;border-radius:5px}
+.bar .h b{font-size:13.5px}
+
+/* ---------- 7.8 主按钮：一层极淡的顶部高光，让它「鼓」起来 ---------- */
+.btn{box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 1px 2px rgba(0,0,0,.06),0 8px 20px rgba(0,122,255,.16)}
+.btn:active{box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 1px 2px rgba(0,0,0,.06)}
+.btn.gold{box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 1px 2px rgba(0,0,0,.08),0 8px 20px rgba(169,122,18,.22)}
+.btn.ghost{box-shadow:none}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -6627,9 +6715,13 @@ function renderLifeStats(){
     const v = valOf(k);
     let cls = 'ls';
     if(k === '僧腊') cls += ' monk';
-    else if(_lsPrev && _lsPrev[k] !== undefined){
-      const d = v - _lsPrev[k];
-      if(d > 0) cls += ' up'; else if(d < 0) cls += ' dn';
+    else{
+      // 按数值着色：高于 70 偏暖、低于 30 偏冷，不看数字也能读出分布
+      if(v >= 70) cls += ' hi'; else if(v <= 30) cls += ' lo';
+      if(_lsPrev && _lsPrev[k] !== undefined){
+        const d = v - _lsPrev[k];
+        if(d > 0) cls += ' up'; else if(d < 0) cls += ' dn';
+      }
     }
     const label = (k === '僧腊') ? MONK_YEARS_LABEL[G.path] : k;
     html += '<span class="' + cls + '">' + label + '<b>' + v + '</b></span>';
