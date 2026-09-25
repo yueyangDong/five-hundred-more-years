@@ -175,7 +175,7 @@ body::before{
 .event.rare{
   border:1px solid rgba(184,144,44,.65);
   box-shadow:0 0 0 1px rgba(184,144,44,.18), 0 4px 22px rgba(184,144,44,.16);
-  animation:eventIn .45s cubic-bezier(.2,.85,.25,1) both, rareGlow 3.2s ease-in-out .5s infinite;
+  animation:rareGlow 3.2s ease-in-out .5s infinite;
 }
 @keyframes rareGlow{0%,100%{box-shadow:0 0 0 1px rgba(184,144,44,.18),0 4px 22px rgba(184,144,44,.14)}
   50%{box-shadow:0 0 0 2px rgba(184,144,44,.3),0 6px 30px rgba(184,144,44,.26)}}
@@ -183,7 +183,7 @@ body::before{
 .event.crisis{
   border:1px solid rgba(176,58,46,.55);
   box-shadow:0 0 0 1px rgba(176,58,46,.14), 0 4px 18px rgba(176,58,46,.12);
-  animation:eventIn .4s cubic-bezier(.2,.85,.25,1) both, crisisShake .5s ease .1s;
+  animation:crisisShake .5s ease .1s;
 }
 .event.crisis .cat{color:var(--red);font-weight:600}
 @keyframes crisisShake{0%,100%{transform:none}18%{transform:translateX(-3px)}36%{transform:translateX(3px)}
@@ -237,7 +237,7 @@ body.adverse-year .card,body.adverse-year .event{background:#fffbf7}
 .birthline{
   border:1px solid rgba(184,144,44,.5);border-radius:14px;margin:0 0 10px;
   background:linear-gradient(135deg,#fffaf0,#fbf3e0);padding:13px 15px;
-  box-shadow:0 3px 14px rgba(184,144,44,.1);animation:cardIn .5s ease both;position:relative;overflow:hidden;
+  box-shadow:0 3px 14px rgba(184,144,44,.1);position:relative;overflow:hidden;
 }
 .birthline::before{content:"出";position:absolute;right:10px;top:6px;font-size:52px;line-height:1;
   font-family:"Songti SC","STSong","SimSun",serif;color:rgba(176,58,46,.07);font-weight:700}
@@ -350,25 +350,10 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
 /* ---------- 背景浮尘粒子 ---------- */
 #bgFx{position:fixed;inset:0;z-index:0;pointer-events:none}
 
-/* ---------- 屏幕切换：卷轴展开 ---------- */
-.screen.active{animation:scrollOpen .52s cubic-bezier(.2,.85,.25,1) both}
-@keyframes scrollOpen{
-  0%{opacity:0;transform:translateY(14px) scaleY(.95);filter:blur(4px)}
-  60%{opacity:1;filter:blur(0)}
-  100%{opacity:1;transform:none;filter:blur(0)}
-}
-
-/* ---------- 卡片错峰入场 ---------- */
-.screen.active .card{animation:cardIn .5s cubic-bezier(.2,.85,.25,1) both}
-.screen.active .card:nth-child(1){animation-delay:.03s}
-.screen.active .card:nth-child(2){animation-delay:.09s}
-.screen.active .card:nth-child(3){animation-delay:.15s}
-.screen.active .card:nth-child(4){animation-delay:.21s}
-.screen.active .card:nth-child(5){animation-delay:.27s}
-.screen.active .card:nth-child(6){animation-delay:.33s}
-.screen.active .card:nth-child(7){animation-delay:.39s}
-.screen.active .card:nth-child(8){animation-delay:.45s}
-@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* ---------- 屏幕切换与卡片错峰 ----------
+   卷轴展开 / 卡片错峰 / 翻牌三组动画已由 v4 的 animation:none 关闭，
+   改由 JS 的 spring 承载（v4 层 §4.15：show() 转场 + v4Stagger 的 36ms 错峰），
+   这里不再保留失效的 animation 声明与 keyframes。 */
 
 /* ---------- 纸张质感 ---------- */
 .card::after{
@@ -392,21 +377,10 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
   display:flex;align-items:center;justify-content:center;flex-direction:column;
   font-family:"Songti SC","STSong",serif;font-size:13px;line-height:1.15;letter-spacing:1px;
   transform:rotate(-8deg) scale(2.6);opacity:0;
-  animation:stampDown .55s .85s cubic-bezier(.3,1.6,.5,1) forwards;
 }
-@keyframes stampDown{to{transform:rotate(-8deg) scale(1);opacity:.88}}
 
 /* ---------- 四柱翻牌 + 纳音 ---------- */
 .pillar .ny{font-size:9.5px;color:var(--gold);margin-top:3px;letter-spacing:.3px;white-space:nowrap}
-.screen.active .pillar{animation:flipIn .55s cubic-bezier(.3,.8,.3,1) both}
-.screen.active .pillar:nth-child(1){animation-delay:.06s}
-.screen.active .pillar:nth-child(2){animation-delay:.14s}
-.screen.active .pillar:nth-child(3){animation-delay:.22s}
-.screen.active .pillar:nth-child(4){animation-delay:.30s}
-@keyframes flipIn{
-  0%{opacity:0;transform:perspective(420px) rotateX(-72deg) translateY(6px)}
-  100%{opacity:1;transform:none}
-}
 
 /* ---------- 五行雷达生长 ---------- */
 #radar svg .data{transform-origin:50% 50%;animation:radarGrow .85s cubic-bezier(.2,.85,.3,1) both}
@@ -471,8 +445,6 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
   border-bottom:1px solid var(--line2);
 }
 .scene svg{width:100%;height:100%;display:block}
-.screen.active .event{animation:eventIn .45s cubic-bezier(.2,.85,.25,1) both}
-@keyframes eventIn{from{opacity:0;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
 
 /* ---------- 选项光泽 ---------- */
 .opt{position:relative;overflow:hidden}
@@ -497,16 +469,10 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
   100%{opacity:0;transform:translateY(-46px) scale(1)}
 }
 
-/* ---------- 结算标题 ---------- */
+/* ---------- 结算标题 ----------
+   称号揭示与评分弹入由 v5 的 Safe 版接管（titleRevealSafe / numPopSafe）：
+   起点从 opacity:0 抬到「看得见」，动画不推进时内容也不会消失。 */
 .big-title{position:relative}
-.big-title.play{animation:titleReveal 1.15s cubic-bezier(.2,.85,.25,1) both}
-@keyframes titleReveal{
-  0%{opacity:0;letter-spacing:20px;filter:blur(9px)}
-  55%{opacity:1;filter:blur(0)}
-  100%{opacity:1;letter-spacing:6px;filter:blur(0)}
-}
-.score-ring .num{animation:numPop .9s .25s cubic-bezier(.2,1.4,.4,1) both}
-@keyframes numPop{0%{opacity:0;transform:scale(.5)}100%{opacity:1;transform:none}}
 
 /* ---------- 生命轨迹曲线 ---------- */
 .chartwrap{
@@ -591,11 +557,8 @@ body.era-2000 .card,body.era-2000 .event{background:#fffffc}
   animation:auraOut 1.25s ease-out forwards}
 @keyframes auraOut{0%{opacity:0;transform:scale(1.25)}28%{opacity:1}100%{opacity:0;transform:scale(1)}}
 
-/* ---------- 特效增强：出生横幅入场与家境徽记落印 ---------- */
-.birthline{animation:birthIn .6s cubic-bezier(.2,.85,.25,1) both}
-@keyframes birthIn{0%{opacity:0;transform:translateY(-6px) scaleY(.92)}100%{opacity:1;transform:none}}
-.birthline .fambadge{animation:famPop .6s cubic-bezier(.2,1.4,.4,1) .5s both}
-@keyframes famPop{0%{opacity:0;transform:scale(.6) translateY(6px)}100%{opacity:1;transform:none}}
+/* ---------- 出生横幅与家境徽记的入场 ----------
+   birthIn / famPop 已由 v6 的 famPop6（起点抬到 scale .85）与卡片错峰接管，此处不再保留。 */
 
 /* ---------- 减少动效偏好 ---------- */
 @media (prefers-reduced-motion:reduce){
