@@ -1503,6 +1503,54 @@ body::before{
 .dayun-item{background:var(--fill2);border:1px solid var(--line2)}
 .dayun-item.cur{background:rgba(212,162,76,.14);box-shadow:inset 0 0 0 1.5px var(--gold)}
 .log,.chartwrap,.tal,.codex .c,.share-txt,.lifestats{border-color:var(--line2)}
+
+/* ---------- 8.10 特效：灵气 / 法阵 / 强化的金光 ---------- */
+
+/* 选项点下去，灵气从指下迸出来 */
+.fxqi{
+  position:fixed;z-index:79;pointer-events:none;width:5px;height:5px;border-radius:50%;
+  background:radial-gradient(circle,#f8e6b4,rgba(212,162,76,0) 72%);
+  transform:translate(-50%,-50%);
+  animation:qiFly .78s var(--ease-out) forwards;
+}
+@keyframes qiFly{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
+  20%{opacity:1}
+  100%{opacity:0;transform:translate(calc(-50% + var(--qx,0px)),calc(-50% + var(--qy,0px))) scale(1.1)}
+}
+
+/* 一世终了：三圈金纹从中心扩开并旋转，像法阵起 */
+.fxmandala{
+  position:fixed;inset:0;z-index:71;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.fxmandala i{
+  position:absolute;width:130px;height:130px;border-radius:50%;
+  border:1px solid rgba(240,207,138,.55);
+  animation:mandalaOut 1.7s var(--ease-out) forwards;
+}
+.fxmandala i:nth-child(2){border-style:dashed;border-color:rgba(212,162,76,.42);animation-delay:.16s}
+.fxmandala i:nth-child(3){border-color:rgba(199,56,44,.34);animation-delay:.32s}
+@keyframes mandalaOut{
+  0%{opacity:0;transform:scale(.35) rotate(0deg)}
+  22%{opacity:1}
+  100%{opacity:0;transform:scale(3.4) rotate(140deg)}
+}
+
+/* 大运交接 / 境界推进：金环扫过全屏一次 */
+.fxrite::after{
+  content:"";position:absolute;inset:-20%;border-radius:50%;
+  border:1px solid rgba(240,207,138,.4);
+  animation:riteRing 1.6s var(--ease-out) forwards;
+}
+@keyframes riteRing{0%{opacity:0;transform:scale(.5)}25%{opacity:1}100%{opacity:0;transform:scale(1.5)}}
+
+/* 稀有的金光再上一档 */
+.fxspark{width:6px;height:6px;background:radial-gradient(circle,#f8e6b4,rgba(212,162,76,0) 74%)}
+
+@media (prefers-reduced-motion:reduce){
+  .fxqi,.fxmandala i,.fxrite::after{animation:none !important;opacity:0 !important}
+}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -6289,8 +6337,8 @@ function endLife(reason){
 function renderSettle(reason){
   const a = G.attrs;
   const sc = grade(G.score);
-  // 一世走完：给一次只此一回的仪式感，之后才谈轮回
-  if(!G.fast) fxRite('cycle');
+  // 一世走完：法阵起 + 一层金光，这一局只此一次
+  if(!G.fast){ fxRite('cycle'); fxMandala(); }
   $('stSub').textContent = reason + ' · 终 年 ' + G.life
     + (G.path !== 'sec' ? ' · ' + monkTitle() : '');
 
@@ -6824,6 +6872,38 @@ function fxRipple(el, ev){
   sp.style.height = size + 'px';
   el.appendChild(sp);
   setTimeout(()=>{ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 620);
+  // 涟漪之外再迸一圈灵气：落点在指尖，不在按钮中心
+  fxQi((ev && ev.clientX) ? ev.clientX : r.left + r.width / 2,
+       (ev && ev.clientY) ? ev.clientY : r.top + r.height / 2);
+}
+
+/* 灵气迸发：从一点向外散出金点。数量克制，全部 transform + opacity */
+function fxQi(x, y, n){
+  if(v4Reduce()) return;
+  const count = n || 9;
+  for(let i = 0; i < count; i++){
+    const sp = document.createElement('div');
+    sp.className = 'fxqi';
+    const ang = (Math.PI * 2 / count) * i + (Math.random() - 0.5) * 0.6;
+    const dist = 20 + Math.random() * 42;
+    sp.style.left = Math.round(x) + 'px';
+    sp.style.top = Math.round(y) + 'px';
+    sp.style.setProperty('--qx', Math.round(Math.cos(ang) * dist) + 'px');
+    sp.style.setProperty('--qy', Math.round(Math.sin(ang) * dist) + 'px');
+    sp.style.animationDelay = (i * 14) + 'ms';
+    document.body.appendChild(sp);
+    setTimeout(()=>{ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 950);
+  }
+}
+
+/* 一世终了的法阵：三圈金纹从中心扩开并旋转 */
+function fxMandala(){
+  if(v4Reduce()) return;
+  const d = document.createElement('div');
+  d.className = 'fxmandala';
+  d.innerHTML = '<i></i><i></i><i></i>';
+  document.body.appendChild(d);
+  setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 2300);
 }
 /* 危机红闪 / 稀有金光：整屏压一层氛围 */
 function fxFlash(kind){
@@ -6837,11 +6917,11 @@ function fxSparks(el){
   if(!el || !el.getBoundingClientRect) return;
   const r = el.getBoundingClientRect();
   const cx = r.left + r.width / 2, cy = r.top + 34;
-  for(let i = 0; i < 14; i++){
+  for(let i = 0; i < 22; i++){
     const sp = document.createElement('div');
     sp.className = 'fxspark';
     const ang = -Math.PI / 2 + (Math.random() - 0.5) * Math.PI * 1.5;
-    const dist = 34 + Math.random() * 84;
+    const dist = 40 + Math.random() * 110;
     sp.style.left = Math.round(cx) + 'px';
     sp.style.top = Math.round(cy) + 'px';
     sp.style.setProperty('--sx', Math.round(Math.cos(ang) * dist) + 'px');
@@ -7518,12 +7598,14 @@ function init(){
     else if(act === 'home'){ renderHome(); show('home'); }
   });
 
-  // 委托式涟漪：选项按钮是每次 renderLife 重建的，绑不上，只能从 document 代理
+  /* 委托式涟漪：选项按钮每次 renderLife 都会重建，绑不上，只能从 document 代理。
+     必须在 capture 阶段跑 —— 选项的内联 onclick 会同步把 G.choosing 置 true，
+     冒泡阶段再判断就已经晚了（这个特效此前一直没生效过）。 */
   document.addEventListener('click', e=>{
     const t = e.target;
     const b = (t && t.closest) ? t.closest('.opt') : null;
     if(b && !G.choosing) fxRipple(b, e);
-  });
+  }, true);
 }
 function toggleFastOff(){
   if(G.fast){ G.fast = false; $('btnFast').textContent = '极速模式 关'; $('btnFast').classList.remove('on'); }
