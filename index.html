@@ -166,37 +166,10 @@ body::before{
 .result .dl .u{color:var(--green);font-weight:600}
 .result .dl .d{color:var(--red);font-weight:600}
 
-/* ---------- 按类别区分的入场：每一类事件有自己的进来方式 ----------
-   放在稀有度规则之前，好让「稀有 / 危机」的更强表现盖过类别入场。 */
-@keyframes entHome{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
-@keyframes entStudy{from{opacity:0;transform:scaleY(.9)}to{opacity:1;transform:none}}
-@keyframes entCareer{from{opacity:0;transform:translateY(18px) scale(.99)}to{opacity:1;transform:none}}
-@keyframes entWealth{from{opacity:0;transform:scale(.955)}60%{transform:scale(1.008)}to{opacity:1;transform:none}}
-@keyframes entLove{from{opacity:0;filter:blur(4px);transform:scale(1.022)}to{opacity:1;filter:none;transform:none}}
-@keyframes entHealth{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes entLuck{from{opacity:0;transform:translateX(16px) rotate(.6deg)}to{opacity:1;transform:none}}
-@keyframes entCultivate{from{opacity:0;transform:scale(1.035)}to{opacity:1;transform:none}}
-@keyframes entElder{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@keyframes entEra{from{opacity:0;clip-path:inset(0 100% 0 0)}to{opacity:1;clip-path:inset(0 0 0 0)}}
-@keyframes entMonk{from{opacity:0;transform:scale(.975)}to{opacity:1;transform:none}}
-@keyframes entCrisis{from{opacity:0;transform:scale(1.028) translateY(-5px)}to{opacity:1;transform:none}}
-@keyframes entDaily{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
-@keyframes entLast{from{opacity:0;filter:blur(7px) grayscale(.45);transform:scale(1.045)}to{opacity:1;filter:none;transform:none}}
-
-.event.c-home{animation:entHome .42s cubic-bezier(.2,.85,.25,1) both}
-.event.c-study{animation:entStudy .40s cubic-bezier(.2,.85,.25,1) both}
-.event.c-career{animation:entCareer .42s cubic-bezier(.2,.85,.25,1) both}
-.event.c-wealth{animation:entWealth .46s cubic-bezier(.2,.85,.25,1) both}
-.event.c-love{animation:entLove .50s ease both}
-.event.c-health{animation:entHealth .42s ease both}
-.event.c-luck{animation:entLuck .44s cubic-bezier(.2,.85,.25,1) both}
-.event.c-cultivate{animation:entCultivate .62s ease both}
-.event.c-elder{animation:entElder .60s ease both}
-.event.c-era{animation:entEra .50s cubic-bezier(.2,.85,.25,1) both}
-.event.c-monk{animation:entMonk .55s ease both}
-.event.c-crisis{animation:entCrisis .34s cubic-bezier(.2,.85,.25,1) both}
-.event.c-daily{animation:entDaily .40s ease both}
-.event.c-last{animation:entLast .95s ease both}
+/* ---------- 按类别区分的入场 ----------
+   这 14 组 ent* 与 .event.c-* 的声明已由 v4 逐条 animation:none 关掉，
+   改由 JS 的 v4EnterEvent() 用 spring 承载（v4 层 §4.15），这里不再保留死规则。
+   类别差异仍在：见 v4 层的 V4_ENT 映射表。 */
 
 /* ---------- 事件稀有度与危机氛围 ---------- */
 .event.rare{
@@ -1278,6 +1251,40 @@ html{touch-action:manipulation}
 .score-ring .num{animation:numPopSafe .9s .15s var(--ease-out) both}
 .big-title.play{animation:titleRevealSafe 1.15s var(--ease-out) both}
 .stamp{animation:stampDownSafe .55s .5s var(--ease-out) both}
+
+/* =========================================================================
+   v6 层：动效收尾（improve-animations 审计后逐条落地）
+   只做三件事：曲线归一、去掉会触发 layout 的属性动画、把慢振荡移出敏感区。
+   ========================================================================= */
+
+/* ---------- 6.1 曲线归一：唯一的 token 之外不再自造曲线 ---------- */
+:root{ --ease-pop:cubic-bezier(.2,1.4,.4,1); }   /* 唯一带 overshoot 的：落印、chip 弹入 */
+
+/* ---------- 6.2 .fill 改用 transform
+   width 会触发 layout + paint + composite（AUDIT §5），transform 走合成层 ---------- */
+.fill{transform-origin:left center;transform:scaleX(var(--fill,1));
+  transition:transform .45s var(--ease-drawer)}
+.ambtrack i{transform-origin:left center;transform:scaleX(var(--fill,1));
+  transition:transform .5s var(--ease-drawer)}
+
+/* ---------- 6.3 去掉 transition 简写：它是 transition:all 的另一种写法 ---------- */
+.opt{transition:transform 100ms var(--ease-out),background-color .16s var(--ease-out),box-shadow .16s var(--ease-out)}
+.amb{transition:transform 100ms var(--ease-out),background-color .18s var(--ease-out),border-color .18s var(--ease-out)}
+.ambicon{transition:background-color .25s var(--ease-out),box-shadow .25s var(--ease-out)}
+.opt::before{transition:opacity .2s var(--ease-out)}
+
+/* ---------- 6.4 慢振荡移出敏感区
+   原来的 2.2–3.2s 无限脉冲落在 0.2Hz 一带（一个周期约 5s），是最容易引起不适的区间 ---------- */
+#radar svg .rnode{animation-duration:8s}
+.screen.active .tl-item.hi::before{animation-duration:8s}
+.event.rare{animation-duration:8s}
+.event.will{animation-duration:8s}
+
+/* ---------- 6.5 弹入起点抬进推荐区间（0.9–0.97 附近），不再从 0.6/0.7 冒出来 ---------- */
+@keyframes chipPop6{from{opacity:0;transform:translateY(8px) scale(.85)}to{opacity:1;transform:none}}
+@keyframes famPop6{from{opacity:0;transform:scale(.85) translateY(6px)}to{opacity:1;transform:none}}
+.result .dl span{animation:chipPop6 .4s var(--ease-pop) both}
+.birthline .fambadge{animation:famPop6 .6s var(--ease-pop) .5s both}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -4902,7 +4909,7 @@ function attrBars(container, attrs, deltas){
       if(deltas && deltas[k]) flash = deltas[k] > 0 ? (neg ? 'flash-dn' : 'flash-up') : (neg ? 'flash-up' : 'flash-dn');
       html += '<div class="bar">'
         + '<div class="h"><span>'+k+'</span><b>'+Math.round(attrs[k])+'</b></div>'
-        + '<div class="track"><div class="fill '+flash+'" style="width:'+v+'%;background:'+col+'"></div></div>'
+        + '<div class="track"><div class="fill '+flash+'" style="--fill:'+(v/100).toFixed(4)+';background:'+col+'"></div></div>'
         + '</div>';
     });
   });
@@ -4915,25 +4922,27 @@ function v5FillBars(container){
   if(!container) return;
   const fills = container.querySelectorAll('.fill');
   if(!fills.length) return;
+  /* 属性条走 transform:scaleX(var(--fill))，不再动 width（width 会触发 layout）。
+     这里只改那一个自定义属性，其余交给 CSS 的 transition。 */
   const targets = [];
   for(let i = 0; i < fills.length; i++){
-    targets.push(fills[i].style.width);
-    fills[i].style.width = '0%';
+    targets.push(fills[i].style.getPropertyValue('--fill') || '1');
+    fills[i].style.setProperty('--fill', '0');
   }
   if(v4Reduce() || document.hidden){
-    for(let i = 0; i < fills.length; i++) fills[i].style.width = targets[i];
+    for(let i = 0; i < fills.length; i++) fills[i].style.setProperty('--fill', targets[i]);
     return;
   }
   requestAnimationFrame(() => {
     for(let i = 0; i < fills.length; i++){
       const el = fills[i];
-      setTimeout(() => { el.style.width = targets[i]; }, Math.min(i * 38, 420));
+      setTimeout(() => { el.style.setProperty('--fill', targets[i]); }, Math.min(i * 38, 420));
     }
   });
-  // 兜底：rAF 被饿死（后台标签页 / 无头）时，属性条不能停在 0%
+  // 兜底：rAF 被饿死（后台标签页 / 无头）时，属性条不能停在 0
   setTimeout(() => {
     for(let i = 0; i < fills.length; i++){
-      if(fills[i].style.width === '0%') fills[i].style.width = targets[i];
+      if(fills[i].style.getPropertyValue('--fill') === '0') fills[i].style.setProperty('--fill', targets[i]);
     }
   }, 900);
 }
@@ -5555,7 +5564,7 @@ function renderLife(){
   const ap = ambitionProgress();
   if($('ambBar')) $('ambBar').innerHTML = G.ambition
     ? '<span class="ambname">志 · ' + G.ambition.name + '</span>'
-      + '<span class="ambtrack"><i style="width:' + (ap*100).toFixed(0) + '%"></i></span>'
+      + '<span class="ambtrack"><i style="--fill:' + ap.toFixed(4) + '"></i></span>'
       + '<span class="ambpct">' + (ap*100).toFixed(0) + '%</span>'
     : '';
 
