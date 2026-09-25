@@ -1551,6 +1551,29 @@ body::before{
 @media (prefers-reduced-motion:reduce){
   .fxqi,.fxmandala i,.fxrite::after{animation:none !important;opacity:0 !important}
 }
+
+/* ---------- 8.11 星盘：雷达图改成带辉光的星位图 ---------- */
+#radar svg .data{filter:drop-shadow(0 0 9px rgba(212,162,76,.45))}
+#radar svg .rnode{filter:drop-shadow(0 0 5px rgba(212,162,76,.85))}
+
+/* ---------- 8.12 轮回：五百年目标做成环形进度 ---------- */
+.ringwrap{position:relative;display:flex;align-items:center;justify-content:center;margin:8px 0 12px}
+.ringarc{filter:drop-shadow(0 0 7px rgba(212,162,76,.6))}
+.ringnum{position:absolute;text-align:center;line-height:1.3}
+.ringnum b{
+  display:block;font-family:var(--font-brand);font-size:25px;color:var(--gold);
+  font-variant-numeric:tabular-nums;letter-spacing:.01em;
+}
+.ringnum span{font-size:11px;color:var(--label3);letter-spacing:.04em}
+
+/* ---------- 8.13 灵气拖尾：数值浮上来时拖一道光 ---------- */
+.floatnum{position:fixed}
+.floatnum::after{
+  content:"";position:absolute;left:50%;top:92%;width:2px;height:26px;
+  transform:translateX(-50%);border-radius:2px;
+  background:linear-gradient(180deg,currentColor,rgba(0,0,0,0));
+  opacity:.45;
+}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -5242,35 +5265,46 @@ function radarSVG(pct, size){
   const pt = (k, r) => [cx + Math.cos(ang(k))*r, cy + Math.sin(ang(k))*r];
   const radiusOf = k => R * (pct[k]/max) * 0.9 + 10;
   let s = '';
-  // 网格
-  for(let i = 1; i <= 4; i++){
-    const r = R*i/4;
-    const pts = WX.map(k=>pt(k,r).map(n=>n.toFixed(1)).join(',')).join(' ');
-    s += '<polygon points="'+pts+'" fill="none" stroke="#e6dcc8" stroke-width="1"/>';
+  /* 星盘层：同心圈 + 五条星轨 + 金色数据面 + 星位辉光。
+     颜色走 CSS 变量（var(--line2)/var(--gold)/var(--label2)）——
+     原来硬编码的 #e6dcc8 在深色主题下会变成刺眼的亮线。 */
+  s += '<defs><radialGradient id="radarFace" cx="50%" cy="50%" r="50%">'
+    +   '<stop offset="0%" stop-color="var(--gold)" stop-opacity=".50"/>'
+    +   '<stop offset="68%" stop-color="var(--gold)" stop-opacity=".22"/>'
+    +   '<stop offset="100%" stop-color="var(--gold)" stop-opacity=".07"/>'
+    + '</radialGradient></defs>';
+  // 同心刻度圈
+  for(let i = 1; i <= 5; i++){
+    const r = R * i / 5;
+    s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r.toFixed(1)+'" fill="none" stroke="var(--line2)" '
+       + 'stroke-width="'+(i === 5 ? 1.2 : 0.8)+'"/>';
   }
-  // 轴线
+  // 五条星轨
   WX.forEach(k=>{
     const p = pt(k,R);
-    s += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#ece3d2" stroke-width="1"/>';
+    s += '<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" '
+       + 'stroke="var(--line2)" stroke-width="0.9"/>';
   });
-  // 数据多边形
+  // 数据面：金色渐变填充，靠 CSS 的 drop-shadow 出辉光
   const dataPts = WX.map(k=>pt(k, radiusOf(k)).map(n=>n.toFixed(1)).join(',')).join(' ');
-  s += '<polygon class="data" points="'+dataPts+'" fill="rgba(176,58,46,.15)" stroke="#b03a2e" '
-     + 'stroke-width="2" stroke-linejoin="round"/>';
-  // 数据顶点
+  s += '<polygon class="data" points="'+dataPts+'" fill="url(#radarFace)" stroke="var(--gold)" '
+     + 'stroke-width="1.8" stroke-linejoin="round"/>';
+  // 数据顶点：外圈光晕 + 金色星点
   WX.forEach(k=>{
     const p = pt(k, radiusOf(k));
-    s += '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.2" fill="#b03a2e" '
-       + 'stroke="#fffdf8" stroke-width="1.4"/>';
+    const px = p[0].toFixed(1), py = p[1].toFixed(1);
+    s += '<circle cx="'+px+'" cy="'+py+'" r="5.4" fill="var(--gold)" opacity=".20"/>'
+       + '<circle cx="'+px+'" cy="'+py+'" r="2.6" fill="var(--gold)" stroke="var(--card)" stroke-width="1.2"/>';
   });
-  // 外圈顶点与标签
+  // 外圈星位与标签
   WX.forEach(k=>{
     const p = pt(k, R);
-    const lp = pt(k, R + 24);
-    s += '<circle class="rnode" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.4" fill="#b8902c"/>';
+    const lp = pt(k, R + 26);
+    s += '<circle class="rnode" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.8" '
+       + 'fill="var(--gold)" opacity=".92"/>';
     const anchor = Math.abs(lp[0] - cx) < 6 ? 'middle' : (lp[0] > cx ? 'start' : 'end');
     s += '<text x="'+lp[0].toFixed(1)+'" y="'+lp[1].toFixed(1)+'" text-anchor="'+anchor+'" '
-       + 'dominant-baseline="middle" font-size="12" fill="#6b6257" font-family="sans-serif">'
+       + 'dominant-baseline="middle" font-size="12" fill="var(--label2)" font-family="sans-serif">'
        + k + ' ' + (pct[k]*100).toFixed(0) + '%</text>';
   });
   return '<svg viewBox="0 0 '+size+' '+size+'" width="100%" height="'+size
@@ -6437,10 +6471,24 @@ function renderCycle(){
   $('cyFrag').textContent = META.frag;
   $('cyLives').textContent = META.lives;
   const p = clamp(META.totalLife / 500 * 100, 0, 100);
-  $('cyProgress').innerHTML = META.brokeBook
-    ? '你已经打破过命簿。<b style="color:var(--red)">本模拟器抵达终点。</b>'
-    : '五百年进度 <b>' + p.toFixed(1) + '%</b>　还差 <b>' + Math.round(Math.max(0, 500 - META.totalLife)) + '</b> 年。'
-      + '<br/>每一世的评分会转化为命魂，每 10 点评分换 1 枚天赋碎片。';
+  if(META.brokeBook){
+    $('cyProgress').innerHTML = '你已经打破过命簿。<b style="color:var(--accent)">本模拟器抵达终点。</b>';
+  }else{
+    // 五百年目标做成环形进度：数字之外再给一个「走了多远」的形状
+    const R = 46, CIRC = 2 * Math.PI * R, arc = CIRC * (p / 100);
+    const left = Math.round(Math.max(0, 500 - META.totalLife));
+    $('cyProgress').innerHTML =
+      '<div class="ringwrap">'
+      + '<svg viewBox="0 0 120 120" width="134" height="134" aria-hidden="true">'
+      +   '<circle cx="60" cy="60" r="'+R+'" fill="none" stroke="var(--line2)" stroke-width="9"/>'
+      +   '<circle class="ringarc" cx="60" cy="60" r="'+R+'" fill="none" stroke="var(--gold)" stroke-width="9"'
+      +     ' stroke-linecap="round" stroke-dasharray="'+arc.toFixed(1)+' '+CIRC.toFixed(1)+'"'
+      +     ' transform="rotate(-90 60 60)"/>'
+      + '</svg>'
+      + '<div class="ringnum"><b>'+p.toFixed(1)+'%</b><span>还差 '+left+' 年</span></div>'
+      + '</div>'
+      + '<div class="hint" style="margin-top:0">每一世的评分会转化为命魂，每 10 点评分换 1 枚天赋碎片。</div>';
+  }
 
   let html = '';
   TALENTS.forEach(t=>{
