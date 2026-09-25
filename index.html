@@ -811,7 +811,368 @@ body::before{opacity:.18}
   .topbar .brand{display:none}
   body{padding-bottom:96px}
 }
+
+/* =========================================================================
+   v4 视觉层：Apple 设计体系 —— 语义色 / 双主题 / 材质层级 / spring 动效
+   依据本项目已安装的 apple-design skill（WWDC《Designing Fluid Interfaces》）。
+   仅覆盖视觉表现：不改动任何事件池、数值平衡、命理算法与存档结构。
+   ========================================================================= */
+
+/* ---------- 4.1 设计 token：浅色 ---------- */
+:root{
+  color-scheme:light;
+  --font-ui:system-ui,-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-brand:"Songti SC","STSong","SimSun",serif;
+
+  --label:rgba(0,0,0,.88);--label2:rgba(60,60,67,.6);--label3:rgba(60,60,67,.32);
+  --sys-blue:#007aff;--sys-green:#34c759;--sys-red:#ff3b30;--sys-orange:#ff9500;
+  --sys-yellow:#ffcc00;--sys-purple:#af52de;--sys-pink:#ff2d55;--sys-gray:#8e8e93;
+
+  /* 旧变量名重定向：v2/v3 的既有规则随主题自动切换，无需逐条改写 */
+  --bg:#f2f2f7;--bg2:#e5e5ea;--card:#ffffff;--card2:#f7f7fa;
+  --ink:var(--label);--ink2:var(--label2);--ink3:var(--label3);
+  --line:rgba(60,60,67,.14);--line2:rgba(60,60,67,.08);
+  --red:var(--sys-red);--red2:#ff453a;--green:var(--sys-green);--blue:var(--sys-blue);
+  --purple:var(--sys-purple);--gold:#96690f;--accent:#c1342a;
+  --fill:rgba(120,120,128,.14);--fill2:rgba(120,120,128,.07);
+  --material:rgba(249,249,251,.78);--material-thick:rgba(250,250,252,.92);
+  --material-edge:rgba(255,255,255,.6);--scrim:rgba(0,0,0,.3);
+  --sh1:0 1px 2px rgba(0,0,0,.05);
+  --sh2:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(0,0,0,.08);
+  --sh3:0 24px 60px rgba(0,0,0,.22);
+  --shadow:var(--sh2);--glass:var(--card);--surface:var(--fill);
+  --r-lg:20px;--r-md:14px;--r-sm:10px;
+  --sb-w:236px;--safe-b:env(safe-area-inset-bottom,0px);
+}
+
+/* ---------- 4.2 设计 token：深色（手动切换 + 跟随系统两处，取值必须一致） ---------- */
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --label:rgba(255,255,255,.92);--label2:rgba(235,235,245,.62);--label3:rgba(235,235,245,.32);
+  --sys-blue:#0a84ff;--sys-green:#30d158;--sys-red:#ff453a;--sys-orange:#ff9f0a;
+  --sys-yellow:#ffd60a;--sys-purple:#bf5af2;--sys-pink:#ff375f;--sys-gray:#98989d;
+
+  --bg:#000000;--bg2:#1c1c1e;--card:#1c1c1e;--card2:#2c2c2e;
+  --line:rgba(120,120,128,.4);--line2:rgba(120,120,128,.24);
+  --fill:rgba(120,120,128,.28);--fill2:rgba(120,120,128,.18);
+  --material:rgba(30,30,32,.72);--material-thick:rgba(28,28,30,.94);
+  --material-edge:rgba(255,255,255,.09);--scrim:rgba(0,0,0,.55);
+  --sh1:0 1px 2px rgba(0,0,0,.5);
+  --sh2:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.45);
+  --sh3:0 24px 60px rgba(0,0,0,.6);
+  --gold:#d9a72c;--accent:#e0554a;
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"]{
+    color-scheme:dark;
+    --label:rgba(255,255,255,.92);--label2:rgba(235,235,245,.62);--label3:rgba(235,235,245,.32);
+    --sys-blue:#0a84ff;--sys-green:#30d158;--sys-red:#ff453a;--sys-orange:#ff9f0a;
+    --sys-yellow:#ffd60a;--sys-purple:#bf5af2;--sys-pink:#ff375f;--sys-gray:#98989d;
+    --bg:#000000;--bg2:#1c1c1e;--card:#1c1c1e;--card2:#2c2c2e;
+    --line:rgba(120,120,128,.4);--line2:rgba(120,120,128,.24);
+    --fill:rgba(120,120,128,.28);--fill2:rgba(120,120,128,.18);
+    --material:rgba(30,30,32,.72);--material-thick:rgba(28,28,30,.94);
+    --material-edge:rgba(255,255,255,.09);--scrim:rgba(0,0,0,.55);
+    --sh1:0 1px 2px rgba(0,0,0,.5);
+    --sh2:0 1px 2px rgba(0,0,0,.5),0 10px 30px rgba(0,0,0,.45);
+    --sh3:0 24px 60px rgba(0,0,0,.6);
+    --gold:#d9a72c;--accent:#e0554a;
+  }
+}
+
+/* ---------- 4.3 画布：单一系统背景，去掉纸纹与暖色渐变 ---------- */
+body{
+  font-family:var(--font-ui);font-size:15px;line-height:1.55;letter-spacing:0;
+  color:var(--label);background:var(--bg);background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+body::before{display:none}
+/* 深色下这些“年代 / 逆命”氛围类不再覆盖系统背景，只保留极淡的色相差 */
+:root[data-theme="dark"] body.era-1900{--bg:#0b0908}
+:root[data-theme="dark"] body.era-1950{--bg:#08090b}
+:root[data-theme="dark"] body.era-1980{--bg:#090a08}
+:root[data-theme="dark"] body.era-2000{--bg:#080809}
+:root[data-theme="dark"] body.adverse-year{--bg:#120b0a;--bg2:#1f1614}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] body.era-1900{--bg:#0b0908}
+  :root[data-theme="auto"] body.era-1950{--bg:#08090b}
+  :root[data-theme="auto"] body.era-1980{--bg:#090a08}
+  :root[data-theme="auto"] body.era-2000{--bg:#080809}
+  :root[data-theme="auto"] body.adverse-year{--bg:#120b0a;--bg2:#1f1614}
+}
+/* 深色下年代类的浅色卡片覆盖也要跟着走 */
+:root[data-theme="dark"] body.era-1900 .card,:root[data-theme="dark"] body.era-1900 .event,
+:root[data-theme="dark"] body.era-1950 .card,:root[data-theme="dark"] body.era-1950 .event,
+:root[data-theme="dark"] body.era-1980 .card,:root[data-theme="dark"] body.era-1980 .event,
+:root[data-theme="dark"] body.era-2000 .card,:root[data-theme="dark"] body.era-2000 .event,
+:root[data-theme="dark"] body.adverse-year .card,:root[data-theme="dark"] body.adverse-year .event{background:var(--card)}
+
+/* ---------- 4.4 排版：字号相关的 tracking / leading，间距走 rem ---------- */
+.brand h1{font-family:var(--font-brand);font-size:17px;font-weight:600;letter-spacing:.06em}
+.hero h2{font-family:var(--font-brand);font-size:28px;font-weight:700;letter-spacing:.02em;
+  line-height:1.12;text-shadow:none;color:var(--label)}
+.hero .sub{font-size:11.5px;letter-spacing:.28em;color:var(--label3);margin-top:8px}
+.hero .line{display:none}
+.sec-title{font-family:var(--font-ui);font-size:13px;font-weight:600;letter-spacing:.04em;
+  color:var(--label2);margin:.9rem 2px .5rem}
+.sec-title::before{width:3px;height:13px;background:var(--sys-blue);border-radius:2px}
+.sec-title::after{display:none}
+.big-title{font-family:var(--font-brand);font-size:34px;letter-spacing:.1em;color:var(--accent);text-shadow:none}
+.big-sub{font-size:12px;letter-spacing:.22em;color:var(--label3)}
+.hint{font-size:12px;line-height:1.6;color:var(--label3)}
+
+/* ---------- 4.5 表面：分组卡片用实色，材质只留给浮动 chrome ---------- */
+.card{background:var(--card);border:none;border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh1);
+  -webkit-backdrop-filter:none;backdrop-filter:none}
+.card::after{display:none}
+.card.tight{padding:14px 15px}
+body.era-1900 .card,body.era-1950 .card,body.era-1980 .card,body.era-2000 .card,
+body.adverse-year .card,body.era-1900 .event,body.era-1950 .event,
+body.era-1980 .event,body.era-2000 .event,body.adverse-year .event{background:var(--card)}
+
+/* ---------- 4.6 控件：iOS 分组表单口径 ---------- */
+.field label{width:60px;font-size:13.5px;color:var(--label2)}
+.field input,.field select{background:var(--fill2);border:1px solid transparent;border-radius:var(--r-sm);
+  padding:11px 12px;font-size:16px;color:var(--label);font-family:var(--font-ui)}
+.field select{background-position:calc(100% - 17px) 21px,calc(100% - 12px) 21px}
+.field input:focus,.field select:focus{background:var(--card);border-color:var(--sys-blue);
+  box-shadow:0 0 0 3.5px rgba(0,122,255,.16)}
+.chk{margin-left:70px;color:var(--label2)}
+.chk input{accent-color:var(--sys-blue)}
+
+.btn{background:var(--sys-blue);border-radius:var(--r-md);padding:14px 16px;font-size:16px;font-weight:600;
+  letter-spacing:0;font-family:var(--font-ui);box-shadow:none;
+  transition:transform 100ms ease-out,filter .16s ease,background-color .16s ease}
+.btn:active{transform:scale(.97);filter:brightness(.94);box-shadow:none}
+.btn.ghost{background:var(--fill2);color:var(--sys-blue);border:none;box-shadow:none;font-weight:600}
+.btn.ghost:active{background:var(--fill);transform:scale(.97);filter:none}
+.btn.gold{background:linear-gradient(180deg,#c99a2b,#a97a12);color:#fff;
+  box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 18px rgba(169,122,18,.22)}
+.btn:disabled{opacity:.5}
+.tbtn{background:var(--fill2);color:var(--label2);border:none;border-radius:999px;padding:7px 13px;font-weight:600;
+  transition:transform 100ms ease-out,background-color .16s ease}
+.tbtn:active{transform:scale(.95)}
+.tbtn.on{background:var(--sys-blue);color:#fff}
+
+/* ---------- 4.7 标签 ---------- */
+.pill{border:none;background:var(--fill2);color:var(--label2);border-radius:7px;padding:3px 8px;font-size:12px;
+  letter-spacing:0;line-height:1.5}
+.pill.red{background:rgba(255,59,48,.14);color:#c31a10}
+.pill.gold{background:rgba(184,144,44,.18);color:#84600a}
+.pill.green{background:rgba(52,199,89,.16);color:#1b7439}
+.pill.blue{background:rgba(0,122,255,.14);color:#0059bf}
+.pill.purple{background:rgba(175,82,222,.15);color:#8a32b8}
+.pill.black{background:var(--label);color:var(--card);border:none;font-weight:600}
+:root[data-theme="dark"] .pill.red{background:rgba(255,69,58,.22);color:#ff9a90}
+:root[data-theme="dark"] .pill.gold{background:rgba(217,167,44,.2);color:#e8c470}
+:root[data-theme="dark"] .pill.green{background:rgba(48,209,88,.2);color:#7ce49b}
+:root[data-theme="dark"] .pill.blue{background:rgba(10,132,255,.22);color:#79b8ff}
+:root[data-theme="dark"] .pill.purple{background:rgba(191,90,242,.22);color:#dda6ff}
+:root[data-theme="dark"] .pill.black{background:var(--label);color:#000}
+
+/* ---------- 4.8 命盘符号：四柱干支/纳音保留衬线与朱金 ---------- */
+.pillar{background:var(--fill2);border:none;border-radius:var(--r-md);padding:10px 4px}
+.pillar .lbl{color:var(--label3);letter-spacing:.14em}
+.pillar .gz{font-family:var(--font-brand);font-size:24px;line-height:1.15;letter-spacing:.04em}
+.pillar .gz .g{color:var(--accent)}
+.pillar .gz .z{color:var(--label)}
+.pillar .wx,.pillar .hid{color:var(--label3)}
+.pillar .ny{color:var(--gold)}
+.pillar .ss{color:var(--sys-purple)}
+.grp{font-size:12px;color:var(--label3);letter-spacing:.1em}
+.track{background:var(--fill);height:8px;border-radius:4px}
+.fill{border-radius:4px;transition:width .45s cubic-bezier(.32,.72,.28,1)}
+.bar .h{color:var(--label2)}
+.dayun-item{background:var(--fill2);border:none;border-radius:var(--r-md)}
+.dayun-item.cur{background:rgba(0,122,255,.13);border:none;box-shadow:inset 0 0 0 1.5px var(--sys-blue)}
+.dayun-item .dg{font-family:var(--font-brand);color:var(--label)}
+.dayun-item .dn{color:var(--sys-purple)}
+.lifehead .age{font-family:var(--font-brand);font-size:26px;color:var(--sys-blue)}
+.lifehead .age span{font-size:12px;color:var(--label3);letter-spacing:.08em}
+.lifehead .meta{color:var(--label2)}
+.lifehead .meta b{color:var(--label)}
+
+/* ---------- 4.9 事件与选项 ---------- */
+.event{background:var(--card);border:none;border-radius:var(--r-lg);box-shadow:var(--sh1);overflow:hidden;
+  -webkit-backdrop-filter:none;backdrop-filter:none}
+.event .etop{border-bottom:1px solid var(--line2);padding:14px 16px 10px}
+.event .cat{color:var(--gold);letter-spacing:.12em}
+.event h3{font-family:var(--font-brand);font-size:18px;letter-spacing:.02em;color:var(--label)}
+.event .desc{font-size:14.5px;color:var(--label2);line-height:1.7}
+.opts{padding:10px 14px 14px}
+.opt{background:var(--fill2);border:none;border-radius:var(--r-md);padding:13px 14px;font-size:15px;color:var(--label);
+  transition:transform 100ms ease-out,background-color .16s ease,box-shadow .16s ease}
+.opt::before,.opt::after{display:none}
+.opt:active{background:var(--fill);transform:scale(.985)}
+.opt:hover{background:var(--card2);border:none;box-shadow:var(--sh1);transform:none}
+.opt .eff{color:var(--label3)}
+.opt .eff .u{color:var(--sys-green)}
+.opt .eff .d{color:var(--sys-red)}
+.opt.picked{background:rgba(0,122,255,.14);box-shadow:inset 0 0 0 1.5px var(--sys-blue);border:none}
+.opt.dim{opacity:.4;filter:saturate(.6)}
+.result{background:var(--fill2);border-top:1px solid var(--line2);color:var(--label)}
+.result .dl .u{color:var(--sys-green)}
+.result .dl .d{color:var(--sys-red)}
+.scene{background:var(--fill2);border-bottom:1px solid var(--line2);height:120px}
+.babynote{background:rgba(175,82,222,.13);border:none;border-radius:var(--r-sm);color:var(--label2)}
+.adversenote{background:rgba(255,59,48,.11);border:none;border-radius:var(--r-sm);color:var(--label2)}
+.lifestats{background:transparent;border:1px solid var(--line2);border-radius:var(--r-md)}
+.lifestats .ls{background:var(--fill2);color:var(--label2);border-radius:8px}
+.lifestats .ls b{color:var(--label)}
+.lifestats .ls.up{background:rgba(52,199,89,.18);color:#1b7439}
+.lifestats .ls.dn{background:rgba(255,59,48,.16);color:#c31a10}
+.lifestats .ls.monk{background:rgba(175,82,222,.16);color:#8a32b8}
+:root[data-theme="dark"] .lifestats .ls.up{color:#7ce49b}
+:root[data-theme="dark"] .lifestats .ls.dn{color:#ff9a90}
+:root[data-theme="dark"] .lifestats .ls.monk{color:#dda6ff}
+
+/* ---------- 4.10 日志 / 图表 / 时间线 / 结算 ---------- */
+.log{background:var(--fill2);border:none;border-radius:var(--r-md);color:var(--label2)}
+.log .age{color:var(--gold)}
+.chartwrap{background:var(--fill2);border:none;border-radius:var(--r-md)}
+.legend{color:var(--label2)}
+.tl::before{background:var(--line2)}
+.tl-item{color:var(--label2)}
+.tl-item::before{background:var(--card);border-color:var(--line)}
+.tl-item.hi::before{background:var(--sys-blue);border-color:var(--sys-blue)}
+.tl-item .a{color:var(--gold)}
+.tl-item .g{color:var(--label3)}
+.epitaph{font-family:var(--font-brand);background:var(--fill2);border-left:3px solid var(--gold);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;color:var(--label);letter-spacing:.01em}
+.score-ring .num{font-family:var(--font-brand);color:var(--gold)}
+.score-ring .txt{color:var(--label3)}
+.kv{border-bottom:1px solid var(--line2);color:var(--label2)}
+.kv b{color:var(--label)}
+.tal{background:var(--fill2);border:none;border-radius:var(--r-md)}
+.tal .tn{color:var(--label)}
+.tal .td{color:var(--label3)}
+.tal .lv i{background:var(--fill)}
+.tal button{background:var(--card);border:none;border-radius:8px;color:var(--sys-blue);font-weight:600}
+.tal button:not(:disabled):active{background:var(--fill)}
+.codex .c{background:var(--fill2);border:none;border-radius:8px;color:var(--label3)}
+.codex .c.got{background:rgba(184,144,44,.18);border:none;color:var(--gold);font-weight:600}
+.share-txt{background:var(--fill2);border:1px solid var(--line2);border-radius:var(--r-md);color:var(--label)}
+.poster{border:1px solid var(--line2);border-radius:var(--r-md);background:var(--card)}
+.stat-line{color:var(--label2)}
+.stat-line b{color:var(--gold)}
+.sb-gz{font-family:var(--font-brand);color:var(--label)}
+.sb-k{color:var(--label3)}
+.sb-v{color:var(--label2)}
+
+/* ---------- 4.11 东方符号：印章 / 出生横幅 / 徽记 保留朱金 ---------- */
+.seal,.stamp{font-family:var(--font-brand);border-color:rgba(193,52,42,.55);color:rgba(193,52,42,.82);
+  background:rgba(193,52,42,.05)}
+:root[data-theme="dark"] .seal,:root[data-theme="dark"] .stamp{border-color:rgba(224,85,74,.6);color:rgba(224,85,74,.88)}
+.birthline{background:var(--card);border:1px solid var(--line2);border-radius:var(--r-lg);box-shadow:var(--sh1)}
+.birthline::before{font-family:var(--font-brand);color:rgba(193,52,42,.09)}
+.birthline .bt{font-family:var(--font-brand);color:var(--accent);letter-spacing:.14em}
+.birthline .bd{color:var(--label2)}
+.fambadge{border:1px solid var(--gold);color:var(--gold);background:transparent;font-family:var(--font-brand)}
+.monkbadge{background:rgba(175,82,222,.15);border:none;color:var(--sys-purple)}
+.zqbadge{background:rgba(184,144,44,.18);border:none;color:var(--gold)}
+.hero{text-shadow:none}
+
+/* ---------- 4.12 志向卡 ---------- */
+.amb{background:var(--fill2);border:1px solid transparent;border-radius:var(--r-md)}
+.amb.on{background:rgba(0,122,255,.13);border-color:var(--sys-blue);box-shadow:none}
+.ambicon{background:var(--sys-blue);border-radius:9px;font-family:var(--font-brand);color:#fff}
+.amb.on .ambicon{background:var(--sys-blue);box-shadow:none}
+.amb .an{color:var(--label)}
+.amb .ad{color:var(--label2)}
+.amb .ak{color:var(--label3)}
+.ambtrack{background:var(--fill);height:6px;border-radius:3px}
+.ambtrack i{background:var(--sys-blue);box-shadow:none;border-radius:3px;
+  transition:width .5s cubic-bezier(.32,.72,.28,1)}
+.ambpct{color:var(--sys-blue)}
+.yjtag{border:none;border-radius:7px;font-family:var(--font-brand)}
+.yjtag.good{background:rgba(52,199,89,.16);color:#1b7439}
+.yjtag.bad{background:rgba(255,59,48,.14);color:#c31a10}
+.yjtag.flat{background:var(--fill2);color:var(--label3)}
+:root[data-theme="dark"] .yjtag.good{color:#7ce49b}
+:root[data-theme="dark"] .yjtag.bad{color:#ff9a90}
+.yjyi{color:var(--sys-green)}
+.yjji{color:var(--sys-red)}
+
+/* ---------- 4.13 浮层材质：scrim 与弹窗（blur/scale 由 JS spring 驱动） ---------- */
+.mask{display:flex;opacity:0;visibility:hidden;padding:20px;background:var(--scrim);
+  -webkit-backdrop-filter:blur(0px);backdrop-filter:blur(0px);transition:none}
+.mask.on{visibility:visible}
+.modal{background:var(--material-thick);border:none;border-radius:22px;padding:20px;max-width:382px;width:100%;
+  box-shadow:var(--sh3);max-height:80vh;overflow-y:auto;
+  -webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px)}
+.modal h3{font-family:var(--font-ui);font-size:17px;font-weight:600;letter-spacing:.02em;color:var(--label)}
+
+/* ---------- 4.14 侧边栏 / 底栏 / 合规条：材质层 ---------- */
+.compliance{background:var(--material);border-top:1px solid var(--line2);color:var(--label3);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
+.compliance b{color:var(--accent)}
+@media (max-width:980px){
+  .sidebar{background:var(--material);border-top:1px solid var(--line2);
+    -webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px)}
+  .sb-item{border-radius:13px}
+  .sb-item.active{color:var(--sys-blue);background:rgba(0,122,255,.12)}
+}
+@media (min-width:981px){
+  .sidebar{background:var(--material);border:1px solid var(--material-edge);border-radius:var(--r-lg);
+    box-shadow:var(--sh2);-webkit-backdrop-filter:saturate(180%) blur(24px);
+    backdrop-filter:saturate(180%) blur(24px)}
+  .sb-mark{background:var(--accent);color:#fff;border-radius:11px;box-shadow:none;font-family:var(--font-brand)}
+  .sb-title{color:var(--label)}
+  .sb-sub{color:var(--label3)}
+  .sb-item{border-radius:var(--r-sm);color:var(--label2)}
+  .sb-item:hover{background:var(--fill2)}
+  .sb-item.active{background:rgba(0,122,255,.13);color:var(--sys-blue)}
+  .sb-save{background:var(--fill2);border-radius:var(--r-md)}
+  .sb-btn{border-radius:var(--r-sm);background:var(--sys-blue)}
+  .sb-btn.ghost{background:var(--fill2);color:var(--sys-blue)}
+  .sb-line b{color:var(--label)}
+}
+
+/* ---------- 4.15 动效：屏幕/卡片/事件入场改由 JS spring 驱动，这里关掉会冲突的 CSS 动画 ---------- */
+.screen{animation:none}
+.screen.active{animation:none}
+.screen.active .card{animation:none}
+.screen.active .event{animation:none}
+.screen.active .pillar{animation:none}
+.event.c-home,.event.c-study,.event.c-career,.event.c-wealth,.event.c-love,.event.c-health,
+.event.c-luck,.event.c-cultivate,.event.c-elder,.event.c-era,.event.c-monk,.event.c-crisis,
+.event.c-daily,.event.c-last{animation:none}
+.event.rare{animation:rareGlow 3.2s ease-in-out .5s infinite;border:1px solid rgba(184,144,44,.55)}
+.event.will{animation:willGlow 2.6s ease-in-out .4s infinite;border:1px solid rgba(184,144,44,.7)}
+.event.crisis{border:1px solid rgba(255,59,48,.45);animation:none;
+  box-shadow:inset 0 0 0 1px rgba(255,59,48,.14),0 6px 20px rgba(255,59,48,.14)}
+.event.rare .cat,.event.will .cat{color:var(--gold)}
+.event.crisis .cat{color:var(--sys-red)}
+.birthline{animation:none}
+
+/* ---------- 4.16 无障碍：三条独立降级 ---------- */
+@media (prefers-reduced-motion:reduce){
+  .screen,.screen.active,.screen.active .card,.screen.active .event,.screen.active .pillar{animation:none !important}
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+@media (prefers-reduced-transparency:reduce){
+  :root{--material:var(--card);--material-thick:var(--card)}
+  .sidebar,.compliance,.modal,.mask{-webkit-backdrop-filter:none !important;backdrop-filter:none !important}
+}
+@media (prefers-contrast:more){
+  :root{--line:rgba(60,60,67,.45);--line2:rgba(60,60,67,.3);
+    --label2:rgba(60,60,67,.85);--label3:rgba(60,60,67,.62)}
+  .card,.event,.modal,.sidebar{border:1px solid var(--line)}
+}
+
+/* ---------- 4.17 触摸与按压：反馈落在 pointer-down，并消除点击延迟 ---------- */
+html{touch-action:manipulation}
+.btn,.opt,.tbtn,.sb-item,.sb-btn,.amb,.tal button{touch-action:manipulation}
+.btn.pressed,.opt.pressed,.tbtn.pressed,.sb-item.pressed,.sb-btn.pressed,.amb.pressed,.tal button.pressed{
+  transform:scale(.97);
+  transition:transform 100ms ease-out}
+.tbar-act{display:flex;gap:8px;align-items:center}
 </style>
+<script>
+/* 首屏之前定下主题，避免浅色闪一下再切到深色 */
+try{ document.documentElement.setAttribute('data-theme', localStorage.getItem('v4-theme') || 'auto'); }
+catch(e){ document.documentElement.setAttribute('data-theme','auto'); }
+</script>
 </head>
 <body>
 <canvas id="bgFx"></canvas>
@@ -867,7 +1228,10 @@ body::before{opacity:.18}
       <h1>还想再活五百年</h1>
       <span class="sub">八字轮回 · 人生模拟</span>
     </div>
-    <button class="tbtn" id="btnFast">极速模式 关</button>
+    <div class="tbar-act">
+      <button class="tbtn" id="btnTheme" title="主题：跟随系统 / 浅色 / 深色">跟随系统</button>
+      <button class="tbtn" id="btnFast">极速模式 关</button>
+    </div>
   </div>
 
   <main id="screens">
@@ -3520,13 +3884,236 @@ function jdToBJ(jd){
 function rnd(n){ return Math.floor(Math.random()*n); }
 function pick(arr){ return arr[rnd(arr.length)]; }
 function shuffle(a){ const b=a.slice(); for(let i=b.length-1;i>0;i--){ const j=rnd(i+1); [b[i],b[j]]=[b[j],b[i]]; } return b; }
+/* ====================================================================== v4
+   Apple 交互层：spring 引擎 / 主题 / 屏幕转场 / 浮层成材 / pointer-down 反馈
+   口径来自本项目的 apple-design skill（WWDC《Designing Fluid Interfaces》）：
+   damping + response 两参数；从「屏幕上此刻的值」起播；任何时刻可被打断并从
+   当前位置续接；材质与动效同源（blur 半径与 scale 一起动）。 */
+const V4 = {
+  move:{damping:1,   response:.35},   // 屏幕转场
+  card:{damping:1,   response:.4},    // 卡片错峰入场
+  sheet:{damping:.8, response:.3},    // 弹层 / 抽屉口径
+  snap:{damping:.86, response:.28}    // 点击带动量：允许一点回弹
+};
+function v4Reduce(){
+  return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+}
+const v4State = new WeakMap();   // 每个元素当前的屏幕上的值（可中断的根基）
+const v4Run = new WeakMap();     // 正在跑的弹簧
+function v4Stop(el){
+  const run = v4Run.get(el);
+  if(run){ run.cancel(); v4Run.delete(el); }
+}
+function v4Now(el){
+  return v4State.get(el) || {opacity:1,x:0,y:0,scale:1,blur:0};
+}
+function v4Paint(el, s){
+  el.style.opacity = String(s.opacity);
+  el.style.transform = 'translate3d(' + s.x.toFixed(3) + 'px,' + s.y.toFixed(3) + 'px,0) scale(' + s.scale.toFixed(4) + ')';
+  el.style.filter = s.blur > .06 ? 'blur(' + s.blur.toFixed(2) + 'px)' : 'none';
+}
+/* 一次运动 = 一组属性共享一根弹簧；只能动 transform / opacity / filter 这类合成友好的属性 */
+function v4SpringTo(el, target, cfg){
+  cfg = cfg || {};
+  const damping = cfg.damping == null ? 1 : cfg.damping;
+  const response = cfg.response || .35;
+  const delay = cfg.delay || 0;
+  const done = cfg.done;
+  v4Stop(el);
+  const from = Object.assign({}, v4Now(el));
+  const keys = Object.keys(target);
+  const state = Object.assign({}, from);
+  v4State.set(el, state);
+  if(v4Reduce()){                       // 无障碍：只保留交叉淡入，去掉位移与模糊
+    keys.forEach(k => { state[k] = target[k]; });
+    v4Paint(el, state);
+    if(done) done();
+    return;
+  }
+  const w0 = 2 * Math.PI / response, k = w0 * w0, c = 2 * damping * w0, SUB = 1 / 240;
+  const xs = {}, vs = {};
+  keys.forEach(key => { xs[key] = from[key]; vs[key] = 0; });
+  let last = 0, raf = 0, dead = false, finished = false;
+  function tick(now){
+    if(dead) return;
+    if(!last) last = now;
+    let dt = Math.min((now - last) / 1000, .064); last = now;
+    let settled = true;
+    while(dt > 0){                      // 固定子步，帧率再低也不会炸
+      const h = dt > SUB ? SUB : dt; dt -= h;
+      for(let i = 0; i < keys.length; i++){
+        const key = keys[i];
+        const a = -k * (xs[key] - target[key]) - c * vs[key];
+        vs[key] += a * h;
+        xs[key] += vs[key] * h;
+      }
+    }
+    for(let i = 0; i < keys.length; i++){
+      const key = keys[i];
+      state[key] = xs[key];
+      if(Math.abs(xs[key] - target[key]) > .0008 || Math.abs(vs[key]) > .008) settled = false;
+    }
+    if(settled){
+      keys.forEach(key => { state[key] = target[key]; });
+      v4Paint(el, state);
+      finished = true;
+      clearTimeout(guard);
+      v4Run.delete(el);
+      if(done) done();
+      return;
+    }
+    v4Paint(el, state);
+    raf = requestAnimationFrame(tick);
+  }
+  // 安全网：rAF 被饿死时（后台标签页、无头环境、节流）不能让内容卡在起点值上
+  const guard = setTimeout(() => {
+    if(dead || finished) return;
+    dead = true;
+    keys.forEach(key => { state[key] = target[key]; });
+    v4Paint(el, state);
+    v4Run.delete(el);
+    if(done) done();
+  }, delay + response * 4000 + 400);
+  v4Run.set(el, { cancel(){ dead = true; clearTimeout(guard); if(raf) cancelAnimationFrame(raf); } });
+  const boot = () => { if(!dead){ last = 0; raf = requestAnimationFrame(tick); } };
+  if(delay) setTimeout(boot, delay); else boot();
+}
+/* scrim 的模糊半径与弹窗一起「成材」，不是单纯淡入 */
+function v4Blur(el, from, to, ms, done){
+  const set = v => {
+    el.style.backdropFilter = 'blur(' + v.toFixed(2) + 'px)';
+    el.style.webkitBackdropFilter = 'blur(' + v.toFixed(2) + 'px)';
+  };
+  if(v4Reduce()){ set(to); if(done) done(); return; }
+  const t0 = performance.now();
+  requestAnimationFrame(function step(now){
+    const p = Math.min((now - t0) / ms, 1);
+    set(from + (to - from) * (1 - Math.pow(1 - p, 3)));
+    if(p < 1) requestAnimationFrame(step); else if(done) done();
+  });
+}
+
+/* ---- 主题：跟随系统 / 浅色 / 深色（三态循环，选择留在本机） ---- */
+const V4_THEMES = ['auto','light','dark'];
+const V4_THEME_LABEL = { auto:'跟随系统', light:'浅色', dark:'深色' };
+function v4ApplyTheme(t){
+  if(V4_THEMES.indexOf(t) < 0) t = 'auto';
+  document.documentElement.setAttribute('data-theme', t);
+  try{ localStorage.setItem('v4-theme', t); }catch(e){}
+  const b = $('btnTheme');
+  if(b){ b.textContent = V4_THEME_LABEL[t]; b.classList.toggle('on', t !== 'auto'); }
+}
+function v4InitTheme(){
+  let t = 'auto';
+  try{ t = localStorage.getItem('v4-theme') || 'auto'; }catch(e){}
+  v4ApplyTheme(t);
+  const b = $('btnTheme');
+  if(b && !b.dataset.v4bound){
+    b.dataset.v4bound = '1';
+    b.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'auto';
+      v4ApplyTheme(V4_THEMES[(V4_THEMES.indexOf(cur) + 1) % V4_THEMES.length]);
+    });
+  }
+}
+
+/* ---- 事件卡入场：每类事件仍有自己的进场姿态，但改用 spring 承载 ---- */
+const V4_ENT = {
+  'c-home'     :{x:-14, y:0,  s:1,    b:0, d:1,   r:.40},
+  'c-study'    :{x:0,   y:-8, s:.982, b:0, d:1,   r:.38},
+  'c-career'   :{x:0,   y:18, s:.99,  b:0, d:1,   r:.40},
+  'c-wealth'   :{x:0,   y:0,  s:.955, b:0, d:1,   r:.42},
+  'c-love'     :{x:0,   y:0,  s:1.022,b:4, d:1,   r:.44},
+  'c-health'   :{x:0,   y:10, s:1,    b:0, d:1,   r:.40},
+  'c-luck'     :{x:16,  y:0,  s:1,    b:0, d:1,   r:.42},
+  'c-cultivate':{x:0,   y:0,  s:1.035,b:0, d:1,   r:.50},
+  'c-elder'    :{x:0,   y:6,  s:1,    b:0, d:1,   r:.50},
+  'c-era'      :{x:-10, y:0,  s:1,    b:0, d:1,   r:.44},
+  'c-monk'     :{x:0,   y:0,  s:.975, b:0, d:1,   r:.50},
+  'c-crisis'   :{x:0,   y:-5, s:1.028,b:0, d:.82, r:.34},
+  'c-daily'    :{x:0,   y:9,  s:1,    b:0, d:1,   r:.38},
+  'c-last'     :{x:0,   y:0,  s:1.045,b:7, d:.9,  r:.60}
+};
+function v4EnterEvent(el){
+  let spec = {x:0,y:14,s:.99,b:0,d:1,r:.4};
+  for(const key in V4_ENT){ if(el.classList.contains(key)){ spec = V4_ENT[key]; break; } }
+  v4Stop(el);
+  v4State.set(el, {opacity:0, x:spec.x, y:spec.y, scale:spec.s, blur:spec.b});
+  v4SpringTo(el, {opacity:1,x:0,y:0,scale:1,blur:0}, {damping:spec.d, response:spec.r});
+}
+/* 卡片错峰入场：编排好的一次加载，胜过零碎的微交互 */
+function v4Stagger(scope){
+  const items = scope.querySelectorAll('.card,.pillar,.birthline');
+  for(let i = 0; i < items.length; i++){
+    const el = items[i];
+    v4Stop(el);
+    v4State.set(el, {opacity:0, x:0, y:12, scale:1, blur:0});
+    v4SpringTo(el, {opacity:1,x:0,y:0,scale:1,blur:0},
+      {damping:V4.card.damping, response:V4.card.response, delay:Math.min(i * 36, 300)});
+  }
+  const events = scope.querySelectorAll('.event');
+  for(let i = 0; i < events.length; i++) v4EnterEvent(events[i]);
+}
+
+/* ---- 浮层：锚定触发源、从当前值起播、blur 与 scale 同源 ---- */
+let v4Origin = null;
+function v4OriginRect(){
+  const el = v4Origin;
+  if(!el || !el.getBoundingClientRect || el.isConnected === false) return null;
+  const r = el.getBoundingClientRect();
+  return (r.width && r.height) ? r : null;
+}
+function v4OpenModal(){
+  const mask = $('mask'), modal = $('modal');
+  mask.classList.add('on');          // 先可见，才量得到锚点
+  if(v4Reduce()){
+    v4State.set(mask, {opacity:1, x:0, y:0, scale:1, blur:0});
+    v4Paint(mask, v4State.get(mask));
+  }else{
+    // 初值必须写进同一本账，否则弹簧以为它已经在 1 上、根本不会动
+    v4State.set(mask, {opacity:0, x:0, y:0, scale:1, blur:0});
+    v4Paint(mask, v4State.get(mask));
+    const mr = modal.getBoundingClientRect(), o = v4OriginRect();
+    if(mr.width && mr.height && o){  // 弹层从触发它的那个按钮长出来，而不是从自己的中心
+      const ox = ((o.left + o.width / 2) - mr.left) / mr.width;
+      const oy = ((o.top + o.height / 2) - mr.top) / mr.height;
+      modal.style.transformOrigin =
+        (Math.max(-.15, Math.min(1.15, ox)) * 100).toFixed(1) + '% ' +
+        (Math.max(-.15, Math.min(1.15, oy)) * 100).toFixed(1) + '%';
+    }
+    v4SpringTo(mask, {opacity:1}, {damping:1, response:.26});
+  }
+  v4Stop(modal);
+  v4State.set(modal, {opacity:0, x:0, y:0, scale:.92, blur:9});
+  v4SpringTo(modal, {opacity:1, x:0, y:0, scale:1, blur:0}, V4.sheet);
+  v4Blur(mask, 0, 8, 300);
+}
+function v4CloseModal(){
+  const mask = $('mask'), modal = $('modal');
+  if(v4Reduce()){ mask.classList.remove('on'); return; }
+  v4SpringTo(modal, {opacity:0, x:0, y:0, scale:.94, blur:6},
+    {damping:1, response:.22, done:() => { mask.classList.remove('on'); }});
+  v4SpringTo(mask, {opacity:0}, {damping:1, response:.22});
+  v4Blur(mask, 8, 0, 220);
+}
+
+/* ---- 屏幕转场：从当前值起播，连续切换可以从半路续接 ---- */
 function show(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el = $('screen-'+name);
-  if(el){
-    void el.offsetWidth;   // 强制重排，让入场动画每次切换都能重播
+  if(!el) return;
+  document.querySelectorAll('.screen').forEach(s => {
+    if(s !== el && s.classList.contains('active')){
+      v4Stop(s);
+      s.classList.remove('active');
+    }
+  });
+  if(!el.classList.contains('active')){
+    // 隐藏中的屏：给一个入场起点；若仍在屏幕上（上一次转场被打断）则沿用当前值续播
+    v4State.set(el, {opacity:0, x:0, y:10, scale:.995, blur:6});
     el.classList.add('active');
   }
+  v4SpringTo(el, {opacity:1, x:0, y:0, scale:1, blur:0}, V4.move);
+  v4Stagger(el);
   window.scrollTo({top:0, behavior:'instant'});
   const app = document.querySelector('.app');
   if(app) app.scrollIntoView({block:'start'});
@@ -3681,10 +4268,65 @@ function renderBirthMemo(){
 function toastModal(title, html){
   $('modal').innerHTML = '<h3>'+title+'</h3><div style="font-size:13.5px;color:var(--ink2);line-height:1.9">'+html+'</div>'
     + '<button class="btn mt12" onclick="closeMask()">知道了</button>';
-  $('mask').classList.add('on');
+  v4OpenModal();
 }
-window.closeMask = function(){ $('mask').classList.remove('on'); };
+window.closeMask = function(){ v4CloseModal(); };
 $('mask').addEventListener('click', e=>{ if(e.target.id === 'mask') closeMask(); });
+
+/* ------------------------------------------------------------------ v4 引导
+   主题、pointer-down 即时反馈、事件卡入场监听。 */
+(function v4Boot(){
+  v4InitTheme();
+
+  // 反馈发生在 pointer-down（不是 release），顺手记下触发源，供弹层锚定 origin
+  document.addEventListener('pointerdown', e => {
+    v4Origin = e.target;
+    const t = e.target;
+    const b = (t && t.closest) ? t.closest('.btn,.opt,.tbtn,.sb-item,.sb-btn,.amb,.tal button') : null;
+    if(b && !b.disabled) b.classList.add('pressed');
+  }, true);
+  ['pointerup','pointercancel'].forEach(ev => {
+    document.addEventListener(ev, () => {
+      const ps = document.querySelectorAll('.pressed');
+      for(let i = 0; i < ps.length; i++) ps[i].classList.remove('pressed');
+    }, true);
+  });
+
+  // 选项：按下即被压住，松手带回弹地弹回来——回弹只给这个带动量的动作
+  document.addEventListener('click', e => {
+    const t = e.target;
+    const o = (t && t.closest) ? t.closest('.opt') : null;
+    if(!o || o.classList.contains('dim')) return;
+    v4Stop(o);
+    v4State.set(o, {opacity:1, x:0, y:0, scale:.97, blur:0});
+    v4SpringTo(o, {opacity:1, x:0, y:0, scale:1, blur:0}, V4.snap);
+  }, true);
+
+  // 事件卡每推进一次就整体重建，接不住绑定，只能观察新增节点
+  const wrap = $('lifeEventWrap');
+  if(wrap && window.MutationObserver){
+    new MutationObserver(muts => {
+      for(let i = 0; i < muts.length; i++){
+        const added = muts[i].addedNodes;
+        for(let j = 0; j < added.length; j++){
+          const n = added[j];
+          if(!n || n.nodeType !== 1) continue;
+          if(n.classList && n.classList.contains('event')) v4EnterEvent(n);
+          else if(n.querySelectorAll){
+            const inner = n.querySelectorAll('.event');
+            for(let k = 0; k < inner.length; k++) v4EnterEvent(inner[k]);
+          }
+        }
+      }
+    }).observe(wrap, {childList:true, subtree:true});
+  }
+
+  // 首屏同样要有编排好的入场；rAF 保证排在 init() 的首次渲染之后
+  requestAnimationFrame(() => {
+    const first = document.querySelector('.screen.active');
+    if(first) v4Stagger(first);
+  });
+})();
 
 /* ------------------------------------------------------------------ 8. 起盘 */
 function makeBazi(y,m,d,h,gender,unknownHour){
