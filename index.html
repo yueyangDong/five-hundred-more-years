@@ -3900,10 +3900,21 @@ function v4Reduce(){
 }
 const v4State = new WeakMap();   // 每个元素当前的屏幕上的值（可中断的根基）
 const v4Run = new WeakMap();     // 正在跑的弹簧
+const v4Active = new Set();      // 正在跑弹簧的元素，供页面回到前台时一次性落位
 function v4Stop(el){
   const run = v4Run.get(el);
-  if(run){ run.cancel(); v4Run.delete(el); }
+  if(run) run.cancel();          // cancel 自己负责清账
 }
+/* 页面从后台回到前台：后台期间 rAF 是停的，未跑完的动画在这里立即落位 */
+function v4FinishAll(){
+  const pending = [];
+  v4Active.forEach(el => pending.push(el));
+  for(let i = 0; i < pending.length; i++){
+    const run = v4Run.get(pending[i]);
+    if(run && run.finish) run.finish();
+  }
+}
+document.addEventListener('visibilitychange', () => { if(!document.hidden) v4FinishAll(); });
 function v4Now(el){
   return v4State.get(el) || {opacity:1,x:0,y:0,scale:1,blur:0};
 }
@@ -3924,7 +3935,8 @@ function v4SpringTo(el, target, cfg){
   const keys = Object.keys(target);
   const state = Object.assign({}, from);
   v4State.set(el, state);
-  if(v4Reduce()){                       // 无障碍：只保留交叉淡入，去掉位移与模糊
+  // 无障碍降级；或页面此刻在后台（用户看不见，动画没有意义）——两种都直接落位
+  if(v4Reduce() || document.hidden){
     keys.forEach(k => { state[k] = target[k]; });
     v4Paint(el, state);
     if(done) done();
@@ -3953,28 +3965,30 @@ function v4SpringTo(el, target, cfg){
       state[key] = xs[key];
       if(Math.abs(xs[key] - target[key]) > .0008 || Math.abs(vs[key]) > .008) settled = false;
     }
-    if(settled){
-      keys.forEach(key => { state[key] = target[key]; });
-      v4Paint(el, state);
-      finished = true;
-      clearTimeout(guard);
-      v4Run.delete(el);
-      if(done) done();
-      return;
-    }
+    if(settled){ finish(); return; }
     v4Paint(el, state);
     raf = requestAnimationFrame(tick);
   }
-  // 安全网：rAF 被饿死时（后台标签页、无头环境、节流）不能让内容卡在起点值上
-  const guard = setTimeout(() => {
+  // 立即落位：正常收敛、安全网、页面回到前台，三条路径共用同一个出口
+  const finish = () => {
     if(dead || finished) return;
-    dead = true;
+    dead = true; finished = true;
+    clearTimeout(guard);
+    if(raf) cancelAnimationFrame(raf);
     keys.forEach(key => { state[key] = target[key]; });
     v4Paint(el, state);
     v4Run.delete(el);
+    v4Active.delete(el);
     if(done) done();
-  }, delay + response * 4000 + 400);
-  v4Run.set(el, { cancel(){ dead = true; clearTimeout(guard); if(raf) cancelAnimationFrame(raf); } });
+  };
+  // 安全网：rAF 被饿死时（节流、无头环境）也不能把内容留在起点值上
+  const guard = setTimeout(finish, delay + response * 4000 + 400);
+  v4Active.add(el);
+  v4Run.set(el, {
+    cancel(){ dead = true; clearTimeout(guard); if(raf) cancelAnimationFrame(raf);
+              v4Run.delete(el); v4Active.delete(el); },
+    finish
+  });
   const boot = () => { if(!dead){ last = 0; raf = requestAnimationFrame(tick); } };
   if(delay) setTimeout(boot, delay); else boot();
 }
@@ -3984,7 +3998,7 @@ function v4Blur(el, from, to, ms, done){
     el.style.backdropFilter = 'blur(' + v.toFixed(2) + 'px)';
     el.style.webkitBackdropFilter = 'blur(' + v.toFixed(2) + 'px)';
   };
-  if(v4Reduce()){ set(to); if(done) done(); return; }
+  if(v4Reduce() || document.hidden){ set(to); if(done) done(); return; }
   const t0 = performance.now();
   requestAnimationFrame(function step(now){
     const p = Math.min((now - t0) / ms, 1);
