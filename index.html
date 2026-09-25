@@ -1264,6 +1264,20 @@ html{touch-action:manipulation}
   .opt:hover{background:var(--fill2);border:none;box-shadow:none;transform:none}
   .sb-item:hover{background:none}
 }
+
+/* ---------- 5.7 结算是唯一的高光时刻，但它的内容不能只靠动画才看得见
+   原三条动画都从 opacity:0 起步：动画一旦不推进（后台标签页、无头环境），
+   印章、称号、评分就会永久留在不可见状态。起点抬到「看得见但不完整」。 */
+@keyframes numPopSafe{0%{opacity:.35;transform:scale(.86)}100%{opacity:1;transform:none}}
+@keyframes titleRevealSafe{
+  0%{opacity:.4;letter-spacing:.42em;filter:blur(5px)}
+  55%{opacity:1;filter:blur(0)}
+  100%{opacity:1;letter-spacing:.1em;filter:blur(0)}
+}
+@keyframes stampDownSafe{0%{opacity:.28;transform:rotate(-8deg) scale(1.7)}100%{opacity:.88;transform:rotate(-8deg) scale(1)}}
+.score-ring .num{animation:numPopSafe .9s .15s var(--ease-out) both}
+.big-title.play{animation:titleRevealSafe 1.15s var(--ease-out) both}
+.stamp{animation:stampDownSafe .55s .5s var(--ease-out) both}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -4895,6 +4909,51 @@ function attrBars(container, attrs, deltas){
   container.innerHTML = html;
 }
 
+/* 结算页专用：属性条一条条涨上来，比一次性铺满更像「在结算」。
+   按 animate skill 的频率闸门，delight 预算只花在一局一次的稀有层级。 */
+function v5FillBars(container){
+  if(!container) return;
+  const fills = container.querySelectorAll('.fill');
+  if(!fills.length) return;
+  const targets = [];
+  for(let i = 0; i < fills.length; i++){
+    targets.push(fills[i].style.width);
+    fills[i].style.width = '0%';
+  }
+  if(v4Reduce() || document.hidden){
+    for(let i = 0; i < fills.length; i++) fills[i].style.width = targets[i];
+    return;
+  }
+  requestAnimationFrame(() => {
+    for(let i = 0; i < fills.length; i++){
+      const el = fills[i];
+      setTimeout(() => { el.style.width = targets[i]; }, Math.min(i * 38, 420));
+    }
+  });
+  // 兜底：rAF 被饿死（后台标签页 / 无头）时，属性条不能停在 0%
+  setTimeout(() => {
+    for(let i = 0; i < fills.length; i++){
+      if(fills[i].style.width === '0%') fills[i].style.width = targets[i];
+    }
+  }, 900);
+}
+
+/* 结算页的评分从 0 滚上来，像刚算出来 */
+function v5RollNumber(el, target, dur){
+  if(!el) return;
+  if(v4Reduce() || document.hidden){ el.textContent = target; return; }
+  const t0 = performance.now();
+  el.textContent = '0';
+  requestAnimationFrame(function step(now){
+    const p = Math.min((now - t0) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3);       // 强 ease-out，与 --ease-out 同族
+    el.textContent = Math.round(target * e);
+    if(p < 1) requestAnimationFrame(step);
+  });
+  // 兜底：同上，分数不能停在 0
+  setTimeout(() => { el.textContent = target; }, dur + 300);
+}
+
 /* ------------------------------------------------------------------ 11. 渲染：命盘页 */
 function radarSVG(pct, size){
   size = size || 240;
@@ -6019,7 +6078,9 @@ function renderSettle(reason){
     void stampEl.offsetWidth;
     stampEl.style.animation = '';
   }
-  $('stScore').textContent = G.score;
+  // 结算是一局一次的高光时刻：评分滚上来（数字滚动由 v5RollNumber 负责）
+  if(G.fast) $('stScore').textContent = G.score;
+  else v5RollNumber($('stScore'), G.score, 900);
   const ap = (G.ambitionP === undefined) ? ambitionProgress() : G.ambitionP;
   $('stScoreTxt').innerHTML = '评级 <b style="color:var(--red)">' + sc + '</b><br/>'
     + '享年 <b>' + G.life + '</b> 岁<br/>'
@@ -6058,6 +6119,7 @@ function renderSettle(reason){
     + '<span style="color:var(--ink3)">以上均为游戏化简化的虚构推演，不是真实命理判断。</span>';
 
   attrBars($('stAttrs'), a, null);
+  if(!G.fast) v5FillBars($('stAttrs'));   // 一条条涨上来，而不是一次铺满
 
   const rt = realmTags();
   let tagHtml = '';
