@@ -2169,14 +2169,23 @@ catch(e){ document.documentElement.setAttribute('data-theme','auto'); }
 </style>
 <style id="vxcss">
 /* ---------- v11 墨涡层：按钮交互画布 ----------
-   只此一条规则。所有漩涡画面都由 canvas 现画，不碰任何按钮的既有样式，
+   所有漩涡画面都由 canvas 现画，不碰任何按钮的既有样式，
    所以：跨主题零冲突、跨尺寸零适配、按钮被重建也不影响动画播完。 */
 #vx{position:fixed;inset:0;z-index:68;pointer-events:none;display:block}
+/* 按下时整块塌缩变暗。
+   为什么只有这一条、且必须 !important：
+     · 游戏另有一套**逐帧写内联**的弹簧动画（v4Paint 每帧写 el.style.opacity/transform/filter），
+       内联值压不住它，只有 !important 的类规则能稳定压过；
+     · 而「塌缩」不写在这里 —— 那由按钮原有的 .pressed{transform:scale(.97)} 负责。
+       这一层只补「变暗」一件事，transform 一下都不碰，所以和原有按下反馈是叠加而非顶替；
+     · 类一摘掉按钮 100% 回到原样：不写内联、不留过渡。 */
+.vx-suck{filter:brightness(.52) saturate(.70)!important}
+@media (prefers-reduced-motion:reduce){.vx-suck{filter:none!important}}
 </style>
 </head>
 <body>
 <canvas id="bgFx"></canvas>
-<!-- v11 墨涡：按钮 hover 吸附 / click 外爆 的独立画布（在内容之上、弹窗之下） -->
+<!-- v11 墨涡：按钮 悬停一圈微光 / 按下即吸收 的独立画布（在内容之上、弹窗之下） -->
 <canvas id="vx" aria-hidden="true"></canvas>
 <!-- v10：墨边滤镜定义（隐藏，仅被 .gc-scape 引用；feDisplacementMap 让矢量山峦边缘「洇」开） -->
 <svg class="gc-defs" width="0" height="0" aria-hidden="true" focusable="false"
@@ -8349,20 +8358,30 @@ function fxPathAura(){
 }
 
 /* ==========================================================================
-   v11 · 墨涡 —— 按钮交互的黑洞式漩涡（hover 吸附 / click 外爆）
+   v11 · 墨涡 —— 按钮交互的黑洞式漩涡（悬停一圈微光 / 按下即吸收）
    --------------------------------------------------------------------------
+   两档强度。悬停与点击是频率完全不同的两个动作，不能用同一副力度：
+     悬停（高频、漫无目的）：只留一圈缓慢转动的微光 —— 感觉到它在动，但说不出在动什么。
+       不铺远场雾、不出旋臂、不撒粒子、不放涟漪，整团光都收在按钮框里不外溢。
+     按下（一次一次、有明确意图）：整个结构才展开 —— 五层涡体 + 粒子 6.5 倍速内吸被吞 +
+       按钮的壳被卷进核里 + 按钮本体塌缩变暗。向外扩散退成抬手之后的一道尾声：
+       「炸开」和「被吸进去」是相反的读法，不能同时当主角。
+
    为什么不给按钮加伪元素或子元素，而走独立画布：
      1) .opt 的 ::before/::after 已被「左侧金线 + 底部暖光」占着，新主题里还是 display:none
         —— 再加就得动主题规则，跨主题一致性立刻破功；
      2) .opt 有 overflow:hidden，向外扩散的涟漪和飞散的粒子会被裁掉；
-     3) 最关键：选项按钮在 click 的同一个 tick 里就被整块重建了，
-        挂在按钮上的动画根本播不完 —— 只有独立画布能把「被吸进去」这一下画完整。
+     3) 最关键：选项按钮在 click 的同一个 tick 里就被整块重建了，而 click 要等抬手才来
+        —— 挂在按钮上的动画既播不完，也来不及开始。只有独立画布能画完整这一下。
    代价是画布读不到按钮的 DOM 样式，所以按主题备两套色：
      浅色 = 绢本上的墨涡（暗墨 + 赭金，source-over 压暗）
      深色 = 夜空里的吸积盘（亮金 + 朱砂，source-over 提亮）
    两边都只做 source-over，不引 mix-blend-mode —— 否则整页要多一次全屏混合。
    几何全部从按钮 rect 现算：核心半径跟高度走、横向拉伸跟宽高比走、涟漪上限跟高度走，
    于是方形图标按钮与贯通整行的选项按钮共用一个参数系统。
+
+   按钮本体只在这里被碰一下：按下写内联 transform/filter，抬起即清空。
+   不改任何按钮的样式表、不新增选择器，所以 hover / active / focus 的原有手感原封不动。
    ========================================================================== */
 function initVxVortex(){
   const cv = $('vx');
@@ -8396,14 +8415,16 @@ function initVxVortex(){
              hot:['255,232,178','240,192,112'], hotA:.44,
              arm:['255,236,186','244,206,132','255,246,216'], head:'255,252,240', armSoft:.16,
              part:['255,244,214','248,212,146','232,168,110','255,250,234'],
-             fl:'240,206,130', grain:'255,248,226' },
+             fl:'240,206,130', grain:'255,248,226',
+             halo:'255,244,206', haloA:.52 },
     light: { void1:'6,4,2',      voidA:.84, void2:'26,18,9',   void2A:.44,
              haze:'40,28,14',    hazeA:.30,
              edge:'255,253,246', edgeA:.90, edge2:'100,70,16', edge2A:.48,
              hot:['176,128,34','132,92,20'], hotA:.48,
              arm:['120,86,18','152,62,40','92,66,16'], head:'70,48,8', armSoft:.22,
              part:['128,92,24','156,64,42','100,74,18','172,128,42'],
-             fl:'118,82,22', grain:'84,58,12' }
+             fl:'118,82,22', grain:'84,58,12',
+             halo:'96,66,16', haloA:.44 }
   };
   let P = PAL[dark ? 'dark' : 'light'];
 
@@ -8424,7 +8445,8 @@ function initVxVortex(){
   /* ---- 状态：涡本体（同时只有一个，鼠标只有一个）、粒子、涟漪、金箔、光晕 ---- */
   const V = { el:null, cx:0, cy:0, pcx:0, pcy:0, hw:0, hh:0, R:16, sx:1, Rout:110,
               charge:0, want:0, spin:0, spinV:0, dir:1, eat:0, impl:0,
-              spawnAt:0, rippleAt:0, haloAt:0, tmpUntil:0, rebindDelay:0, keepAwake:0, parts:[] };
+              spawnAt:0, rippleAt:0, haloAt:0, tmpUntil:0, rebindDelay:0, keepAwake:0, parts:[],
+              arousal:0, pressed:false, shell:null };
   const rings = [], flares = [], blooms = [];
 
   /* ---- 几何：一套参数吃下所有尺寸 ---- */
@@ -8438,6 +8460,19 @@ function initVxVortex(){
     const e = document.elementFromPoint(x, y);
     const b = (e && e.closest) ? e.closest(SEL) : null;
     return (b && !b.disabled) ? b : null;
+  }
+
+  /* ---- 圆角矩形路径：现代浏览器有 roundRect 就直接用，缺了手画 ---- */
+  function rr(x, y, w, h, r){
+    ctx.beginPath();
+    const rad = Math.min(r, w / 2, h / 2);
+    if(ctx.roundRect){ ctx.roundRect(x, y, w, h, rad); return; }
+    ctx.moveTo(x + rad, y);
+    ctx.arcTo(x + w, y,     x + w, y + h, rad);
+    ctx.arcTo(x + w, y + h, x,     y + h, rad);
+    ctx.arcTo(x,     y + h, x,     y,     rad);
+    ctx.arcTo(x,     y,     x + w, y,     rad);
+    ctx.closePath();
   }
 
   /* ---- 粒子 ---- */
@@ -8503,6 +8538,15 @@ function initVxVortex(){
     blooms.push({ cx:cx, cy:cy, r:r, a0:a0, dur:dur, t:0 });
     if(blooms.length > 10) blooms.shift();
   }
+  /* 按钮的「壳」被卷进核里：一个跟着按钮形状走的圆角矩形，边收边转。
+     画布搬不进按钮里的 DOM 内容，但壳的收缩 + 扭曲足以让眼睛读出「这个按钮被吸进去了」。
+     它同时顶替了原来挂在按钮伪元素上的按下反馈（那套在新主题里是 display:none）。 */
+  function shellIn(el){
+    const r = el.getBoundingClientRect();
+    V.shell = { cx:r.left + r.width / 2, cy:r.top + r.height / 2,
+                hw:Math.max(5, r.width / 2), hh:Math.max(4, r.height / 2),
+                rad:Math.min(11, r.height * .24), dir:V.dir, t:0, ttl:.46 };
+  }
 
   /* ---- 涡：绑定 / 脱离 ---- */
   function bind(el, soft){
@@ -8527,30 +8571,78 @@ function initVxVortex(){
     if(REDUCE || V.el !== el) return;
     V.want = 0;
   }
-  function tap(el, x, y){
+  /* ---- 按钮本体：按下塌缩变暗 ----
+     只写在「按下 → 抬起」这一段，抬起即清空 —— 不新增选择器、不动样式表，
+     所以按钮的 hover / active / focus 原有手感一个字节都没被改。
+     用内联 style 是为了压过样式表里的 :active，退出时又能干净地还原成空字符串。 */
+  /* 按下：整块塌缩变暗 —— 只挂一个类，样式在 #vx 里（见文档头）。
+     踩过的三个坑，一个都别再踩：
+       1) 写内联 transform:scale() 会顶掉 .pressed 原有的 scale(.97)，那是游戏自己的按下反馈；
+       2) 写内联 filter 会被 v4Paint 每帧冲掉 —— 它每帧重写 opacity/transform/filter；
+       3) 给内联配 transition 也不管用，头几帧压根不推进，因为值正被逐帧重写。
+     改用「一条 !important 的类规则 + 瞬时挂摘」，三个坑一起绕开，且不留任何痕迹。 */
+  let suckEl = null, suckT = 0;
+  function suck(el){
+    if(!el || !el.classList) return;
+    suckEl = el;
+    el.classList.add('vx-suck');
+    clearTimeout(suckT);
+    suckT = setTimeout(()=>{ if(suckEl === el) unsuck(el); }, 1200);  // 兜底：按下后被拖走、没有 up
+  }
+  function unsuck(el){
+    if(el && el.classList) el.classList.remove('vx-suck');
+    if(suckEl === el) suckEl = null;
+  }
+
+  /* ---- 按下：吸收 ----
+     原来的 click 是「先塌一下，再向外爆三道涟漪」—— 主角其实在外爆，读起来是「炸开」。
+     现在把方向反过来：按下这一下只有向内（核心收缩 + 粒子 6.5 倍速被吞 + 壳被卷进核里），
+     向外扩散退成抬手之后的一道尾声（见 tap）。 */
+  function press(el){
     const r = el.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     if(V.el !== el){ V.el = el; V.dir = Math.random() < .5 ? 1 : -1; V.spin = 0; V.spinV = 0; }
     V.cx = cx; V.cy = cy; V.hw = r.width / 2; V.hh = r.height / 2;
     geom();
-    if(REDUCE){ bloom(cx, cy, V.R * 4.2, .40, .46); kick(); return; }
+    V.pressed = true;
+    if(REDUCE){ bloom(cx, cy, V.R * 3.6, .34, .46); kick(); return; }
 
-    V.charge = Math.max(V.charge, .70);
-    V.impl = 1;                                            // 先向内塌一下 —— 「被吸进去」那一下
-    V.eat  = 1.25;
-    bloom(cx, cy, V.R * 5.6, dark ? .58 : .40, .52);       // 核心爆闪
-    for(let i = 0; i < 13; i++) emit(true, false);         // 向内飞：快 6 倍，0.35s 被吞完
-    for(let i = 0; i < 3;  i++) emit(true, true);
-    const rb = V.Rout * 1.5, rsx = Math.sqrt(V.sx);        // 向外扩散：三道涟漪错峰
-    ring(cx, cy, rb,       { sx:rsx, w0:2.5, a0:.52, dur:.66 });
-    ring(cx, cy, rb * .82, { sx:rsx, w0:1.7, a0:.36, dur:.60, delay:.055 });
-    ring(cx, cy, rb * 1.2, { sx:rsx, w0:1.0, a0:.22, dur:.78, delay:.115 });
-    flare(cx, cy, 15, V.R);                                // 外散金箔
-    if(x > -40){                                           // 落点反馈：光标在哪，溅在哪
-      bloom(x, y, V.R * 2.2, dark ? .40 : .26, .30);
-      flare(x, y, 7, V.R * .72);
+    suck(el);                                              // 按钮本体塌缩变暗
+    V.charge  = Math.max(V.charge, .84);
+    V.arousal = 1;                                         // 吸收态：微光切成完整涡体
+    V.impl = 1.15;                                         // 核心向内塌
+    V.eat  = 1.35;
+    bloom(cx, cy, V.R * 3.8, dark ? .52 : .36, .58);       // 纳进来的那口光
+    for(let i = 0; i < 18; i++) emit(true, false);         // 快 6.5 倍，0.35s 内被吞完
+    for(let i = 0; i < 4;  i++) emit(true, true);
+    shellIn(el);                                           // 按钮的壳被卷进去
+    kick();
+  }
+
+  /* ---- 抬手 / 点击：只留一道向外的尾声 ---- */
+  function tap(el, x, y){
+    const fresh = V.pressed; V.pressed = false;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    if(V.el !== el){ V.el = el; V.dir = Math.random() < .5 ? 1 : -1; V.spin = 0; V.spinV = 0; }
+    V.cx = cx; V.cy = cy; V.hw = r.width / 2; V.hh = r.height / 2;
+    geom();
+    unsuck(el);
+    if(REDUCE) return;                                     // 减弱动效：press 已经给过一帧柔光
+    if(!fresh){                                            // 键盘触发的 click 没有 pointerdown，自己补一次吸收
+      V.impl = 1.0; V.eat = 1.15;
+      bloom(cx, cy, V.R * 3.8, dark ? .52 : .36, .58);
+      for(let i = 0; i < 14; i++) emit(true, false);
+      for(let i = 0; i < 3;  i++) emit(true, true);
+      shellIn(el);
     }
-    // 涡本体交出去：先塌陷再消散，之后由「续涡」按需自动重新卷起来。
+    V.charge  = Math.max(V.charge, .80);
+    V.arousal = Math.max(V.arousal, .88);                  // 把吸收态的窗口延伸到点击之后
+    const rsx = Math.sqrt(V.sx);
+    ring(cx, cy, V.Rout * .92, { sx:rsx, w0:1.4, a0:.24, dur:.90, delay:.12 });   // 只此一道
+    flare(cx, cy, 9, V.R * .78);
+    if(x > -40) bloom(x, y, V.R * 1.9, dark ? .32 : .20, .28);                   // 落点轻点一下
+    // 涡本体交出去：先崩塌再消散，之后由「续涡」按需自动重新卷起来。
     // keepAwake：点完之后把引擎多留 1.5s —— 事件翻页后光标往往还停在原处，
     // 得留出「续涡」的窗口，否则用户不动鼠标就再也看不见涡了。
     V.el = null; V.want = 0; V.tmpUntil = now + .30; V.rebindDelay = now + .55;
@@ -8558,10 +8650,61 @@ function initVxVortex(){
     kick();
   }
 
-  /* ---- 画：涡本体（五层：远场雾 → 内盘热辉 → 旋臂 → 洞心 → 光子环） ---- */
+  /* ---- 画：悬停的微光 ----
+     悬停是高频动作，分寸压到「感觉得到它在转，但说不出在动什么」。
+     所以整团光都收在按钮框里：不铺远场雾、不出旋臂、不撒粒子、不放涟漪。 */
+  function drawHalo(c){
+    const R = V.R;
+    const breathe = .80 + .20 * Math.sin(now * 1.7);       // 缓慢呼吸，免得像一张贴图
+    const K = cl(c * breathe, 0, 1);
+    const H = P.halo;
+    ctx.save();
+    ctx.translate(V.cx, V.cy);
+    ctx.scale(V.sx, ASP);
+
+    const s = R * 2.2;                                     // 收在按钮高度之内，不外溢
+    ctx.globalAlpha = cl(K * (dark ? .40 : .34), 0, 1);
+    ctx.drawImage(dark ? SPR_D : SPR_L, -s / 2, -s / 2, s, s);
+
+    const r0 = R * .92;
+    // 环用径向渐变给柔边，而不是描一条线 —— 描边会读成「贴了个椭圆环」，
+    // 柔边才读成「一团光在转」。这是浅色主题下唯一能站得住的做法：
+    // 浅底上靠线是立不住的，只能靠「一团比周围稍暗的晕」。
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r0 * 1.5);
+    const A = cl(K * P.haloA, 0, 1);
+    g.addColorStop(0,   'rgba(' + H + ',0)');
+    g.addColorStop(.42, 'rgba(' + H + ',' + (A * .40) + ')');
+    g.addColorStop(.62, 'rgba(' + H + ',' + (A * .62) + ')');
+    g.addColorStop(.80, 'rgba(' + H + ',' + (A * .20) + ')');
+    g.addColorStop(1,   'rgba(' + H + ',0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, r0 * 1.5, 0, TAU); ctx.fill();
+
+    // 一段亮弧在慢慢转 —— 这是「它在动」的唯一提示
+    ctx.strokeStyle = 'rgb(' + H + ')';
+    ctx.lineCap = 'round';
+    const a0 = V.spin * .62;
+    ctx.globalAlpha = cl(A * .58, 0, 1);
+    ctx.lineWidth = R * .10;
+    ctx.beginPath(); ctx.arc(0, 0, r0, a0, a0 + 1.05); ctx.stroke();
+
+    ctx.globalAlpha = cl(A * .24, 0, 1);                       // 对侧一小段，暗示旋向
+    ctx.lineWidth = R * .07;
+    ctx.beginPath(); ctx.arc(0, 0, r0, a0 + Math.PI, a0 + Math.PI + .50); ctx.stroke();
+
+    ctx.globalAlpha = cl(A * .44, 0, 1);                       // 核里一颗极小的光点
+    ctx.fillStyle = 'rgb(' + H + ')';
+    ctx.beginPath(); ctx.arc(0, 0, R * .13, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+
+  /* ---- 画：涡本体（五层：远场雾 → 内盘热辉 → 旋臂 → 洞心 → 光子环） ----
+     只在「吸收态」展开。arousal 由 pointerdown 拉满、约 1s 衰减干净，
+     刚好覆盖「按下 → 被吞 → 抬手一道尾声」这一整段。 */
   function drawVortex(){
     const c = V.charge;
     if(c < .012) return;
+    if(V.arousal <= .10){ drawHalo(c); return; }           // 纯悬停：只留一圈微光
     const R = V.R * (1 - .26 * V.impl);
     ctx.save();
     ctx.translate(V.cx, V.cy);
@@ -8643,6 +8786,33 @@ function initVxVortex(){
     ctx.globalAlpha = eA * P.edge2A;
     ctx.lineWidth = R * .045;
     ctx.beginPath(); ctx.arc(0, 0, R * .63, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* ---- 画：按钮的壳被卷进核里 ---- */
+  function drawShell(dt){
+    const s = V.shell;
+    if(!s) return;
+    s.t += dt;
+    const u = s.t / s.ttl;
+    if(u >= 1){ V.shell = null; return; }
+    const e = Math.pow(u, .68);                            // 前段快、后段慢 —— 吞进去的手感
+    const k = 1 - .82 * e;                                 // 1 → .18：一路缩进核里
+    const a = cl(V.charge * 1.5, 0, 1);                    // 不跟着 charge 一起变淡，否则尾段几乎看不见
+    ctx.save();
+    ctx.translate(s.cx, s.cy);
+    ctx.rotate(s.dir * 2.9 * e);                           // 边收边转，才像「被卷进去」
+    ctx.scale(k, k * (1 - .16 * e));                       // 竖向多收一点，像被吸瘪
+    ctx.strokeStyle = 'rgb(' + P.halo + ')';
+    ctx.lineCap = 'round';
+    ctx.lineWidth = 1.9 / k;                               // 除以 k → 视觉上等宽不跟着缩
+    ctx.globalAlpha = cl(.58 * Math.pow(1 - u, 1.4) * a, 0, 1);
+    rr(-s.hw, -s.hh, s.hw * 2, s.hh * 2, s.rad);
+    ctx.stroke();
+    ctx.lineWidth = 1.2 / k;
+    ctx.globalAlpha = cl(.28 * Math.pow(1 - u, 1.2) * a, 0, 1);   // 内一层：壳在塌的层次
+    rr(-s.hw * .70, -s.hh * .70, s.hw * 1.40, s.hh * 1.40, s.rad * .70);
+    ctx.stroke();
     ctx.restore();
   }
 
@@ -8733,7 +8903,7 @@ function initVxVortex(){
 
   /* ---- 主循环 ---- */
   function idle(){
-    return !V.el && V.charge < .012 && now > V.keepAwake && !V.parts.length &&
+    return !V.el && !V.shell && V.charge < .012 && now > V.keepAwake && !V.parts.length &&
            !rings.length && !flares.length && !blooms.length && V.eat < .012 && V.impl < .015;
   }
   function kick(){ if(!raf){ last = 0; raf = requestAnimationFrame(draw); } }
@@ -8772,9 +8942,10 @@ function initVxVortex(){
     V.spin  += V.spinV * (.30 + .70 * V.charge) * dt;
     V.impl = decay(V.impl, dt, .085);
     V.eat  = decay(V.eat,  dt, .17);
+    V.arousal = decay(V.arousal, dt, .42);                 // 吸收态窗口：按下起算约 1s
 
-    // 4) 涡在转就持续吸：粒子按时间滴入，涟漪隔一阵放一圈
-    if(V.charge > .35){
+    // 4) 只有「吸收态」才持续吸：悬停只给微光，不撒粒子也不放涟漪
+    if(V.charge > .35 && V.arousal > .10){
       if(now >= V.spawnAt){ V.spawnAt = now + rnd(.16, .34) / V.charge; emit(false, false); }
       if(now >= V.haloAt){  V.haloAt  = now + rnd(1.1, 2.1); emit(false, true); }
       if(now >= V.rippleAt){
@@ -8798,6 +8969,7 @@ function initVxVortex(){
     // 6) 出图
     ctx.clearRect(0, 0, W, H);
     drawVortex(dt);
+    drawShell(dt);
     drawParts();
     drawRings(dt);
     drawFlares(dt);
@@ -8816,7 +8988,7 @@ function initVxVortex(){
   resize();
   window.addEventListener('resize', resize);
 
-  /* ---- 事件：hover 吸附 / click 外爆 ----
+  /* ---- 事件：悬停微光 / 按下吸收 / 点击尾声 ----
      pointerover/out 用捕获监听，closest 到按钮；relatedTarget 落在自己子元素上不算离开，
      否则光标划过按钮里的 <span class="eff"> 会误判成「离开 → 重进」，涡会抖。 */
   document.addEventListener('pointerover', e => {
@@ -8825,14 +8997,30 @@ function initVxVortex(){
     if(b && !b.disabled) bind(b, false);
   }, true);
   document.addEventListener('pointerout', e => {
-    if(!FINE) return;
     const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
     if(!b) return;
     if(e.relatedTarget && b.contains(e.relatedTarget)) return;
-    leave(b);
+    if(e.buttons) V.pressed = false;                       // 按住拖出按钮：这一回不算数
+    unsuck(b);
+    if(FINE) leave(b);
   }, true);
   document.addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; armed = true; }, {passive:true});
   document.addEventListener('pointerout', e => { if(!e.relatedTarget) armed = false; }, true);
+  /* pointerdown 才是「被吸进去」的起点：click 要等抬手，那太晚了 */
+  document.addEventListener('pointerdown', e => {
+    if(e.button) return;                                   // 只认主键，右键菜单不参与
+    const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+    if(!b || b.disabled) return;
+    press(b);
+  }, true);
+  document.addEventListener('pointerup', e => {
+    if(e.button) return;
+    if(suckEl) unsuck(suckEl);                             // 抬手即回弹；正常点击时按钮随即被重建
+  }, true);
+  document.addEventListener('pointercancel', () => {
+    if(suckEl) unsuck(suckEl);
+    V.pressed = false;
+  }, true);
   document.addEventListener('click', e => {
     const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
     if(!b || b.disabled) return;
