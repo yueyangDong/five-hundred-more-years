@@ -2167,9 +2167,17 @@ catch(e){ document.documentElement.setAttribute('data-theme','auto'); }
 .scene.art-court{--art:var(--gc-art-court)}
 .scene.art-wedding{--art:var(--gc-art-wedding)}
 </style>
+<style id="vxcss">
+/* ---------- v11 墨涡层：按钮交互画布 ----------
+   只此一条规则。所有漩涡画面都由 canvas 现画，不碰任何按钮的既有样式，
+   所以：跨主题零冲突、跨尺寸零适配、按钮被重建也不影响动画播完。 */
+#vx{position:fixed;inset:0;z-index:68;pointer-events:none;display:block}
+</style>
 </head>
 <body>
 <canvas id="bgFx"></canvas>
+<!-- v11 墨涡：按钮 hover 吸附 / click 外爆 的独立画布（在内容之上、弹窗之下） -->
+<canvas id="vx" aria-hidden="true"></canvas>
 <!-- v10：墨边滤镜定义（隐藏，仅被 .gc-scape 引用；feDisplacementMap 让矢量山峦边缘「洇」开） -->
 <svg class="gc-defs" width="0" height="0" aria-hidden="true" focusable="false"
      style="position:absolute;width:0;height:0;overflow:hidden">
@@ -8339,6 +8347,510 @@ function fxPathAura(){
   document.body.appendChild(d);
   setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 1360);
 }
+
+/* ==========================================================================
+   v11 · 墨涡 —— 按钮交互的黑洞式漩涡（hover 吸附 / click 外爆）
+   --------------------------------------------------------------------------
+   为什么不给按钮加伪元素或子元素，而走独立画布：
+     1) .opt 的 ::before/::after 已被「左侧金线 + 底部暖光」占着，新主题里还是 display:none
+        —— 再加就得动主题规则，跨主题一致性立刻破功；
+     2) .opt 有 overflow:hidden，向外扩散的涟漪和飞散的粒子会被裁掉；
+     3) 最关键：选项按钮在 click 的同一个 tick 里就被整块重建了，
+        挂在按钮上的动画根本播不完 —— 只有独立画布能把「被吸进去」这一下画完整。
+   代价是画布读不到按钮的 DOM 样式，所以按主题备两套色：
+     浅色 = 绢本上的墨涡（暗墨 + 赭金，source-over 压暗）
+     深色 = 夜空里的吸积盘（亮金 + 朱砂，source-over 提亮）
+   两边都只做 source-over，不引 mix-blend-mode —— 否则整页要多一次全屏混合。
+   几何全部从按钮 rect 现算：核心半径跟高度走、横向拉伸跟宽高比走、涟漪上限跟高度走，
+   于是方形图标按钮与贯通整行的选项按钮共用一个参数系统。
+   ========================================================================== */
+function initVxVortex(){
+  const cv = $('vx');
+  if(!cv || !cv.getContext) return;
+  const ctx = cv.getContext('2d');
+  if(!ctx) return;
+
+  const SEL = '.btn,.opt,.tbtn,.sb-item,.sb-btn,.amb,.tal button';
+  const TAU = Math.PI * 2;
+  const ASP = .84;                        // 吸积盘的俯仰压缩：盘「躺下来」才有体积感
+  const REDUCE = v4Reduce();              // 减弱动效：只留一帧柔光，不做漩涡
+  const FINE = !!(window.matchMedia && window.matchMedia('(hover:hover) and (pointer:fine)').matches);
+  const DPR = Math.min(1.5, window.devicePixelRatio || 1);
+
+  let W = 0, H = 0, raf = null, last = 0, frame = 0, now = 0, dark = gcIsDark();
+  let mx = -99, my = -99, armed = false;
+
+  const rnd = (a, b) => a + (b - a) * Math.random();
+  const cl  = (v, a, b) => (v < a ? a : (v > b ? b : v));
+  const eOutQ = u => 1 - Math.pow(1 - u, 2.4);
+  const decay = (v, dt, tau) => v * Math.exp(-dt / tau);
+
+  /* ---- 调色 ----
+     浅色主题不是「把深色版调亮」，而是换一套逻辑：在绢本上画墨涡，靠「暗」说话；
+     深色主题在夜空里画吸积盘，靠「亮」说话。两者共用同一套层结构：
+     远场雾 → 内盘热辉 → 旋臂 → 洞心 → 光子环。 */
+  const PAL = {
+    dark : { void1:'2,1,1',     voidA:.88, void2:'8,6,4',    void2A:.52,
+             haze:'0,0,0',      hazeA:.46,
+             edge:'255,248,218', edgeA:.95, edge2:'118,86,28', edge2A:.42,
+             hot:['255,232,178','240,192,112'], hotA:.44,
+             arm:['255,236,186','244,206,132','255,246,216'], head:'255,252,240', armSoft:.16,
+             part:['255,244,214','248,212,146','232,168,110','255,250,234'],
+             fl:'240,206,130', grain:'255,248,226' },
+    light: { void1:'6,4,2',      voidA:.84, void2:'26,18,9',   void2A:.44,
+             haze:'40,28,14',    hazeA:.30,
+             edge:'255,253,246', edgeA:.90, edge2:'100,70,16', edge2A:.48,
+             hot:['176,128,34','132,92,20'], hotA:.48,
+             arm:['120,86,18','152,62,40','92,66,16'], head:'70,48,8', armSoft:.22,
+             part:['128,92,24','156,64,42','100,74,18','172,128,42'],
+             fl:'118,82,22', grain:'84,58,12' }
+  };
+  let P = PAL[dark ? 'dark' : 'light'];
+
+  /* ---- 光晕精灵：预渲染，免得每帧现建径向渐变 ---- */
+  function sprite(d){
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d');
+    const grd = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    if(d){ grd.addColorStop(0,'rgba(255,248,226,.92)'); grd.addColorStop(.20,'rgba(246,224,164,.46)');
+           grd.addColorStop(.60,'rgba(214,168,72,.12)'); grd.addColorStop(1,'rgba(214,168,72,0)'); }
+    else { grd.addColorStop(0,'rgba(70,50,12,.62)');   grd.addColorStop(.24,'rgba(96,70,22,.30)');
+           grd.addColorStop(.64,'rgba(96,70,22,.08)'); grd.addColorStop(1,'rgba(96,70,22,0)'); }
+    g.fillStyle = grd; g.fillRect(0, 0, 128, 128);
+    return c;
+  }
+  const SPR_D = sprite(true), SPR_L = sprite(false);
+
+  /* ---- 状态：涡本体（同时只有一个，鼠标只有一个）、粒子、涟漪、金箔、光晕 ---- */
+  const V = { el:null, cx:0, cy:0, pcx:0, pcy:0, hw:0, hh:0, R:16, sx:1, Rout:110,
+              charge:0, want:0, spin:0, spinV:0, dir:1, eat:0, impl:0,
+              spawnAt:0, rippleAt:0, haloAt:0, tmpUntil:0, rebindDelay:0, keepAwake:0, parts:[] };
+  const rings = [], flares = [], blooms = [];
+
+  /* ---- 几何：一套参数吃下所有尺寸 ---- */
+  function geom(){
+    V.R    = cl(V.hh * .80, 14, 42);                       // 吸积环半径：跟高度走
+    V.sx   = cl(V.hw / Math.max(V.hh * 3.4, 1), 1, 2.2);   // 横向拉伸：跟宽高比走（方形按钮自然为 1）
+    V.Rout = cl(V.hh * 3.0, 72, 168);                      // 涟漪上限：跟高度走
+  }
+  function elUnder(x, y){
+    if(x < -40 || y < -40 || x > W + 40 || y > H + 40) return null;
+    const e = document.elementFromPoint(x, y);
+    const b = (e && e.closest) ? e.closest(SEL) : null;
+    return (b && !b.disabled) ? b : null;
+  }
+
+  /* ---- 粒子 ---- */
+  function pos(p){ p.x = p.cx + p.r * Math.cos(p.a); p.y = p.cy + p.r * Math.sin(p.a); }
+  function emit(fast, big){
+    const a0 = rnd(0, TAU);
+    let r0;
+    if(fast){
+      r0 = V.R * rnd(1.0, 3.4);
+    }else{
+      // 落在与按钮同形的椭圆上，再往外撒一点 —— 让「从四周被吸过来」看得见
+      const rx = Math.max(V.R * 1.6, Math.min(V.hw * 1.06, V.R * 8.6));
+      const ry = Math.max(V.R * 1.2, Math.min(V.hh * 1.34, V.R * 3.6));
+      r0 = 1 / Math.hypot(Math.cos(a0) / rx, Math.sin(a0) / ry) * rnd(1.0, 1.26);
+    }
+    const p = { cx:V.cx, cy:V.cy, r:r0, a:a0, R:V.R, mul:fast ? 6.5 : 1,
+                spin:V.dir, t:0, ttl:fast ? 1.6 : rnd(4.2, 6.4),
+                w:big ? rnd(.40, .72) : rnd(1.05, 2.2),
+                ci:(Math.random() * 4) | 0, ph:rnd(0, TAU), fade:fast ? .08 : .22,
+                big:!!big, follow:!fast, x:0, y:0, tr:null };
+    pos(p);
+    p.tr = [p.x, p.y, p.x, p.y, p.x, p.y];
+    V.parts.push(p);
+    if(V.parts.length > 82) V.parts.shift();
+  }
+  function stepPart(p, dt){
+    p.t += dt;
+    const R = p.R;
+    // 角速度 ω ∝ 1/r —— 越靠近核心转得越快，这就是「速度渐变的旋转扭曲」
+    p.a += (p.spin * 3.77 * R) / (.30 * R + Math.max(p.r, .22 * R)) * dt;
+    p.a += Math.sin(p.t * 2.1 + p.ph) * .05 * dt;          // 一点章动，轨迹不至于太规整
+    // 径向：近核处 1/r 项主导 —— 越吸越快，最后被吞；远处的加一点线性项，免得在外圈磨太久
+    p.r += -R * p.mul * (.75 + 3.2 * R / Math.max(p.r, .30 * R) + .05 * p.r / R) * dt;
+    if(p.r <= R * .16){                                     // 吞入：给核心补一口亮度
+      p.dead = true;
+      V.eat = Math.min(1.5, V.eat + (p.big ? .34 : .16));
+      return;
+    }
+    if(p.t > p.ttl){ p.dead = true; return; }
+    // 拖尾留 3 帧：近核处角速度大，三帧就够拉出一道看得见的弧
+    p.tr[4] = p.tr[2]; p.tr[5] = p.tr[3];
+    p.tr[2] = p.tr[0]; p.tr[3] = p.tr[1];
+    p.tr[0] = p.x;     p.tr[1] = p.y;
+    pos(p);
+  }
+
+  /* ---- 涟漪 / 金箔 / 光晕 ---- */
+  function ring(cx, cy, r1, o){
+    rings.push({ cx:cx, cy:cy, r1:r1, sx:(o.sx === undefined ? 1 : o.sx), asp:(o.asp || ASP),
+                 w0:(o.w0 || 2), a0:(o.a0 || .4), dur:(o.dur || .9), t:0, delay:(o.delay || 0) });
+    if(rings.length > 22) rings.shift();
+  }
+  function flare(cx, cy, n, R){
+    for(let i = 0; i < n; i++){
+      const a = rnd(0, TAU), v = R * rnd(1.6, 4.6);
+      flares.push({ x:cx, y:cy, vx:Math.cos(a) * v, vy:Math.sin(a) * v * .8, rot:a,
+                    t:0, ttl:rnd(.42, .78), len:rnd(2.2, 6.4) * (R / 17), w:rnd(.8, 1.7),
+                    sgn:Math.random() < .5 ? 1 : -1 });
+    }
+    if(flares.length > 90) flares.splice(0, flares.length - 90);
+  }
+  function bloom(cx, cy, r, a0, dur){
+    blooms.push({ cx:cx, cy:cy, r:r, a0:a0, dur:dur, t:0 });
+    if(blooms.length > 10) blooms.shift();
+  }
+
+  /* ---- 涡：绑定 / 脱离 ---- */
+  function bind(el, soft){
+    if(REDUCE) return;
+    if(V.el === el && V.want > .5) return;
+    if(V.el !== el){
+      V.el = el;
+      V.dir = Math.random() < .5 ? 1 : -1;
+      V.spin = 0; V.spinV = 0;
+      V.parts = V.parts.filter(p => !p.follow);            // 旧涡的粒子留在原地，不跟着跳
+      V.charge = soft ? Math.max(V.charge, .28) : 0;
+      V.rippleAt = now + .18; V.spawnAt = now + .10; V.haloAt = now + .9;
+    }
+    const r = el.getBoundingClientRect();
+    V.cx = r.left + r.width / 2; V.cy = r.top + r.height / 2;
+    V.hw = r.width / 2; V.hh = r.height / 2;
+    geom();
+    V.want = 1; V.tmpUntil = 0; V.rebindDelay = 0;
+    kick();
+  }
+  function leave(el){
+    if(REDUCE || V.el !== el) return;
+    V.want = 0;
+  }
+  function tap(el, x, y){
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    if(V.el !== el){ V.el = el; V.dir = Math.random() < .5 ? 1 : -1; V.spin = 0; V.spinV = 0; }
+    V.cx = cx; V.cy = cy; V.hw = r.width / 2; V.hh = r.height / 2;
+    geom();
+    if(REDUCE){ bloom(cx, cy, V.R * 4.2, .40, .46); kick(); return; }
+
+    V.charge = Math.max(V.charge, .70);
+    V.impl = 1;                                            // 先向内塌一下 —— 「被吸进去」那一下
+    V.eat  = 1.25;
+    bloom(cx, cy, V.R * 5.6, dark ? .58 : .40, .52);       // 核心爆闪
+    for(let i = 0; i < 13; i++) emit(true, false);         // 向内飞：快 6 倍，0.35s 被吞完
+    for(let i = 0; i < 3;  i++) emit(true, true);
+    const rb = V.Rout * 1.5, rsx = Math.sqrt(V.sx);        // 向外扩散：三道涟漪错峰
+    ring(cx, cy, rb,       { sx:rsx, w0:2.5, a0:.52, dur:.66 });
+    ring(cx, cy, rb * .82, { sx:rsx, w0:1.7, a0:.36, dur:.60, delay:.055 });
+    ring(cx, cy, rb * 1.2, { sx:rsx, w0:1.0, a0:.22, dur:.78, delay:.115 });
+    flare(cx, cy, 15, V.R);                                // 外散金箔
+    if(x > -40){                                           // 落点反馈：光标在哪，溅在哪
+      bloom(x, y, V.R * 2.2, dark ? .40 : .26, .30);
+      flare(x, y, 7, V.R * .72);
+    }
+    // 涡本体交出去：先塌陷再消散，之后由「续涡」按需自动重新卷起来。
+    // keepAwake：点完之后把引擎多留 1.5s —— 事件翻页后光标往往还停在原处，
+    // 得留出「续涡」的窗口，否则用户不动鼠标就再也看不见涡了。
+    V.el = null; V.want = 0; V.tmpUntil = now + .30; V.rebindDelay = now + .55;
+    V.keepAwake = FINE ? now + 1.5 : 0;
+    kick();
+  }
+
+  /* ---- 画：涡本体（五层：远场雾 → 内盘热辉 → 旋臂 → 洞心 → 光子环） ---- */
+  function drawVortex(){
+    const c = V.charge;
+    if(c < .012) return;
+    const R = V.R * (1 - .26 * V.impl);
+    ctx.save();
+    ctx.translate(V.cx, V.cy);
+    ctx.scale(V.sx, ASP);                                  // 盘「躺下来」，横向按按钮宽高比拉开
+
+    // A) 远场引力雾：让涡与纸面之间没有硬边
+    let g = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 2.7);
+    g.addColorStop(0,   'rgba(' + P.haze + ',' + (P.hazeA * c) + ')');
+    g.addColorStop(.30, 'rgba(' + P.haze + ',' + (P.hazeA * .42 * c) + ')');
+    g.addColorStop(.66, 'rgba(' + P.haze + ',' + (P.hazeA * .12 * c) + ')');
+    g.addColorStop(1,   'rgba(' + P.haze + ',0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, R * 2.7, 0, TAU); ctx.fill();
+
+    // B) 内盘热辉：.42R~1.25R 的暖金环带，是「这里很烫」的底子
+    g = ctx.createRadialGradient(0, 0, R * .42, 0, 0, R * 1.25);
+    g.addColorStop(0,   'rgba(' + P.hot[0] + ',0)');
+    g.addColorStop(.32, 'rgba(' + P.hot[0] + ',' + (P.hotA * c) + ')');
+    g.addColorStop(.72, 'rgba(' + P.hot[1] + ',' + (P.hotA * .38 * c) + ')');
+    g.addColorStop(1,   'rgba(' + P.hot[1] + ',0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, R * 1.25, 0, TAU); ctx.fill();
+
+    // C) 旋臂：真螺旋 —— 半径随角度增长；缠绕度随呼吸慢慢收放，
+    //    所以看着是「越缠越紧又被甩开」，而不是一圈圈同心圆
+    const wind = 1.15 + .42 * (.5 + .5 * Math.sin(now * .13 + V.dir));
+    const SEGN = 4, STEP = 9;                              // 段数 / 每段采样点数（分母必须与循环上限一致）
+    ctx.lineCap = 'round';
+    for(let k = 0; k < 3; k++){
+      const th0   = V.spin + k * TAU / 3;
+      const col   = P.arm[k];
+      const windK = wind * (1 + (k - 1) * .11);            // 三条臂缠绕度各不相同，否则一眼看出是复制粘贴
+      const ampK  = .84 + k * .10;                         // 长度也不同
+      const aK    = k === 1 ? 1.12 : (k === 2 ? .82 : 1);  // 明暗分主次
+      for(let pass = 0; pass < 2; pass++){                 // 软底一遍 + 锐线一遍
+        ctx.strokeStyle = 'rgb(' + col + ')';
+        const wBase = pass ? R * .075 : R * .21;
+        for(let seg = 0; seg < SEGN; seg++){               // 分四段 → 边收细边淡出，臂尾不会硬切
+          const u0 = seg / SEGN, u1 = (seg + 1) / SEGN;
+          ctx.globalAlpha = cl(c * (pass ? .60 : P.armSoft) * (1 - u0 * .80) * aK, 0, 1);
+          ctx.lineWidth = wBase * (1 - u0 * .50);
+          ctx.beginPath();
+          for(let i = 0; i <= STEP; i++){
+            const u  = u0 + (u1 - u0) * (i / STEP);
+            const th = th0 + u * windK * (TAU / 3);
+            const rr = R * (.86 + u * 1.22 * ampK);
+            const x = Math.cos(th) * rr, y = Math.sin(th) * rr;
+            if(i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        }
+      }
+      // 臂头：内端一颗亮点 —— 刚被卷进去的物质，被吞之前最后的亮
+      ctx.globalAlpha = cl(c * (.55 + .45 * Math.min(1, V.eat)), 0, 1);
+      ctx.fillStyle = 'rgb(' + P.head + ')';
+      ctx.beginPath();
+      ctx.arc(Math.cos(th0) * R * .86, Math.sin(th0) * R * .86, R * .115, 0, TAU);
+      ctx.fill();
+    }
+
+    // D) 洞心：把中心真正压黑。「黑洞」的全部说服力都在这颗黑点上，
+    //    半径压到 .46R 是为了不糊住按钮文字 —— 它只需要够小够黑
+    g = ctx.createRadialGradient(0, 0, 0, 0, 0, R * .46);
+    g.addColorStop(0,   'rgba(' + P.void1 + ',' + cl(c * P.voidA * (1 + .18 * V.impl), 0, 1) + ')');
+    g.addColorStop(.55, 'rgba(' + P.void2 + ',' + cl(c * P.void2A, 0, 1) + ')');
+    g.addColorStop(1,   'rgba(' + P.void2 + ',0)');
+    ctx.globalAlpha = 1; ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, R * .46, 0, TAU); ctx.fill();
+
+    // E) 光子环：「光在洞口拐了个弯」的那一圈。
+    //    浅色主题下它之所以能「亮」，是因为此时它底下已经铺过远场雾与旋臂 ——
+    //    亮不是绝对值，是相对于周边。
+    const eA = cl(c * (1 + .50 * V.eat) * (1 + .80 * V.impl), 0, 1);
+    ctx.strokeStyle = 'rgb(' + P.edge + ')';
+    ctx.globalAlpha = eA * P.edgeA;
+    ctx.lineWidth = R * .055;
+    ctx.beginPath(); ctx.arc(0, 0, R * .52, 0, TAU); ctx.stroke();
+    ctx.strokeStyle = 'rgb(' + P.edge2 + ')';
+    ctx.globalAlpha = eA * P.edge2A;
+    ctx.lineWidth = R * .045;
+    ctx.beginPath(); ctx.arc(0, 0, R * .63, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* ---- 画：粒子 / 涟漪 / 金箔 / 光晕 ---- */
+  function drawParts(){
+    const c = V.charge;
+    for(let i = 0; i < V.parts.length; i++){
+      const p = V.parts[i];
+      if(c < .02 && p.follow) continue;
+      const near = cl(1 - (p.r - p.R) / (p.R * 5.2), 0, 1);
+      let al = c * (p.big ? .30 : .72) * (.68 + .32 * near);
+      al *= cl(p.t / p.fade, 0, 1);                         // 淡入，避免凭空出现
+      if(al <= .004) continue;
+      if(p.big){
+        const s = p.w * p.R * 13;
+        ctx.globalAlpha = cl(al, 0, 1);
+        ctx.drawImage(dark ? SPR_D : SPR_L, p.x - s / 2, p.y - s / 2, s, s);
+      }else{
+        ctx.strokeStyle = 'rgb(' + P.part[p.ci] + ')';
+        ctx.lineCap = 'round';
+        ctx.beginPath();                                    // 三点折线 + 二次曲线收尾 = 一段弧
+        ctx.moveTo(p.tr[4], p.tr[5]);
+        ctx.lineTo(p.tr[2], p.tr[3]);
+        ctx.quadraticCurveTo(p.tr[0], p.tr[1], p.x, p.y);
+        ctx.globalAlpha = cl(al * .22, 0, 1);               // 外圈软底，让拖尾有厚度
+        ctx.lineWidth = p.w * 3.0;
+        ctx.stroke();
+        ctx.globalAlpha = cl(al, 0, 1);
+        ctx.lineWidth = p.w;
+        ctx.stroke();
+        ctx.globalAlpha = cl(al * 1.35, 0, 1);              // 头部一点更亮
+        ctx.fillStyle = 'rgb(' + P.grain + ')';
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.w * .62, 0, TAU); ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawRings(dt){
+    for(let i = rings.length - 1; i >= 0; i--){
+      const g = rings[i];
+      g.t += dt;
+      const u = (g.t - g.delay) / g.dur;
+      if(u < 0) continue;
+      if(u >= 1){ rings.splice(i, 1); continue; }
+      const e  = 1 - Math.pow(1 - u, 2.6);                  // 先快后慢：水的涟漪就是冲出去再泄劲
+      const rr = 2 + (g.r1 - 2) * e;
+      const al = g.a0 * Math.pow(1 - u, 1.7);
+      const w  = g.w0 * (1 - .55 * u);
+      ctx.strokeStyle = 'rgb(' + P.fl + ')';
+      ctx.beginPath(); ctx.ellipse(g.cx, g.cy, rr * g.sx, rr * g.asp, 0, 0, TAU);
+      // 三层描边（软边 / 中调 / 锐线）换掉 ctx.filter 的模糊，后者太贵
+      ctx.lineWidth = w * 3.1; ctx.globalAlpha = al * .16; ctx.stroke();
+      ctx.lineWidth = w * 1.7; ctx.globalAlpha = al * .34; ctx.stroke();
+      ctx.lineWidth = w;       ctx.globalAlpha = al;       ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawFlares(dt){
+    for(let i = flares.length - 1; i >= 0; i--){
+      const f = flares[i];
+      f.t += dt;
+      const u = f.t / f.ttl;
+      if(u >= 1){ flares.splice(i, 1); continue; }
+      const dr = Math.exp(-dt / .16);
+      f.vx *= dr; f.vy *= dr;
+      f.x += f.vx * dt; f.y += f.vy * dt;
+      f.rot += f.sgn * dt * 5.5;
+      ctx.globalAlpha = cl((dark ? .62 : .38) * Math.pow(1 - u, 1.8), 0, 1);
+      ctx.fillStyle = 'rgb(' + P.fl + ')';
+      ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      ctx.fillRect(-f.len / 2, -f.w / 2, f.len, f.w);       // 一片翻飞的金箔
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+  function drawBlooms(dt){
+    for(let i = blooms.length - 1; i >= 0; i--){
+      const b = blooms[i];
+      b.t += dt;
+      const u = b.t / b.dur;
+      if(u >= 1){ blooms.splice(i, 1); continue; }
+      const s = b.r * (1.15 + 1.05 * eOutQ(u));
+      ctx.globalAlpha = cl(b.a0 * Math.pow(1 - u, 2), 0, 1);
+      ctx.drawImage(dark ? SPR_D : SPR_L, b.cx - s / 2, b.cy - s / 2, s, s);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---- 主循环 ---- */
+  function idle(){
+    return !V.el && V.charge < .012 && now > V.keepAwake && !V.parts.length &&
+           !rings.length && !flares.length && !blooms.length && V.eat < .012 && V.impl < .015;
+  }
+  function kick(){ if(!raf){ last = 0; raf = requestAnimationFrame(draw); } }
+  function draw(ts){
+    if(!last) last = ts;
+    let dt = (ts - last) / 1000;
+    last = ts;
+    if(dt > .05) dt = .05;
+    if(dt <= 0) dt = .001;
+    now = ts / 1000;
+    frame++;
+    if((frame & 31) === 1){ dark = gcIsDark(); P = PAL[dark ? 'dark' : 'light']; }
+
+    // 1) 涡的几何：每帧现读 rect，按钮被抬起 1px、页面滚动、主题切换都跟得上
+    if(V.el){
+      if(!V.el.isConnected) V.el = null;
+      else{
+        const r = V.el.getBoundingClientRect();
+        V.cx = r.left + r.width / 2; V.cy = r.top + r.height / 2;
+        V.hw = r.width / 2; V.hh = r.height / 2;
+        geom();
+      }
+    }
+    // 2) 续涡：光标没动、脚下的按钮却换了一批（事件翻页）——把涡接到新按钮上
+    if(!V.el && armed && mx > -50 && now > V.rebindDelay){
+      const u = elUnder(mx, my);
+      if(u) bind(u, true);
+      else V.want = 0;
+    }
+    if(V.tmpUntil && now > V.tmpUntil){ V.tmpUntil = 0; V.want = 0; }
+
+    // 3) 能量：指数逼近，任何时候都连续，不会跳变
+    V.charge += (V.want - V.charge) * (1 - Math.exp(-dt / (V.want > V.charge ? .075 : .13)));
+    if(V.charge < .0006) V.charge = 0;
+    V.spinV += (2.9 * V.dir - V.spinV) * (1 - Math.exp(-dt / .19));   // 起旋有个卷起来的过程
+    V.spin  += V.spinV * (.30 + .70 * V.charge) * dt;
+    V.impl = decay(V.impl, dt, .085);
+    V.eat  = decay(V.eat,  dt, .17);
+
+    // 4) 涡在转就持续吸：粒子按时间滴入，涟漪隔一阵放一圈
+    if(V.charge > .35){
+      if(now >= V.spawnAt){ V.spawnAt = now + rnd(.16, .34) / V.charge; emit(false, false); }
+      if(now >= V.haloAt){  V.haloAt  = now + rnd(1.1, 2.1); emit(false, true); }
+      if(now >= V.rippleAt){
+        V.rippleAt = now + rnd(.95, 1.5);
+        const rsx = Math.sqrt(V.sx) * .9;
+        ring(V.cx, V.cy, V.Rout,        { sx:rsx, w0:1.35, a0:.20 * V.charge, dur:1.15 });
+        ring(V.cx, V.cy, V.Rout * .72,  { sx:rsx, w0:.95,  a0:.14 * V.charge, dur:.92, delay:.13 });
+      }
+    }
+
+    // 5) 步进
+    const dcx = V.cx - V.pcx, dcy = V.cy - V.pcy;
+    V.pcx = V.cx; V.pcy = V.cy;
+    for(let i = V.parts.length - 1; i >= 0; i--){
+      const p = V.parts[i];
+      if(p.follow){ p.cx += dcx; p.cy += dcy; }             // 跟着按钮走，滚动/位移都不脱队
+      stepPart(p, dt);
+      if(p.dead) V.parts.splice(i, 1);
+    }
+
+    // 6) 出图
+    ctx.clearRect(0, 0, W, H);
+    drawVortex(dt);
+    drawParts();
+    drawRings(dt);
+    drawFlares(dt);
+    drawBlooms(dt);
+    ctx.globalAlpha = 1;
+
+    if(idle()){ raf = null; last = 0; return; }
+    raf = requestAnimationFrame(draw);
+  }
+
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    if(ctx.setTransform) ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ---- 事件：hover 吸附 / click 外爆 ----
+     pointerover/out 用捕获监听，closest 到按钮；relatedTarget 落在自己子元素上不算离开，
+     否则光标划过按钮里的 <span class="eff"> 会误判成「离开 → 重进」，涡会抖。 */
+  document.addEventListener('pointerover', e => {
+    if(!FINE) return;
+    const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+    if(b && !b.disabled) bind(b, false);
+  }, true);
+  document.addEventListener('pointerout', e => {
+    if(!FINE) return;
+    const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+    if(!b) return;
+    if(e.relatedTarget && b.contains(e.relatedTarget)) return;
+    leave(b);
+  }, true);
+  document.addEventListener('pointermove', e => { mx = e.clientX; my = e.clientY; armed = true; }, {passive:true});
+  document.addEventListener('pointerout', e => { if(!e.relatedTarget) armed = false; }, true);
+  document.addEventListener('click', e => {
+    const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+    if(!b || b.disabled) return;
+    const kb = !e.detail;                                   // 键盘触发的 click 没有坐标，退回按钮中心
+    tap(b, kb ? -99 : e.clientX, kb ? -99 : e.clientY);
+  }, true);
+  document.addEventListener('focusin', e => {
+    const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+    if(!b) return;
+    let vis = false;
+    try{ vis = b.matches(':focus-visible'); }catch(err){ vis = true; }
+    if(vis) bind(b, false);
+  }, true);
+  document.addEventListener('focusout', e => {
+    const b = (e.target && e.target.closest) ? e.target.closest(SEL) : null;
+    if(b) leave(b);
+  }, true);
+}
 /* 天行健：一层金红气环，像有人在你背后推了一把 */
 function fxWill(){
   const d = document.createElement('div');
@@ -9129,6 +9641,7 @@ function toggleFast(){
 
 function init(){
   initBgFx();
+  initVxVortex();
   fillSelects();
   applySavedBirth();   // 存档里的生辰八字自动回填到投胎表单
   renderHome();
