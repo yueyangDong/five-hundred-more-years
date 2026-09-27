@@ -1574,6 +1574,331 @@ body::before{
   background:linear-gradient(180deg,currentColor,rgba(0,0,0,0));
   opacity:.45;
 }
+
+/* =========================================================================
+   v9：国潮 —— 水墨 · 祥云 · 金红
+   在 v8「国风仙侠」之上再推一层：把「宣纸底 + 金调」推进到「绢本水墨 + 鎏金朱砂」，
+   并补上三件真正的国潮骨架——水墨晕染、祥云纹样、远山剪影。
+   约束不变（这是这个项目的底线）：
+     · 只动 transform / opacity，不碰 layout 属性；
+     · prefers-reduced-motion 下全部收敛为静帧；
+     · 零外部依赖：祥云 / 远山 / 绢丝纹全部是内联 SVG data-URI 与 CSS 遮蔽。
+   ========================================================================= */
+
+/* ---------- 9.1 色板：墨分五色 · 朱砂两阶 · 鎏金四阶 ---------- */
+:root{
+  --ink-jiao:#12100b;--ink-nong:#2c2419;--ink-zhong:#4c4231;
+  --ink-dan:rgba(72,62,44,.58);--ink-qing:rgba(72,62,44,.34);
+  --zhu-shen:#8f2318;--zhu:#bd3a2b;--zhu-liang:#d96a5a;
+  --gilt-deep:#7a5c14;--gilt:#c9a227;--gilt-lit:#f2d589;--gilt-hi:#fdf3d4;
+  --qing:#35688f;--lv:#3b7a5c;
+  --silk-1:#f6efdd;--silk-2:#ece1c9;--paper:#fffdf6;
+  --gc-line:rgba(150,105,15,.30);
+}
+:root[data-theme="dark"]{
+  --ink-jiao:#f4ecd9;--ink-nong:#e6d9bd;--ink-zhong:#cdbb92;
+  --ink-dan:rgba(228,214,182,.62);--ink-qing:rgba(228,214,182,.36);
+  --zhu-shen:#c23a2c;--zhu:#d9483a;--zhu-liang:#e8756a;
+  --gilt-deep:#5e4710;--gilt:#d9a92c;--gilt-lit:#f0cf8a;--gilt-hi:#fff6dc;
+  --silk-1:#0b0a07;--silk-2:#161209;--paper:#191510;
+  --gc-line:rgba(212,162,76,.30);
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"]{
+    --ink-jiao:#f4ecd9;--ink-nong:#e6d9bd;--ink-zhong:#cdbb92;
+    --ink-dan:rgba(228,214,182,.62);--ink-qing:rgba(228,214,182,.36);
+    --zhu-shen:#c23a2c;--zhu:#d9483a;--zhu-liang:#e8756a;
+    --gilt-deep:#5e4710;--gilt:#d9a92c;--gilt-lit:#f0cf8a;--gilt-hi:#fff6dc;
+    --silk-1:#0b0a07;--silk-2:#161209;--paper:#191510;
+    --gc-line:rgba(212,162,76,.30);
+  }
+}
+
+/* ---------- 9.2 底：绢本（微暖）＋ 水墨晕染（两团浓淡）＋ 祥云暗纹（缓慢飘移） ---------- */
+body{
+  background:
+    radial-gradient(780px 430px at 20% -8%,rgba(201,162,39,.15) 0%,rgba(201,162,39,0) 60%),
+    radial-gradient(920px 540px at 88% 108%,rgba(189,58,43,.10) 0%,rgba(189,58,43,0) 62%),
+    radial-gradient(1200px 820px at 50% 38%,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 68%),
+    linear-gradient(180deg,var(--silk-1) 0%,var(--silk-2) 100%);
+  background-attachment:fixed;
+}
+:root[data-theme="dark"] body{
+  background:
+    radial-gradient(780px 430px at 20% -8%,rgba(217,169,44,.16) 0%,rgba(217,169,44,0) 60%),
+    radial-gradient(920px 540px at 88% 108%,rgba(217,72,58,.13) 0%,rgba(217,72,58,0) 62%),
+    radial-gradient(1200px 820px at 50% 38%,rgba(255,255,255,.045) 0%,rgba(255,255,255,0) 68%),
+    linear-gradient(180deg,var(--silk-1) 0%,var(--silk-2) 100%);
+  background-attachment:fixed;
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] body{
+    background:
+      radial-gradient(780px 430px at 20% -8%,rgba(217,169,44,.16) 0%,rgba(217,169,44,0) 60%),
+      radial-gradient(920px 540px at 88% 108%,rgba(217,72,58,.13) 0%,rgba(217,72,58,0) 62%),
+      radial-gradient(1200px 820px at 50% 38%,rgba(255,255,255,.045) 0%,rgba(255,255,255,0) 68%),
+      linear-gradient(180deg,var(--silk-1) 0%,var(--silk-2) 100%);
+    background-attachment:fixed;
+  }
+}
+/* 绢丝：两组 45° 细纹交叉，像绢帛的经纬（静态，不参与动效） */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;display:block;opacity:1;
+  background-image:
+    repeating-linear-gradient(45deg,rgba(122,92,20,.032) 0 1px,transparent 1px 6px),
+    repeating-linear-gradient(-45deg,rgba(122,92,20,.022) 0 1px,transparent 1px 7px);
+}
+:root[data-theme="dark"] body::before{
+  background-image:
+    repeating-linear-gradient(45deg,rgba(212,162,76,.028) 0 1px,transparent 1px 6px),
+    repeating-linear-gradient(-45deg,rgba(212,162,76,.02) 0 1px,transparent 1px 7px);
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] body::before{
+    background-image:
+      repeating-linear-gradient(45deg,rgba(212,162,76,.028) 0 1px,transparent 1px 6px),
+      repeating-linear-gradient(-45deg,rgba(212,162,76,.02) 0 1px,transparent 1px 7px);
+  }
+}
+/* 祥云暗纹：用 mask 而非背景图 —— 颜色交给 --gilt，深浅主题共用同一张图 */
+body::after{
+  content:"";position:fixed;pointer-events:none;z-index:0;
+  inset:-16% -20% -16% -20%;
+  background-color:var(--gilt);opacity:.15;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='110' viewBox='0 0 220 110'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.15' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3Cpath d='M50 47c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3Cg transform='translate(112,60) scale(.68)'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3Cpath d='M50 47c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3C/g%3E%3Cg transform='translate(24,88) scale(.5)'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3C/g%3E%3Cg transform='translate(150,16) scale(.44)'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='110' viewBox='0 0 220 110'%3E%3Cg fill='none' stroke='%23000' stroke-width='1.15' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3Cpath d='M50 47c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3Cg transform='translate(112,60) scale(.68)'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3Cpath d='M50 47c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3C/g%3E%3Cg transform='translate(24,88) scale(.5)'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3C/g%3E%3Cg transform='translate(150,16) scale(.44)'%3E%3Cpath d='M6 58c-3 0-6-3-5-6 1-3 5-4 8-3 0-6 6-10 12-8 2-5 9-7 14-3 4-5 13-4 16 2 6-1 11 3 11 8 5 0 8 4 7 8-1 3-4 4-7 3'/%3E%3Cpath d='M19 50c0-3 3-5 6-4 3 1 3 5 0 6'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-size:220px 110px;mask-size:220px 110px;
+  -webkit-mask-repeat:repeat;mask-repeat:repeat;
+  animation:gcCloudDrift 150s linear infinite;
+}
+:root[data-theme="dark"] body::after{opacity:.14}
+@media (prefers-color-scheme:dark){:root[data-theme="auto"] body::after{opacity:.14}}
+
+@keyframes gcCloudDrift{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(-220px,-55px,0)}
+}
+
+/* ---------- 9.3 远山剪影：三层，近浓远淡，伏在页面最底 ---------- */
+.gc-scape{
+  position:fixed;left:0;right:0;bottom:0;height:46vh;min-height:260px;max-height:460px;
+  z-index:0;pointer-events:none;overflow:hidden;
+}
+.gc-scape i{
+  position:absolute;left:0;right:0;bottom:0;display:block;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:center bottom;mask-position:center bottom;
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+}
+.gc-scape .gcs-far{
+  height:74%;
+  background-color:var(--gilt);opacity:.13;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 360' preserveAspectRatio='none'%3E%3Cpath d='M0 286C110 224 190 258 292 206 386 158 452 236 556 214 660 192 716 118 838 176 934 222 1016 196 1118 232 1206 262 1306 214 1440 268L1440 360 0 360Z'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 360' preserveAspectRatio='none'%3E%3Cpath d='M0 286C110 224 190 258 292 206 386 158 452 236 556 214 660 192 716 118 838 176 934 222 1016 196 1118 232 1206 262 1306 214 1440 268L1440 360 0 360Z'/%3E%3C/svg%3E");
+}
+.gc-scape .gcs-mid{
+  height:52%;
+  background-color:var(--ink-zhong);opacity:.16;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 240' preserveAspectRatio='none'%3E%3Cpath d='M0 196C132 150 214 188 330 150 448 112 520 176 640 162 760 148 826 92 950 140 1060 182 1150 156 1268 186 1348 206 1400 178 1440 206L1440 240 0 240Z'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 240' preserveAspectRatio='none'%3E%3Cpath d='M0 196C132 150 214 188 330 150 448 112 520 176 640 162 760 148 826 92 950 140 1060 182 1150 156 1268 186 1348 206 1400 178 1440 206L1440 240 0 240Z'/%3E%3C/svg%3E");
+}
+.gc-scape .gcs-near{
+  height:32%;
+  background-color:var(--ink-jiao);opacity:.20;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 150' preserveAspectRatio='none'%3E%3Cpath d='M0 118C156 92 240 116 372 94 512 70 606 112 742 102 878 92 946 58 1082 88 1196 114 1290 96 1440 124L1440 150 0 150Z'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 150' preserveAspectRatio='none'%3E%3Cpath d='M0 118C156 92 240 116 372 94 512 70 606 112 742 102 878 92 946 58 1082 88 1196 114 1290 96 1440 124L1440 150 0 150Z'/%3E%3C/svg%3E");
+}
+:root[data-theme="dark"] .gc-scape .gcs-far{opacity:.16}
+:root[data-theme="dark"] .gc-scape .gcs-mid{opacity:.22}
+:root[data-theme="dark"] .gc-scape .gcs-near{opacity:.30}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] .gc-scape .gcs-far{opacity:.16}
+  :root[data-theme="auto"] .gc-scape .gcs-mid{opacity:.22}
+  :root[data-theme="auto"] .gc-scape .gcs-near{opacity:.30}
+}
+
+/* ---------- 9.4 卡片：宣纸面 + 金线 + 祥云水印（右下角一枚暗花） ---------- */
+.card{
+  background:var(--paper);
+  border:1px solid var(--gc-line);
+  box-shadow:var(--card-shadow);
+}
+.card::after{
+  content:"";display:block;position:absolute;right:-14px;bottom:-16px;width:150px;height:86px;
+  pointer-events:none;border-radius:0;
+  background-color:var(--gilt);opacity:.075;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 110'%3E%3Cg fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M10 66c-4 0-7-3-6-7 1-4 6-5 9-4 0-7 7-11 14-9 3-6 10-8 16-4 4-6 15-5 18 2 7-1 12 4 12 9 5 0 9 4 8 9-1 4-5 5-8 4'/%3E%3Cpath d='M24 57c0-4 4-6 7-5 3 1 3 5 0 7'/%3E%3Cpath d='M58 54c0-4 4-6 7-5 3 1 3 5 0 7'/%3E%3Cpath d='M96 84c0-4 4-6 7-5 3 1 3 5 0 7'/%3E%3Cpath d='M112 92c-4 0-7-3-6-7 1-4 6-5 9-4 0-6 6-9 12-7 3-5 9-7 14-3'/%3E%3C/g%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 110'%3E%3Cg fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M10 66c-4 0-7-3-6-7 1-4 6-5 9-4 0-7 7-11 14-9 3-6 10-8 16-4 4-6 15-5 18 2 7-1 12 4 12 9 5 0 9 4 8 9-1 4-5 5-8 4'/%3E%3Cpath d='M24 57c0-4 4-6 7-5 3 1 3 5 0 7'/%3E%3Cpath d='M58 54c0-4 4-6 7-5 3 1 3 5 0 7'/%3E%3Cpath d='M96 84c0-4 4-6 7-5 3 1 3 5 0 7'/%3E%3Cpath d='M112 92c-4 0-7-3-6-7 1-4 6-5 9-4 0-6 6-9 12-7 3-5 9-7 14-3'/%3E%3C/g%3E%3C/svg%3E");
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  transition:opacity .4s var(--ease-out);
+}
+.card:hover::after{opacity:.13}
+:root[data-theme="dark"] .card::after{opacity:.10}
+@media (prefers-color-scheme:dark){:root[data-theme="auto"] .card::after{opacity:.10}}
+
+/* ---------- 9.5 标题：鎏金 —— 用渐变字而非纯色，像金箔贴上去 ---------- */
+.hero h2,.big-title,.sb-title{
+  background:linear-gradient(175deg,var(--gilt-hi) 0%,var(--gilt-lit) 26%,var(--gilt) 58%,var(--gilt-deep) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:var(--gilt);
+  filter:drop-shadow(0 1px 0 rgba(122,92,20,.18));
+}
+.hero h2{letter-spacing:.1em}
+.brand h1{color:var(--gilt-deep)}
+:root[data-theme="dark"] .brand h1{color:var(--gilt-lit)}
+@media (prefers-color-scheme:dark){:root[data-theme="auto"] .brand h1{color:var(--gilt-lit)}}
+.hero .line{
+  height:2px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--gilt) 22%,var(--zhu) 50%,var(--gilt) 78%,transparent);
+  opacity:.75;
+}
+
+/* ---------- 9.6 主按钮：鎏金面 · 朱砂边；朱砂按钮：朱面鎏金边 ---------- */
+.btn{
+  background:linear-gradient(180deg,var(--gilt-lit) 0%,var(--gilt) 56%,var(--gilt-deep) 100%);
+  color:#22190a;border:1px solid rgba(255,255,255,.28);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 2px 0 rgba(90,64,10,.4),
+             0 10px 26px rgba(168,124,28,.3),0 0 0 1px rgba(122,92,20,.16);
+  text-shadow:0 1px 0 rgba(255,255,255,.28);
+}
+.btn:active{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 1px 0 rgba(90,64,10,.38),
+             0 4px 12px rgba(168,124,28,.22);
+}
+.btn.ghost{
+  background:rgba(201,162,39,.09);color:var(--gilt-deep);
+  border:1px solid var(--gc-line);box-shadow:inset 0 1px 0 rgba(255,255,255,.4);text-shadow:none;
+}
+:root[data-theme="dark"] .btn.ghost{color:var(--gilt-lit);background:rgba(217,169,44,.10)}
+@media (prefers-color-scheme:dark){:root[data-theme="auto"] .btn.ghost{color:var(--gilt-lit);background:rgba(217,169,44,.10)}}
+.btn.ghost:active{background:rgba(201,162,39,.16)}
+
+/* ---------- 9.7 印章：朱砂更深，像真按下去了 ---------- */
+.seal{
+  border-color:rgba(143,35,24,.52);color:rgba(143,35,24,.8);
+  background:rgba(143,35,24,.06);box-shadow:inset 0 0 0 1px rgba(143,35,24,.14);
+}
+.stamp{
+  border-color:rgba(143,35,24,.78);color:rgba(143,35,24,.9);
+  background:rgba(143,35,24,.06);
+}
+.fambadge{
+  border-color:var(--gilt);color:var(--gilt-deep);
+  background:rgba(201,162,39,.09);
+}
+:root[data-theme="dark"] .fambadge{color:var(--gilt-lit)}
+@media (prefers-color-scheme:dark){:root[data-theme="auto"] .fambadge{color:var(--gilt-lit)}}
+.birthline{
+  border-color:var(--gc-line);
+  background:linear-gradient(135deg,rgba(255,253,246,.96),rgba(236,225,201,.7));
+  box-shadow:0 3px 16px rgba(168,124,28,.14),inset 0 1px 0 rgba(255,255,255,.7);
+}
+:root[data-theme="dark"] .birthline{
+  background:linear-gradient(135deg,rgba(32,27,19,.96),rgba(21,18,9,.7));
+  box-shadow:0 3px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] .birthline{
+    background:linear-gradient(135deg,rgba(32,27,19,.96),rgba(21,18,9,.7));
+    box-shadow:0 3px 16px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05);
+  }
+}
+.birthline .bt{color:var(--zhu)}
+
+/* ---------- 9.8 事件卡：金框更挺，场景图压一层水墨天光 ---------- */
+.event{
+  border:1px solid var(--gc-line);
+  box-shadow:var(--card-shadow),inset 0 0 0 1px rgba(255,255,255,.28);
+}
+.event .scene::after{
+  content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,253,246,0) 46%,rgba(255,253,246,.72) 100%);
+}
+:root[data-theme="dark"] .event .scene::after{
+  background:linear-gradient(180deg,rgba(21,18,9,0) 44%,rgba(21,18,9,.85) 100%);
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] .event .scene::after{
+    background:linear-gradient(180deg,rgba(21,18,9,0) 44%,rgba(21,18,9,.85) 100%);
+  }
+}
+/* v9 立身事件：青金一色，与「事业」的金、方外的紫都区分得开 */
+.event.c-trade{border-color:rgba(53,104,143,.36)}
+.event.c-trade .cat{color:var(--qing);font-weight:600;letter-spacing:.2em}
+:root[data-theme="dark"] .event.c-trade .cat{color:#8fb6d6}
+@media (prefers-color-scheme:dark){:root[data-theme="auto"] .event.c-trade .cat{color:#8fb6d6}}
+.opt{border-radius:var(--r-md)}
+.opt.picked{
+  background:linear-gradient(90deg,rgba(201,162,39,.22),rgba(189,58,43,.08));
+  box-shadow:inset 0 0 0 1.5px var(--gilt),0 4px 14px rgba(168,124,28,.16);
+}
+
+/* ---------- 9.9 动效：水墨晕开（换页） / 墨点（按压） ---------- */
+/* 换页时，一滴墨在中心晕开再收 —— 一局一次的层级，克制用 */
+.fxink{
+  position:fixed;left:50%;top:50%;z-index:74;pointer-events:none;
+  width:34px;height:34px;border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(18,16,11,.5) 0%,rgba(18,16,11,.28) 42%,rgba(18,16,11,0) 72%);
+  animation:inkBloom .78s var(--ease-out) forwards;
+}
+:root[data-theme="dark"] .fxink{
+  background:radial-gradient(circle,rgba(244,236,217,.42) 0%,rgba(244,236,217,.22) 42%,rgba(244,236,217,0) 72%);
+}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] .fxink{
+    background:radial-gradient(circle,rgba(244,236,217,.42) 0%,rgba(244,236,217,.22) 42%,rgba(244,236,217,0) 72%);
+  }
+}
+@keyframes inkBloom{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  22%{opacity:.9}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(24)}
+}
+/* 按下选项：一小滴墨落纸（与涟漪、灵气叠加，各司其职） */
+.inkdot{
+  position:absolute;pointer-events:none;width:14px;height:14px;border-radius:50%;
+  transform:translate(-50%,-50%) scale(.2);
+  background:radial-gradient(circle,rgba(18,16,11,.34) 0%,rgba(18,16,11,.14) 48%,rgba(18,16,11,0) 74%);
+  animation:inkDotSpread .62s var(--ease-out) forwards;
+}
+:root[data-theme="dark"] .inkdot{
+  background:radial-gradient(circle,rgba(244,236,217,.30) 0%,rgba(244,236,217,.12) 48%,rgba(244,236,217,0) 74%);
+}
+@keyframes inkDotSpread{
+  0%{opacity:.85;transform:translate(-50%,-50%) scale(.2)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(7)}
+}
+
+/* ---------- 9.9b 立身徽记：与方外徽记同形，改用青金以示「在俗」 ---------- */
+.careerbadge{
+  display:inline-block;margin-top:2px;padding:2px 9px;border-radius:999px;
+  background:rgba(53,104,143,.13);border:1px solid rgba(53,104,143,.3);
+  color:#2d5a7c;font-size:11px;letter-spacing:.04em;
+}
+:root[data-theme="dark"] .careerbadge{background:rgba(140,180,215,.14);border-color:rgba(140,180,215,.3);color:#a8c6e0}
+@media (prefers-color-scheme:dark){
+  :root[data-theme="auto"] .careerbadge{background:rgba(140,180,215,.14);border-color:rgba(140,180,215,.3);color:#a8c6e0}
+}
+
+/* ---------- 9.10 英雄区与分节：一笔淡墨 + 一道金红 ---------- */
+/* 首页标题后面压一层淡墨 —— 像宣纸上先湿了一片，再落字 */
+.hero{
+  background:radial-gradient(62% 132% at 50% 42%,rgba(18,16,11,.055) 0%,rgba(18,16,11,0) 72%);
+}
+.hero .line{display:block}
+.sec-title::before{
+  width:3px;height:15px;border-radius:2px;
+  background:linear-gradient(180deg,var(--gilt),var(--zhu));
+  box-shadow:0 0 8px rgba(189,58,43,.28);
+}
+
+/* ---------- 9.11 无障碍：水墨与祥云一起收敛 ---------- */
+@media (prefers-reduced-motion:reduce){
+  body::after{animation:none !important}
+  .fxink,.inkdot{animation:none !important;opacity:0 !important}
+}
 </style>
 <script>
 /* 首屏之前定下主题，避免浅色闪一下再切到深色 */
@@ -1583,6 +1908,8 @@ catch(e){ document.documentElement.setAttribute('data-theme','auto'); }
 </head>
 <body>
 <canvas id="bgFx"></canvas>
+<!-- v9 国潮：远山剪影（近浓远淡三层，纯装饰，不参与交互） -->
+<div class="gc-scape" aria-hidden="true"><i class="gcs-far"></i><i class="gcs-mid"></i><i class="gcs-near"></i></div>
 <div class="app">
   <aside class="sidebar" id="sidebar">
     <div class="sb-brand">
@@ -1899,6 +2226,19 @@ catch(e){ document.documentElement.setAttribute('data-theme','auto'); }
 
 <div class="mask" id="mask"><div class="modal" id="modal"></div></div>
 
+<!-- v9 事件动画层：canvas-confetti v1.9.4 · ISC License · github.com/catdad/canvas-confetti
+     为什么内联而不是挂 CDN：本项目第一约束是「单文件 / 双击即玩 / 离线可用」，外链会破坏它。
+     代价透明：10.8 KB 原始文本 / 4.3 KB gzip，约占本文件 2%。只用在结局揭晓一处。
+     想删掉它：移除紧随其后的 script 块 + renderSettle() 里的 gcBurst() 调用，无其他耦合。
+     （注：本注释里不要出现尖括号 script 字样，否则按正则扫描 script 块的脚手架会从这里误开始匹配。） -->
+<script>/**
+ * Minified by jsDelivr using Terser v5.39.0.
+ * Original file: /npm/canvas-confetti@1.9.4/dist/confetti.browser.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+!function(t,e){!function t(e,a,n,r){var o=!!(e.Worker&&e.Blob&&e.Promise&&e.OffscreenCanvas&&e.OffscreenCanvasRenderingContext2D&&e.HTMLCanvasElement&&e.HTMLCanvasElement.prototype.transferControlToOffscreen&&e.URL&&e.URL.createObjectURL),i="function"==typeof Path2D&&"function"==typeof DOMMatrix,l=function(){if(!e.OffscreenCanvas)return!1;try{var t=new OffscreenCanvas(1,1),a=t.getContext("2d");a.fillRect(0,0,1,1);var n=t.transferToImageBitmap();a.createPattern(n,"no-repeat")}catch(t){return!1}return!0}();function s(){}function c(t){var n=a.exports.Promise,r=void 0!==n?n:e.Promise;return"function"==typeof r?new r(t):(t(s,s),null)}var h,f,u,d,m,g,p,b,M,v,y,w=(h=l,f=new Map,{transform:function(t){if(h)return t;if(f.has(t))return f.get(t);var e=new OffscreenCanvas(t.width,t.height);return e.getContext("2d").drawImage(t,0,0),f.set(t,e),e},clear:function(){f.clear()}}),x=(m=Math.floor(1e3/60),g={},p=0,"function"==typeof requestAnimationFrame&&"function"==typeof cancelAnimationFrame?(u=function(t){var e=Math.random();return g[e]=requestAnimationFrame((function a(n){p===n||p+m-1<n?(p=n,delete g[e],t()):g[e]=requestAnimationFrame(a)})),e},d=function(t){g[t]&&cancelAnimationFrame(g[t])}):(u=function(t){return setTimeout(t,m)},d=function(t){return clearTimeout(t)}),{frame:u,cancel:d}),C=(v={},function(){if(b)return b;if(!n&&o){var e=["var CONFETTI, SIZE = {}, module = {};","("+t.toString()+")(this, module, true, SIZE);","onmessage = function(msg) {","  if (msg.data.options) {","    CONFETTI(msg.data.options).then(function () {","      if (msg.data.callback) {","        postMessage({ callback: msg.data.callback });","      }","    });","  } else if (msg.data.reset) {","    CONFETTI && CONFETTI.reset();","  } else if (msg.data.resize) {","    SIZE.width = msg.data.resize.width;","    SIZE.height = msg.data.resize.height;","  } else if (msg.data.canvas) {","    SIZE.width = msg.data.canvas.width;","    SIZE.height = msg.data.canvas.height;","    CONFETTI = module.exports.create(msg.data.canvas);","  }","}"].join("\n");try{b=new Worker(URL.createObjectURL(new Blob([e])))}catch(t){return"undefined"!=typeof console&&"function"==typeof console.warn&&console.warn("🎊 Could not load worker",t),null}!function(t){function e(e,a){t.postMessage({options:e||{},callback:a})}t.init=function(e){var a=e.transferControlToOffscreen();t.postMessage({canvas:a},[a])},t.fire=function(a,n,r){if(M)return e(a,null),M;var o=Math.random().toString(36).slice(2);return M=c((function(n){function i(e){e.data.callback===o&&(delete v[o],t.removeEventListener("message",i),M=null,w.clear(),r(),n())}t.addEventListener("message",i),e(a,o),v[o]=i.bind(null,{data:{callback:o}})}))},t.reset=function(){for(var e in t.postMessage({reset:!0}),v)v[e](),delete v[e]}}(b)}return b}),I={particleCount:50,angle:90,spread:45,startVelocity:45,decay:.9,gravity:1,drift:0,ticks:200,x:.5,y:.5,shapes:["square","circle"],zIndex:100,colors:["#26ccff","#a25afd","#ff5e7e","#88ff5a","#fcff42","#ffa62d","#ff36ff"],disableForReducedMotion:!1,scalar:1};function T(t,e,a){return function(t,e){return e?e(t):t}(t&&null!=t[e]?t[e]:I[e],a)}function E(t){return t<0?0:Math.floor(t)}function P(t){return parseInt(t,16)}function S(t){return t.map(O)}function O(t){var e=String(t).replace(/[^0-9a-f]/gi,"");return e.length<6&&(e=e[0]+e[0]+e[1]+e[1]+e[2]+e[2]),{r:P(e.substring(0,2)),g:P(e.substring(2,4)),b:P(e.substring(4,6))}}function k(t){t.width=document.documentElement.clientWidth,t.height=document.documentElement.clientHeight}function B(t){var e=t.getBoundingClientRect();t.width=e.width,t.height=e.height}function F(t,e){e.x+=Math.cos(e.angle2D)*e.velocity+e.drift,e.y+=Math.sin(e.angle2D)*e.velocity+e.gravity,e.velocity*=e.decay,e.flat?(e.wobble=0,e.wobbleX=e.x+10*e.scalar,e.wobbleY=e.y+10*e.scalar,e.tiltSin=0,e.tiltCos=0,e.random=1):(e.wobble+=e.wobbleSpeed,e.wobbleX=e.x+10*e.scalar*Math.cos(e.wobble),e.wobbleY=e.y+10*e.scalar*Math.sin(e.wobble),e.tiltAngle+=.1,e.tiltSin=Math.sin(e.tiltAngle),e.tiltCos=Math.cos(e.tiltAngle),e.random=Math.random()+2);var a=e.tick++/e.totalTicks,n=e.x+e.random*e.tiltCos,r=e.y+e.random*e.tiltSin,o=e.wobbleX+e.random*e.tiltCos,l=e.wobbleY+e.random*e.tiltSin;if(t.fillStyle="rgba("+e.color.r+", "+e.color.g+", "+e.color.b+", "+(1-a)+")",t.beginPath(),i&&"path"===e.shape.type&&"string"==typeof e.shape.path&&Array.isArray(e.shape.matrix))t.fill(function(t,e,a,n,r,o,i){var l=new Path2D(t),s=new Path2D;s.addPath(l,new DOMMatrix(e));var c=new Path2D;return c.addPath(s,new DOMMatrix([Math.cos(i)*r,Math.sin(i)*r,-Math.sin(i)*o,Math.cos(i)*o,a,n])),c}(e.shape.path,e.shape.matrix,e.x,e.y,.1*Math.abs(o-n),.1*Math.abs(l-r),Math.PI/10*e.wobble));else if("bitmap"===e.shape.type){var s=Math.PI/10*e.wobble,c=.1*Math.abs(o-n),h=.1*Math.abs(l-r),f=e.shape.bitmap.width*e.scalar,u=e.shape.bitmap.height*e.scalar,d=new DOMMatrix([Math.cos(s)*c,Math.sin(s)*c,-Math.sin(s)*h,Math.cos(s)*h,e.x,e.y]);d.multiplySelf(new DOMMatrix(e.shape.matrix));var m=t.createPattern(w.transform(e.shape.bitmap),"no-repeat");m.setTransform(d),t.globalAlpha=1-a,t.fillStyle=m,t.fillRect(e.x-f/2,e.y-u/2,f,u),t.globalAlpha=1}else if("circle"===e.shape)t.ellipse?t.ellipse(e.x,e.y,Math.abs(o-n)*e.ovalScalar,Math.abs(l-r)*e.ovalScalar,Math.PI/10*e.wobble,0,2*Math.PI):function(t,e,a,n,r,o,i,l,s){t.save(),t.translate(e,a),t.rotate(o),t.scale(n,r),t.arc(0,0,1,i,l,s),t.restore()}(t,e.x,e.y,Math.abs(o-n)*e.ovalScalar,Math.abs(l-r)*e.ovalScalar,Math.PI/10*e.wobble,0,2*Math.PI);else if("star"===e.shape)for(var g=Math.PI/2*3,p=4*e.scalar,b=8*e.scalar,M=e.x,v=e.y,y=5,x=Math.PI/y;y--;)M=e.x+Math.cos(g)*b,v=e.y+Math.sin(g)*b,t.lineTo(M,v),g+=x,M=e.x+Math.cos(g)*p,v=e.y+Math.sin(g)*p,t.lineTo(M,v),g+=x;else t.moveTo(Math.floor(e.x),Math.floor(e.y)),t.lineTo(Math.floor(e.wobbleX),Math.floor(r)),t.lineTo(Math.floor(o),Math.floor(l)),t.lineTo(Math.floor(n),Math.floor(e.wobbleY));return t.closePath(),t.fill(),e.tick<e.totalTicks}function A(t,a){var i,l=!t,s=!!T(a||{},"resize"),h=!1,f=T(a,"disableForReducedMotion",Boolean),u=o&&!!T(a||{},"useWorker")?C():null,d=l?k:B,m=!(!t||!u)&&!!t.__confetti_initialized,g="function"==typeof matchMedia&&matchMedia("(prefers-reduced-motion)").matches;function p(e,a,o){for(var l,s,h,f,u,m=T(e,"particleCount",E),g=T(e,"angle",Number),p=T(e,"spread",Number),b=T(e,"startVelocity",Number),M=T(e,"decay",Number),v=T(e,"gravity",Number),y=T(e,"drift",Number),C=T(e,"colors",S),I=T(e,"ticks",Number),P=T(e,"shapes"),O=T(e,"scalar"),k=!!T(e,"flat"),B=function(t){var e=T(t,"origin",Object);return e.x=T(e,"x",Number),e.y=T(e,"y",Number),e}(e),A=m,R=[],N=t.width*B.x,z=t.height*B.y;A--;)R.push((l={x:N,y:z,angle:g,spread:p,startVelocity:b,color:C[A%C.length],shape:P[(f=0,u=P.length,Math.floor(Math.random()*(u-f))+f)],ticks:I,decay:M,gravity:v,drift:y,scalar:O,flat:k},s=void 0,h=void 0,s=l.angle*(Math.PI/180),h=l.spread*(Math.PI/180),{x:l.x,y:l.y,wobble:10*Math.random(),wobbleSpeed:Math.min(.11,.1*Math.random()+.05),velocity:.5*l.startVelocity+Math.random()*l.startVelocity,angle2D:-s+(.5*h-Math.random()*h),tiltAngle:(.5*Math.random()+.25)*Math.PI,color:l.color,shape:l.shape,tick:0,totalTicks:l.ticks,decay:l.decay,drift:l.drift,random:Math.random()+2,tiltSin:0,tiltCos:0,wobbleX:0,wobbleY:0,gravity:3*l.gravity,ovalScalar:.6,scalar:l.scalar,flat:l.flat}));return i?i.addFettis(R):(i=function(t,e,a,o,i){var l,s,h=e.slice(),f=t.getContext("2d"),u=c((function(e){function c(){l=s=null,f.clearRect(0,0,o.width,o.height),w.clear(),i(),e()}l=x.frame((function e(){!n||o.width===r.width&&o.height===r.height||(o.width=t.width=r.width,o.height=t.height=r.height),o.width||o.height||(a(t),o.width=t.width,o.height=t.height),f.clearRect(0,0,o.width,o.height),(h=h.filter((function(t){return F(f,t)}))).length?l=x.frame(e):c()})),s=c}));return{addFettis:function(t){return h=h.concat(t),u},canvas:t,promise:u,reset:function(){l&&x.cancel(l),s&&s()}}}(t,R,d,a,o),i.promise)}function b(a){var n=f||T(a,"disableForReducedMotion",Boolean),r=T(a,"zIndex",Number);if(n&&g)return c((function(t){t()}));l&&i?t=i.canvas:l&&!t&&(t=function(t){var e=document.createElement("canvas");return e.style.position="fixed",e.style.top="0px",e.style.left="0px",e.style.pointerEvents="none",e.style.zIndex=t,e}(r),document.body.appendChild(t)),s&&!m&&d(t);var o={width:t.width,height:t.height};function b(){if(u){var e={getBoundingClientRect:function(){if(!l)return t.getBoundingClientRect()}};return d(e),void u.postMessage({resize:{width:e.width,height:e.height}})}o.width=o.height=null}function M(){i=null,s&&(h=!1,e.removeEventListener("resize",b)),l&&t&&(document.body.contains(t)&&document.body.removeChild(t),t=null,m=!1)}return u&&!m&&u.init(t),m=!0,u&&(t.__confetti_initialized=!0),s&&!h&&(h=!0,e.addEventListener("resize",b,!1)),u?u.fire(a,o,M):p(a,o,M)}return b.reset=function(){u&&u.reset(),i&&i.reset()},b}function R(){return y||(y=A(null,{useWorker:!0,resize:!0})),y}a.exports=function(){return R().apply(this,arguments)},a.exports.reset=function(){R().reset()},a.exports.create=A,a.exports.shapeFromPath=function(t){if(!i)throw new Error("path confetti are not supported in this browser");var e,a;"string"==typeof t?e=t:(e=t.path,a=t.matrix);var n=new Path2D(e),r=document.createElement("canvas").getContext("2d");if(!a){for(var o,l,s=1e3,c=s,h=s,f=0,u=0,d=0;d<s;d+=2)for(var m=0;m<s;m+=2)r.isPointInPath(n,d,m,"nonzero")&&(c=Math.min(c,d),h=Math.min(h,m),f=Math.max(f,d),u=Math.max(u,m));o=f-c,l=u-h;var g=Math.min(10/o,10/l);a=[g,0,0,g,-Math.round(o/2+c)*g,-Math.round(l/2+h)*g]}return{type:"path",path:e,matrix:a}},a.exports.shapeFromText=function(t){var e,a=1,n="#000000",r='"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", "Twemoji Mozilla", "system emoji", sans-serif';"string"==typeof t?e=t:(e=t.text,a="scalar"in t?t.scalar:a,r="fontFamily"in t?t.fontFamily:r,n="color"in t?t.color:n);var o=10*a,i=o+"px "+r,l=new OffscreenCanvas(o,o),s=l.getContext("2d");s.font=i;var c=s.measureText(e),h=Math.ceil(c.actualBoundingBoxRight+c.actualBoundingBoxLeft),f=Math.ceil(c.actualBoundingBoxAscent+c.actualBoundingBoxDescent),u=c.actualBoundingBoxLeft+2,d=c.actualBoundingBoxAscent+2;h+=4,f+=4,(s=(l=new OffscreenCanvas(h,f)).getContext("2d")).font=i,s.fillStyle=n,s.fillText(e,u,d);var m=1/a;return{type:"bitmap",bitmap:l.transferToImageBitmap(),matrix:[m,0,0,m,-h*m/2,-f*m/2]}}}(function(){return void 0!==t?t:"undefined"!=typeof self?self:this||{}}(),e,!1),t.confetti=e.exports}(window,{});</script>
+
 <script>
 "use strict";
 /* =========================================================================
@@ -1949,11 +2289,14 @@ const ATTR_GROUPS = [
   {name:'关 系', list:['情感','机缘']},
   {name:'修 行', list:['功德','业力','心性']}
 ];
+/* v9：属性配色收进「墨 · 朱 · 金 · 青 · 玉」五色体系。
+   原来的系统蓝 #3c6e9e 与紫 #7a5b9e 是界面层的冷色，放在国潮色盘里显脏；
+   换成石青 / 青莲后，一整屏属性条读起来是同一套颜色在说话，而不是一堆散色。 */
 const ATTR_COLOR = {
-  '寿元':'#b03a2e','健康':'#4a7c59','心智':'#3c6e9e','学识':'#3c6e9e',
-  '财富':'#b8902c','事业':'#b8902c','名望':'#b8902c',
-  '情感':'#c56a8a','机缘':'#7a5b9e',
-  '功德':'#4a7c59','业力':'#8a4a3a','心性':'#7a5b9e'
+  '寿元':'#bd3a2b','健康':'#3b7a5c','心智':'#35688f','学识':'#35688f',
+  '财富':'#c9a227','事业':'#c9a227','名望':'#c9a227',
+  '情感':'#c0607f','机缘':'#6d5a96',
+  '功德':'#3b7a5c','业力':'#6f4a3a','心性':'#6d5a96'
 };
 const NEG_ATTRS = ['业力']; // 越高越坏
 
@@ -2156,7 +2499,7 @@ const CAT_WX = {
 const CAT_SLUG = {
   '家庭':'home','学业':'study','事业':'career','财富':'wealth','情感':'love','健康':'health',
   '机缘':'luck','危机':'crisis','修行':'cultivate','日常':'daily','晚年':'elder','时代':'era',
-  '大限':'last','方外':'monk','问心':'heart','病中':'sick'
+  '大限':'last','方外':'monk','问心':'heart','病中':'sick','职业':'trade'
 };
 /* 方外身份：sec=在俗，buddha=佛门，tao=道门。
    心性与耗损机制按路线区分：道门重养生，佛门重功德。 */
@@ -2187,6 +2530,14 @@ function monkTitle(){
   const nm = G.monkName ? G.monkName : '—';
   const yrs = G.monkYears || 0;
   return MONK_LABEL[G.path] + ' · ' + nm + '（' + MONK_YEARS_LABEL[G.path] + ' ' + yrs + ' 年）';
+}
+/* v9 立身徽记：本世靠什么吃饭。出了家就不再显示（这一行已经放下了），
+   但数据留着 —— 还俗之后这条徽记会自己回来。 */
+function careerTitle(){
+  if(!G.career || G.path !== 'sec') return '';
+  const m = CAREER_META[G.career];
+  if(!m) return '';
+  return m.name + ' · ' + m.label + (G.careerAge !== null && G.careerAge !== undefined ? '（自 ' + G.careerAge + ' 岁）' : '');
 }
 /* 出家人不再经营世俗：这两类事件权重剧降（不是归零，留一丝俗缘）。
    家庭与情感衰减较轻——俗家的因缘不会因为一身僧衣就断干净。 */
@@ -3638,6 +3989,180 @@ const EVENTS_FANGWAI = [
   {t:'把最后一样东西，留给最不该给的人',e:{心性:12,功德:9,情感:-8,名望:-5},tg:['了心'],die:'坐化',r:'你把那串念珠给了他。弟子们都不明白，你也没解释。第二天早上，你坐着，没再起来。'}
  ]}
 ];
+/* ============ 职业：仕 / 商 / 伍 / 医 ============
+   这是与「方外」并列的第二条人生路线，但改的是另一个维度：
+     方外改的是**身份**（在俗 / 佛门 / 道门）；
+     职业改的是**靠什么立身**（出仕 / 经商 / 从戎 / 行医）。
+   两者不冲突：出家之后职业事件自动停摆（按 path 过滤），还俗可续，数据不丢。
+
+   口径与「家境」完全一致 —— 职业只改**事件倾向**与专属事件的出现，
+   不加任何固定数值，也不封死任何一条路。理由和家境那条一样：
+   一旦职业自带固定数值，它就变成必选项，选择也就不再是选择。
+   职业专属事件全部走 cat:'职业'，权重在 weightOf 里统一收口。 */
+const CAREER_META = {
+  official:{name:'仕途', short:'仕', label:'出仕'},
+  merchant:{name:'商道', short:'商', label:'经商'},
+  army:    {name:'行伍', short:'伍', label:'从戎'},
+  doctor:  {name:'医道', short:'医', label:'行医'}
+};
+const EVENTS_CAREER = [
+/* ---- 立身（16–27 岁，一世只此一次；选过之后本事件不会再出现） ---- */
+{id:'occ00',cat:'职业',sub:'call',title:'立身',desc:'十七八岁了。家里开始问你一句话：往后，你打算靠什么站着。',age:[16,29],w:62,cond:{require:{noCareer:true}},
+ opts:[
+  {t:'读书应举，走仕途',e:{学识:9,名望:3,心智:3,财富:-3},tg:['读书人'],career:'official',r:'你把那几本翻烂的书又翻了一遍。灯芯爆了个花，你娘说这是好兆头。'},
+  {t:'学做买卖，跑商道',e:{财富:7,机缘:9,心智:3,名望:-2},tg:['生意人'],career:'merchant',r:'你跟着叔父跑了第一趟货。回来时嗓子哑了，账倒是记明白了。'},
+  {t:'投军吃粮，去行伍',e:{事业:3,健康:5,情感:-3,学识:-3},tg:['当兵'],career:'army',r:'你在名册上按了个手印。发的第一双鞋，底子比家里的厚。'},
+  {t:'拜师学医，悬壶去',e:{学识:8,功德:4,健康:3,财富:-2},tg:['学医'],career:'doctor',r:'师父让你先背药性。一千多味，背错一味就从头来过。'}
+ ]},
+
+/* ================= 仕途 ================= */
+{id:'occ11',cat:'职业',sub:'official',title:'头一件差事',desc:'文书堆到齐眉。上一任留下的烂账，比现任的官还大。',age:[20,60],w:11,cond:{career:'official'},
+ opts:[
+  {t:'一件一件理，几个月不回家',e:{事业:4,心智:5,健康:-4,情感:-3},tg:['埋头'],r:'你把三年的账理出了头绪。上司拍了拍你的肩，什么也没说。'},
+  {t:'先拜码头，把关系走通',e:{事业:3,名望:3,心智:3,业力:4},tg:['应酬'],r:'你请了六顿酒。第七顿的时候，有人开始叫你老弟了。'},
+  {t:'挑最要命的那两件先办',e:{事业:3,名望:3,心性:6,健康:-2},tg:['抓重'],r:'你把最烫手的两件事先按住了。剩下的，慢慢烂着。'},
+  {t:'账照旧，先看清谁在里头',e:{心智:7,心性:6,机缘:6,事业:1},tg:['看局'],r:'你什么都没动。半年之后你才知道，自己躲过了什么。'}
+ ]},
+{id:'occ12',cat:'职业',sub:'official',title:'灾年开仓',desc:'辖下三个县闹了旱。仓里的粮，报上去的和实际的不一样。',age:[24,66],w:12,cond:{career:'official'},
+ opts:[
+  {t:'开仓放粮，先上报再说',e:{功德:8,名望:5,事业:3,业力:4},tg:['担当'],r:'粮放出去了。你越了权，也救了人。上头追究了半年，最后没下文。'},
+  {t:'等批文，一步不多走',e:{心智:6,心性:5,功德:-2,事业:1},tg:['守规'],r:'批文下来时，旱已经过了。没死人，也没人谢你。'},
+  {t:'把亏空捅上去，捅到顶',e:{名望:4,事业:2,业力:6,健康:-5,情感:-4},tg:['捅破'],r:'你得罪了一整条线的人。此后三年，你的公文总比别人慢半拍。'},
+  {t:'开一半，自掏腰包补一半',e:{功德:6,名望:3,财富:-9,心性:6},tg:['自补'],r:'你把自己的家底填了进去。夫人问起，你说借出去了。'}
+ ]},
+{id:'occ13',cat:'职业',sub:'official',title:'上官的意思',desc:'话没说透，但意思很明白：那件事，办不办，你自己掂量。',age:[26,64],w:11,cond:{career:'official'},
+ opts:[
+  {t:'办，办得妥妥帖帖',e:{事业:4,财富:5,业力:6,心性:-7},tg:['听话'],r:'事情办成了。你升了半级，回家路上没哼一句戏。'},
+  {t:'不办，把难处写成公文',e:{心性:9,名望:2,事业:-4,业力:-3},tg:['顶牛'],r:'你把话写得很客气，意思一点都不客气。他看了很久。'},
+  {t:'拖着，拖到他自己忘',e:{心智:7,心性:5,事业:-2},tg:['拖延'],r:'你拖了两年。他调走了。新来的上官不认得你。'},
+  {t:'办，但留个底',e:{事业:2,财富:4,心智:6,业力:3},tg:['留底'],r:'事情办了，纸也留了。你把那份东西锁进箱子，希望永远用不上。'}
+ ]},
+{id:'occ14',cat:'职业',sub:'official',title:'被人参了一本',desc:'折子递上去了。罪名不大，位置却正好是你要的那个。',age:[30,66],w:10,cond:{career:'official'},
+ opts:[
+  {t:'自辩，把账摊开给所有人看',e:{名望:5,事业:2,心性:7,业力:-2},tg:['自辩'],r:'你把十年的账摆在堂上。有人开始坐不住了。'},
+  {t:'认了，退半步等风过',e:{心性:11,心智:5,事业:-4,名望:-3},tg:['退让'],r:'你自己请了辞。三年后风停了，位置空了，没人想起你。'},
+  {t:'反手也递一份上去',e:{事业:3,名望:3,业力:8,情感:-5},tg:['反参'],r:'两份折子撞在一起。你赢了，也再没人敢跟你同席吃饭。'},
+  {t:'从此不争那个位置',e:{心性:13,功德:3,事业:-2,机缘:8},tg:['不争'],r:'你把手从那份名单上拿开了。多年后你才明白，这一拿开，救了自己。'}
+ ]},
+{id:'occ15',cat:'职业',sub:'official',title:'致仕',desc:'年岁到了。印还在案上，来交接的人已经在门外候着了。',age:[56,96],w:10,cond:{career:'official'},
+ opts:[
+  {t:'交印，回乡下种几畦菜',e:{心性:12,健康:6,功德:3,名望:-3},tg:['归田'],r:'你把官服收进箱子。第二年春天，你种的黄瓜自己吃不完。'},
+  {t:'交印，但把门生都安排了',e:{事业:3,名望:4,业力:4,心性:-6},tg:['布局'],r:'你退了，可那条线上还是你的人。十年后还有人提着东西来拜年。'},
+  {t:'上书，再留任三年',e:{事业:4,名望:3,健康:-5,心性:-5},tg:['恋栈'],r:'你留了三年。第三年冬天，你在案上睡着了，醒来时手是凉的。'},
+  {t:'交印，然后把见过的都写下来',e:{学识:11,功德:5,名望:3,心性:8},tg:['著述'],r:'你写了一本书。写得不好看，但里头的东西，后来救过好几个人。'}
+ ]},
+
+/* ================= 商道 ================= */
+{id:'occ21',cat:'职业',sub:'merchant',title:'攒下头一注本钱',desc:'账上终于有了第一笔整数。是压上去，还是先攥着。',age:[20,56],w:12,cond:{career:'merchant'},
+ opts:[
+  {t:'全压上去，赌一趟大的',e:{财富:11,事业:3,机缘:9,健康:-3},tg:['押大'],r:'你把本钱全换成了一船货。出发那天下雨，你没敢回头看。'},
+  {t:'拆成三份，分三条路走',e:{财富:6,心智:6,事业:2,机缘:5},tg:['分散'],r:'三条路，两条赚一条平。你睡得比同行都踏实。'},
+  {t:'先买铺面，扎下根',e:{财富:5,事业:3,名望:3,机缘:-4},tg:['置产'],r:'你有了自己的铺面。从此不用再看房东的脸色。'},
+  {t:'借给急着用钱的老乡',e:{情感:8,功德:4,财富:4,机缘:6},tg:['仗义'],r:'他按月还你，一分没少。后来你周转不开，是他先送来的钱。'}
+ ]},
+{id:'occ22',cat:'职业',sub:'merchant',title:'伙计与账',desc:'管账的老伙计跟了你八年。这个月的数，对不上。',age:[24,62],w:11,cond:{career:'merchant'},
+ opts:[
+  {t:'当众对账，该怎么就怎么',e:{财富:6,事业:3,心智:4,情感:-6},tg:['铁面'],r:'他把钱补上了，人也走了。铺子里安静了很长一段时间。'},
+  {t:'私下问一句，给他留脸',e:{情感:7,心智:5,财富:3,业力:-3},tg:['留情'],r:'他跪下去了。你没让。此后十年，他那本账再没差过一文。'},
+  {t:'不动声色，另起一本账',e:{心智:7,财富:5,事业:1,心性:-5},tg:['分账'],r:'你把两本账对了三年。三年后他老了，你送了他一副好棺材。'},
+  {t:'把铺子分他一份',e:{财富:-7,情感:10,名望:4,功德:4},tg:['分股'],r:'他愣了很久，说我担不起。你说，你担得起。'}
+ ]},
+{id:'occ23',cat:'职业',sub:'merchant',title:'有人要合伙',desc:'一笔大生意，他出路子，你出本钱。字据他还没写。',age:[26,66],w:11,cond:{career:'merchant'},
+ opts:[
+  {t:'先写清楚，再谈交情',e:{心智:7,财富:5,事业:2,情感:-3},tg:['立据'],r:'他把字据看了一遍，笑说你这个人没意思。生意做得很好。'},
+  {t:'不写字据，信这一回',e:{情感:9,财富:7,机缘:9,业力:3},tg:['信人'],r:'这趟赚了。第三趟，他带着钱和路子一起消失了。'},
+  {t:'只出小头，先看他做事',e:{心智:6,财富:4,机缘:6,事业:1},tg:['试水'],r:'你只投了一小笔。两年后你才把大钱拿出来。'},
+  {t:'不合伙，自己单做',e:{事业:3,财富:5,健康:-4,情感:-3},tg:['独干'],r:'你一个人跑前跑后。赚得慢，但每一文都是自己的。'}
+ ]},
+{id:'occ24',cat:'职业',sub:'merchant',title:'船沉了',desc:'一场风，三船货全在水里。人回来了，货没回来。',age:[26,68],w:11,cond:{career:'merchant'},
+ opts:[
+  {t:'变卖家产，把欠的还上',e:{财富:-12,名望:5,功德:5,心性:9},tg:['还债'],r:'你把宅子卖了。债主们后来都说，这个人可以再跟他做十年。'},
+  {t:'先躲一阵，等风头过',e:{财富:4,名望:-7,业力:6,心性:-8},tg:['躲债'],r:'你换了三个地方住。半夜听见敲门声就心慌，这个毛病跟你到老。'},
+  {t:'重来，从挑担子做起',e:{事业:3,健康:-4,心性:11,财富:3},tg:['重来'],r:'你又挑起了担子。那年冬天特别冷，你脚上的冻疮开春才好。'},
+  {t:'找人合股，把摊子撑住',e:{财富:5,事业:3,业力:4,名望:-2},tg:['合股'],r:'你让出了三成份子。摊子撑住了，说话的份量也轻了。'}
+ ]},
+{id:'occ25',cat:'职业',sub:'merchant',title:'行会要立规矩',desc:'同行坐了一屋子。规矩立下来，有人吃饭，有人饿死。',age:[30,72],w:10,cond:{career:'merchant'},
+ opts:[
+  {t:'牵头立规矩，越严越好',e:{名望:5,事业:4,业力:5,情感:-5},tg:['立规'],r:'规矩立下了，行里清净了。被你挤出去的那几家，再没起来。'},
+  {t:'只做和事佬，两边不得罪',e:{心智:6,情感:6,名望:2,事业:1},tg:['和事'],r:'你没站任何一边。散会以后，两边都请了你吃饭。'},
+  {t:'当众把话说破：这规矩是护谁的',e:{名望:5,心性:9,事业:-3,业力:3},tg:['说破'],r:'屋子里静了很久。规矩改了三条。你从此不是行里最受欢迎的人。'},
+  {t:'不入会，自己单开一摊',e:{机缘:14,事业:2,财富:5,名望:-4},tg:['自立'],r:'你带着几个伙计另起了灶。头两年难，第三年顺了。'}
+ ]},
+
+/* ================= 行伍 ================= */
+{id:'occ31',cat:'职业',sub:'army',title:'新兵营',desc:'天不亮就起，来回跑。跑不动的人，饭是有的，名额是没有的。',age:[18,44],w:12,cond:{career:'army'},
+ opts:[
+  {t:'死练，练成营里最好的那个',e:{健康:7,事业:3,心性:7,情感:-4},tg:['苦练'],r:'半年后你跑在最前头。教头开始叫你的名字，不再是号码。'},
+  {t:'拉几个同乡，互相垫着',e:{情感:9,事业:2,健康:4,心性:3},tg:['结伙'],r:'你们五个人，谁倒下了都有人拽一把。这五个人后来跟了你很多年。'},
+  {t:'给队正递钱，换个轻省差',e:{财富:-6,心智:5,健康:3,名望:-3},tg:['走门路'],r:'你去了辎重营。不用冲锋，也没人记得你的名字。'},
+  {t:'打了一架，把欺负人的那个镇住',e:{名望:4,事业:3,健康:-4,业力:4},tg:['立威'],r:'你鼻血没擦就先笑了。从那以后，你的铺位再没人动过。'}
+ ]},
+{id:'occ32',cat:'职业',sub:'army',title:'边关的风',desc:'在这里待了三年。风把石头都磨圆了，也把人磨薄了。',age:[20,52],w:11,cond:{career:'army'},
+ opts:[
+  {t:'把这里当成家，教新兵认地形',e:{事业:3,名望:4,情感:6,心性:7},tg:['扎根'],r:'你闭着眼都能画出这道关。后来的新兵都叫你一声老哥。'},
+  {t:'托关系，想办法调回内地',e:{事业:2,财富:-7,心智:5,健康:5,名望:-2},tg:['调离'],r:'你回了内地。这里的一切，你后来很少梦见。'},
+  {t:'轮值时把军情一条条记下来',e:{学识:10,心智:7,事业:2},tg:['记档'],r:'你记了一摞册子。十年后有人拿着它去打仗，赢得很轻松。'},
+  {t:'和关外的牧人做起小买卖',e:{财富:9,机缘:12,业力:4,名望:-3},tg:['互市'],r:'你换过马，也换过盐。上头查过一次，你送礼送过去了。'}
+ ]},
+{id:'occ33',cat:'职业',sub:'army',title:'一场仗',desc:'号角响的时候，天还是黑的。前面那道坡，是要拿命填的。',age:[20,58],w:12,cond:{career:'army'},
+ opts:[
+  {t:'冲在最前面',e:{事业:5,名望:5,健康:-8,寿元:-2,业力:3},tg:['陷阵'],r:'你第一个爬上坡。回头看时，跟你上去的人少了一半。'},
+  {t:'护住伤兵，慢慢往后撤',e:{功德:7,情感:9,事业:2,名望:3,健康:-4},tg:['救人'],r:'你背回来七个人。军功簿上没有你的名字，那七家人记着。'},
+  {t:'守住阵脚，一步不退也不冒进',e:{事业:3,健康:-3,心智:6,名望:3},tg:['稳阵'],r:'你的营没动。战后清点，你是唯一一个建制完整的。'},
+  {t:'违令出击，直取对方旗手',e:{事业:6,名望:6,健康:-10,寿元:-4,业力:4,心性:-4},tg:['奇功'],r:'旗倒了，对面乱了。你活了下来，也从此不再听任何人的号令。'}
+ ]},
+{id:'occ34',cat:'职业',sub:'army',title:'同袍',desc:'一起吃过三年饭的人，现在躺在你面前。他家还有个瞎眼的老娘。',age:[20,64],w:11,cond:{career:'army'},
+ opts:[
+  {t:'把他的那份俸禄，按月寄回他家',e:{功德:7,情感:9,财富:-7,名望:3},tg:['寄俸'],r:'你寄了十一年。那老娘走的时候，是笑着的。'},
+  {t:'替他讨一个身后名分',e:{名望:5,事业:3,功德:5,业力:4,健康:-3},tg:['讨封'],r:'你跑了两年衙门。文书下来那天，你在坟前烧了。'},
+  {t:'什么也没做，只把那件事记着',e:{心性:10,心智:5,情感:-5},tg:['记着'],r:'你后来很少提起他。但每年那一天，你都不喝酒。'},
+  {t:'接手了他留下的那点人',e:{事业:4,名望:3,情感:4,业力:3},tg:['接手'],r:'他手下的兵跟了你。你对他们，比对自己的亲弟弟还严。'}
+ ]},
+{id:'occ35',cat:'职业',sub:'army',title:'解甲',desc:'不打仗了。刀要交上去，交了以后，那双手不知道往哪儿放。',age:[46,88],w:10,cond:{career:'army'},
+ opts:[
+  {t:'解甲归田，把刀埋在后院',e:{心性:12,健康:6,功德:3,事业:-3},tg:['归田'],r:'你埋了刀，种了地。手上先是起了茧，后来茧就换成另一种了。'},
+  {t:'留在营里做教头',e:{事业:3,名望:4,健康:-3,功德:3},tg:['教头'],r:'你带出了三十几个兵。有几个，后来再没回来过。'},
+  {t:'拉一支商队，走老关外那条线',e:{财富:9,机缘:14,事业:2,健康:-3},tg:['走商'],r:'你认得那条路上的每一块石头。也认得每一处能要命的弯。'},
+  {t:'去替死去的同袍守坟',e:{功德:8,心性:13,情感:5,财富:-5,名望:2},tg:['守坟'],r:'你在那片坡上住了二十年。清明时，来上香的人一年比一年多。'}
+ ]},
+
+/* ================= 医道 ================= */
+{id:'occ41',cat:'职业',sub:'doctor',title:'头一个病人',desc:'师父不在。来的人胳膊上划开了一道大口子，血止不住。',age:[18,50],w:12,cond:{career:'doctor'},
+ opts:[
+  {t:'按书上写的来，先止血',e:{学识:10,健康:5,功德:4,心智:3},tg:['照方'],r:'你手抖着缝了十七针。师父回来看了看针脚，说还行，就是慢。'},
+  {t:'去找师父，让病人先按住',e:{心智:5,心性:6,学识:5,功德:2},tg:['稳妥'],r:'你跑了三里地。人没耽误，但你自己知道，你怕了。'},
+  {t:'自己配药，赌一把',e:{学识:12,机缘:12,健康:-3,业力:3},tg:['试方'],r:'药下去，第二天就退了热。这个方子你后来用了一辈子。'},
+  {t:'先问清他家里还有什么人',e:{功德:5,情感:7,学识:4,心性:6},tg:['问家'],r:'他家里有三个孩子。你把诊金免了，还塞了两副药。'}
+ ]},
+{id:'occ42',cat:'职业',sub:'doctor',title:'疫年',desc:'城里开始烧人。药铺的板子上了，你的门还开着。',age:[22,66],w:12,cond:{career:'doctor'},
+ opts:[
+  {t:'开方施药，一家一家地走',e:{功德:11,名望:5,健康:-7,寿元:-2},tg:['赴疫'],r:'你走了四个月，几乎没合过眼。城里死了很多，你活下来了。'},
+  {t:'关门，先保住自己一家',e:{健康:5,财富:5,功德:-7,心性:-7},tg:['闭户'],r:'你把门板钉上了。街对面的哭声，你听了整整一个秋天。'},
+  {t:'写方子贴出去，让全城照抓',e:{功德:8,学识:11,名望:5,健康:-4},tg:['贴方'],r:'方子贴满了城墙。药铺不肯赊账，是你说服了三家。'},
+  {t:'带着家小出城，去乡下躲',e:{健康:7,财富:4,功德:-4,名望:-4,情感:3},tg:['避疫'],r:'你在乡下待了半年。回来时，街上认得你的人少了许多。'}
+ ]},
+{id:'occ43',cat:'职业',sub:'doctor',title:'一个不肯好的病人',desc:'药是对的，脉也在好转。可他眼里那口气，就是不回来。',age:[26,74],w:11,cond:{career:'doctor'},
+ opts:[
+  {t:'不治他的病，先治他那件心事',e:{功德:7,心性:12,情感:9,学识:6},tg:['治心'],r:'你陪他坐了三个下午。第四天他说想吃饭了。'},
+  {t:'加药，把脉压住',e:{学识:11,健康:-3,功德:2,心智:3},tg:['加重'],r:'脉是压住了，人瘦得更快。你后来一直记着这一例。'},
+  {t:'如实告诉他，让他自己选',e:{心性:11,功德:5,名望:2,情感:-2},tg:['直言'],r:'他想了一夜，第二天把铺子分给了两个儿子。'},
+  {t:'转手，请更高明的人来',e:{学识:9,心性:7,名望:-2,功德:3},tg:['转诊'],r:'来的是你师兄。人没救回来，但你学到了他一直不肯教你的那两手。'}
+ ]},
+{id:'occ44',cat:'职业',sub:'doctor',title:'诊金',desc:'来的人一个坐轿，一个跪在门口。你一天只有这么多工夫。',age:[24,72],w:11,cond:{career:'doctor'},
+ opts:[
+  {t:'先给跪着的那个人看',e:{功德:8,情感:8,财富:-7,名望:3},tg:['先贫'],r:'轿子里的人摔门走了。你后半夜才吃上饭，吃得很香。'},
+  {t:'先给坐轿的看，诊金拿去济后面的人',e:{财富:7,功德:5,心智:6,心性:-3},tg:['取富济贫'],r:'你收了十两，回头散了八两。这笔账你算得很清楚。'},
+  {t:'按规矩来，先来后到',e:{心智:5,心性:8,名望:2,情感:-3},tg:['守序'],r:'你没抬头，也没看谁的轿子。两个人都等到了天黑。'},
+  {t:'定一条规矩：日出看穷，午后看富',e:{功德:6,名望:4,事业:2,心性:7},tg:['立规'],r:'这条规矩后来被你徒弟抄在墙上，挂了三十年。'}
+ ]},
+{id:'occ45',cat:'职业',sub:'doctor',title:'收个徒弟',desc:'一个十来岁的孩子，蹲在你店门口看你开方，看了整整一个冬天。',age:[40,84],w:10,cond:{career:'doctor'},
+ opts:[
+  {t:'收下，把方子全教给他',e:{功德:7,情感:8,名望:4,学识:8},tg:['倾囊'],r:'你教了他十八年。你走了以后，店门口那块匾他没换。'},
+  {t:'收，但让他先认三年药',e:{学识:8,心性:8,功德:5,名望:3},tg:['磨性'],r:'他认了三年药，没问过一句为什么。第四年你才开始讲脉。'},
+  {t:'不收，资助他去读书',e:{功德:6,学识:7,财富:-5,情感:4},tg:['助学'],r:'他后来中了举。每年过年，都来给你磕头。'},
+  {t:'不收，医这行太苦',e:{心性:9,心智:5,功德:3,情感:-5},tg:['不纳'],r:'你给了他一包点心，让他回了家。你心里知道他撑不住，也确实撑不住。'}
+ ]}
+];
 /* ==================================================================
    EVENTS_LIFE2：补年龄空白与题材空白。
    设计原则（借鉴 LifeRestart 的分支链）：
@@ -3951,6 +4476,7 @@ const EVENTS_LIFE2 = [
 ];
 EVENTS.push.apply(EVENTS, EVENTS_EXTRA);
 EVENTS.push.apply(EVENTS, EVENTS_FANGWAI);
+EVENTS.push.apply(EVENTS, EVENTS_CAREER);
 EVENTS.push.apply(EVENTS, EVENTS_LIFE2);
 
 /* ------------------------------------------------------------------ 2e. 问心局 · 独立事件类
@@ -4074,6 +4600,11 @@ const ENDING_RULES = [
   /* 出家路线：以僧腊/道龄 + 本门所长定名分，优先于世俗成就结局 */
   {id:'e_monk',  name:'一代高僧', desc:'你没做过一件大事，但很多人的一辈子因为你改了个方向。', test:g=>g.path === 'buddha' && (g.monkYears || 0) >= 22 && g.attrs['功德'] >= 86 && g.attrs['心性'] >= 80},
   {id:'e_taoist',name:'得道真人', desc:'没人见你显过什么本事，只是方圆百里的人都活得很长。', test:g=>g.path === 'tao' && (g.monkYears || 0) >= 22 && g.attrs['心性'] >= 84 && g.attrs['机缘'] >= 76},
+  /* 职业路线的极果：都以 G.career 为门槛，且要求本世没有半路出家（path 回到 sec 才算） */
+  {id:'e_minister',name:'一代名臣', desc:'你写过的那些折子，后来被人抄进了书里。', test:g=>g.path === 'sec' && g.career === 'official' && g.attrs['事业'] >= 88 && g.attrs['名望'] >= 82 && g.attrs['心性'] >= 66},
+  {id:'e_tycoon',  name:'富可敌国', desc:'你数钱的时候不看数目，只看还有几个箱子是空的。', test:g=>g.path === 'sec' && g.career === 'merchant' && g.attrs['财富'] >= 84 && g.attrs['事业'] >= 85},
+  {id:'e_general', name:'封侯拜将', desc:'你的旗插在哪，哪就是这条线。', test:g=>g.path === 'sec' && g.career === 'army' && g.attrs['事业'] >= 88 && g.attrs['名望'] >= 82},
+  {id:'e_physician',name:'一代名医', desc:'你不记得救过多少人，只记得没救回来的那十几个。', test:g=>g.path === 'sec' && g.career === 'doctor' && g.attrs['功德'] >= 91 && g.attrs['学识'] >= 90},
   {id:'e_power', name:'权倾朝野', desc:'一句话，可以让半座城的人等着。', test:g=>g.attrs['事业'] >= 95 && g.attrs['名望'] >= 92},
   {id:'e_rich',  name:'富甲一方', desc:'你没能带走什么，但你把什么都留下了。', test:g=>g.attrs['财富'] >= 92 && g.life >= 48},
   {id:'e_glory', name:'名垂青史', desc:'你的名字比你的身子活得久。', test:g=>g.attrs['名望'] >= 90 && g.attrs['功德'] >= 85},
@@ -4083,6 +4614,8 @@ const ENDING_RULES = [
   {id:'e_karma', name:'业火焚身', desc:'你算得很准，只是少算了人心。', test:g=>g.attrs['业力'] >= 74},
   /* 出家兜底：走过这条路，就不该再被算作「孤苦终老」或「平凡一生」 */
   {id:'e_hermit',name:'青灯古佛', desc:'一盏灯，一本经，一个下午。这样过了几十年。', test:g=>g.path !== 'sec' && (g.monkYears || 0) >= 8},
+  /* 行伍的另一种终局：没能解甲。要排在「平凡」之前，否则这一死就白死了 */
+  {id:'e_martyr',name:'马革裹尸', desc:'他们把你抬回来的时候，你身上盖的是那面旗。', test:g=>g.path === 'sec' && g.career === 'army' && (g.diedBy === '马革裹尸' || (!g.diedBy && g.life < 48 && g.attrs['事业'] >= 62))},
   {id:'e_alone', name:'孤苦终老', desc:'你活了很久，只是没人陪你到最后。', test:g=>g.attrs['情感'] <= 35 && g.attrs['财富'] <= 56},
   {id:'e_full',  name:'大限圆满', desc:'寿、德、名、财，你要的都拿到了，也没亏欠什么。', test:g=>g.life >= 74 && g.score >= 68},
   {id:'e_common',name:'平凡一生', desc:'来过了，也好好地过了。', test:g=>true}
@@ -4195,6 +4728,7 @@ function saveRun(){
       path: G.path || 'sec', monkName: G.monkName || null,
       monkYears: G.monkYears || 0, monkAge: (G.monkAge === undefined ? null : G.monkAge),
       leaves: G.leaves || 0, famId: G.famId || null,
+      career: G.career || null, careerAge: (G.careerAge === undefined ? null : G.careerAge),
       zq: G.zq || 0, zqBroke: !!G.zqBroke,
       attrBase: G.attrBase, cap: G.cap, lastDecay: G.lastDecay || 0
     }));
@@ -4245,6 +4779,8 @@ function restoreRun(s){
   G.zq = s.zq || 0;
   G.zqBroke = !!s.zqBroke;
   G.famId = s.famId || null;
+  G.career = s.career || null;
+  G.careerAge = (s.careerAge === undefined ? null : s.careerAge);
   G.attrBase = s.attrBase || JSON.parse(JSON.stringify(G.attrs));
   G.cap = s.cap || buildCaps();
   G.lastDecay = s.lastDecay || 0;
@@ -4388,7 +4924,8 @@ const G = {
   attrSnapshot:null, lastYearLog:0,
   ambition:null, ambitionId:'a_rich', snapshots:[], peak:{},
   path:'sec', monkName:null, monkYears:0, monkAge:null, leaves:0,
-  famId:null
+  famId:null,
+  career:null, careerAge:null   // v9：立身之路（official/merchant/army/doctor），与方外身份互不冲突
 };
 
 /* ------------------------------------------------------------------ 7. 工具 */
@@ -4567,6 +5104,7 @@ const V4_ENT = {
   'c-monk'     :{x:0,   y:0,  s:.975, b:0, d:1,   r:.50},
   'c-crisis'   :{x:0,   y:-5, s:1.028,b:0, d:.82, r:.34},
   'c-daily'    :{x:0,   y:9,  s:1,    b:0, d:1,   r:.38},
+  'c-trade'    :{x:0,   y:12, s:.99,  b:0, d:1,   r:.42},
   'c-last'     :{x:0,   y:0,  s:1.045,b:7, d:.9,  r:.60}
 };
 function v4EnterEvent(el){
@@ -4652,6 +5190,7 @@ function show(name){
   window.scrollTo({top:0, behavior:'instant'});
   const app = document.querySelector('.app');
   if(app) app.scrollIntoView({block:'start'});
+  fxInk();         // v9：一滴墨在屏心晕开 —— 换页的「国潮」标记
   syncNav(name);   // 侧边栏高亮 + 存档卡片刷新
 }
 /* ------------------------------------------------------------------ 7a. 侧边栏：分区导航 + 本机存档
@@ -5005,12 +5544,17 @@ function weightOf(ev){
   if(ev.cond && ev.cond.require){
     if(ev.cond.require.lowLife && G.attrs['寿元'] > 12) return 0;
     if(ev.cond.require.adverse && !isAdverseYear()) return 0;   // 天行健：只在忌神流年露面
+    if(ev.cond.require.noCareer && G.career) return 0;          // 立身只问一次，选过就不再出现
   }
   // 方外路线：身份过滤。path:'out' 表示任一出家身份，具体值表示指定路线
   const cp = ev.cond && ev.cond.path;
   if(cp === 'out'){ if(G.path === 'sec') return 0; }
   else if(cp){ if(G.path !== cp) return 0; }
   else if(ev.cat === '方外' && G.path !== 'sec') return 0;   // 已经出世，不会再遇到「遁入空门」
+  // 职业路线：只认自己这一行；出了家，就不再靠这行吃饭（职业数据保留，还俗即续）
+  const cc = ev.cond && ev.cond.career;
+  if(cc && G.career !== cc) return 0;
+  if(ev.cat === '职业' && G.path !== 'sec') return 0;
   // 时代事件：按公历年份开窗（出生年 + 当前年龄）
   if(ev.cond && ev.cond.yearRange){
     const yy = (G.birthYear || G.bazi.y) + G.age;
@@ -5074,6 +5618,18 @@ function weightOf(ev){
       if(ev.cat === '修行' || ev.cat === '机缘') w += 3;   // 苦过的人，更容易想明白
     }
     if(G.famId === 'gu' && ev.cat === '家庭') w *= 0.55;   // 无枝可依，家事本来就少
+  }
+
+  // 职业路线：与家境同一口径 —— 只改倾向，不加任何固定数值。
+  // 立身之后，这一行的机会与麻烦都会更常找上门；本行事件另有加成。
+  if(G.career && G.path === 'sec'){
+    if(G.career === 'official' && (ev.cat === '事业' || ev.cat === '时代')) w += 6;
+    if(G.career === 'merchant' && (ev.cat === '财富' || ev.cat === '事业')) w += 6;
+    if(G.career === 'army'     && (ev.cat === '事业' || ev.cat === '危机')) w += 6;
+    if(G.career === 'doctor'   && (ev.cat === '健康' || ev.cat === '日常')) w += 6;
+    if(ev.cat === '职业') w *= 1.45;
+  }else if(ev.cat === '职业'){
+    w *= 0.85;   // 还没立身（或已出世）：这一行的门还没开
   }
 
   // 方外路线：出世之后，人间那套账不再按月结算
@@ -5651,6 +6207,7 @@ function startGame(bz){
   G.score = 0;
   // 新的一世从在俗状态开始（方外路线需在人生中自行选择）
   G.path = 'sec'; G.monkName = null; G.monkYears = 0; G.monkAge = null; G.leaves = 0;
+  G.career = null; G.careerAge = null;
   G.zq = 0; G.zqBroke = false;    // 自强不息：本世的逆风次数与「改命」是否已触发
   G.ending = null;
   G.birthYear = bz.y;
@@ -5857,6 +6414,7 @@ function renderLife(){
   }
   meta += '<br/>寿元 <b>' + Math.round(G.attrs['寿元']) + '</b>';
   if(G.path !== 'sec') meta += '<br/><span class="monkbadge">' + monkTitle() + '</span>';
+  else if(careerTitle()) meta += '<br/><span class="careerbadge">' + careerTitle() + '</span>';
   if(G.zq) meta += '<br/><span class="zqbadge">自强 ×' + G.zq + (G.zqBroke ? '　已改命' : '　／ 2') + '</span>';
   $('lifeMeta').innerHTML = meta;
 
@@ -6000,6 +6558,12 @@ function doChoose(ev, o){
     G.monkName = makeMonName(o.monk);
     G.monkAge = G.age;
     G.monkYears = 0;
+  }
+  // 立身：定下这一世靠什么吃饭。一世只此一次，此后本行事件才开始找上门。
+  // 与方外不冲突：即便后来出家，职业数据也留着，还俗即可续。
+  if(o.career){
+    G.career = o.career;
+    G.careerAge = G.age;
   }
   // 还俗：回到在俗。属性代价已由选项本身扣掉，这里只做状态与标签
   if(o.leave && G.path !== 'sec'){
@@ -6250,6 +6814,11 @@ function makeEpitaph(reason){
   if(G.path && G.path !== 'sec' && (G.monkYears || 0) >= 6){
     course += (G.path === 'buddha' ? '后半程入了空门，僧腊 ' : '后半程入了道门，道龄 ') + G.monkYears + ' 年。';
   }
+  // v9：立身之路写进墓志铭。出了家就不再提这行 —— 但「还俗后续过」的那一程照写
+  if(G.career && CAREER_META[G.career] && (G.path === 'sec' || (G.monkYears || 0) > 0)){
+    const cm = CAREER_META[G.career];
+    course += (G.path === 'sec' ? '一辈子靠' : '还俗之后仍靠') + cm.name + '立身，' + cm.label + '出身。';
+  }
 
   /* 一生站到过的最高处：峰值说明他曾经到过哪儿 */
   let crest = '';
@@ -6344,7 +6913,10 @@ function endLife(reason){
 
   G.agg = ag;   // 供结算页与诊断使用（终值与峰值的合并视图）
   const gg = {attrs:ag, life:G.life, score:G.score, tags:G.tags, meta:META, broke:firstBreak,
-              path:G.path, monkYears:G.monkYears || 0, leaves:G.leaves || 0};
+              path:G.path, career:G.career || null,
+              // 只有 die 选项造成的死才算「横死」；寿元耗尽/天年已尽是自然死亡，reason 同样非空，不能直接拿来用
+              diedBy:G.forceDeath || null,
+              monkYears:G.monkYears || 0, leaves:G.leaves || 0};
   if(firstBreak){
     G.ending = ENDING_RULES[0];
   }else{
@@ -6372,7 +6944,8 @@ function renderSettle(reason){
   const a = G.attrs;
   const sc = grade(G.score);
   // 一世走完：法阵起 + 一层金光，这一局只此一次
-  if(!G.fast){ fxRite('cycle'); fxMandala(); }
+  // 金箔押后 260ms 起：先让结局称号的逐字揭示走完，粒子再扬起来 —— 同时起会互相抢戏
+  if(!G.fast){ fxRite('cycle'); fxMandala(); setTimeout(()=>gcBurst(G.ending.name), 260); }
   $('stSub').textContent = reason + ' · 终 年 ' + G.life
     + (G.path !== 'sec' ? ' · ' + monkTitle() : '');
 
@@ -6410,6 +6983,15 @@ function renderSettle(reason){
       + '<br/>';
   }else if(G.leaves && G.monkYears){
     monkLine = '曾入空门 <b>' + G.monkYears + '</b> 年，后还俗<br/>';
+  }
+  // v9：立身之路。在俗时单列一行；出过家的人不在此重复占位
+  if(G.career && G.path === 'sec'){
+    const cm = CAREER_META[G.career];
+    if(cm){
+      monkLine += '立身之道 <b style="color:var(--gold)">' + cm.name + ' · ' + cm.label + '</b>'
+        + (G.careerAge === null || G.careerAge === undefined ? '' : '　出身年岁 ' + G.careerAge + ' 岁')
+        + '<br/>';
+    }
   }
 
   $('stReview').innerHTML = monkLine
@@ -6920,7 +7502,8 @@ function fxRipple(el, ev){
   sp.style.height = size + 'px';
   el.appendChild(sp);
   setTimeout(()=>{ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 620);
-  // 涟漪之外再迸一圈灵气：落点在指尖，不在按钮中心
+  // 涟漪之外再落一滴墨、迸一圈灵气：落点都在指尖，不在按钮中心
+  fxInkDot(el, ev);
   fxQi((ev && ev.clientX) ? ev.clientX : r.left + r.width / 2,
        (ev && ev.clientY) ? ev.clientY : r.top + r.height / 2);
 }
@@ -6993,6 +7576,59 @@ function fxWill(){
   document.body.appendChild(d);
   setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 1560);
   fxFlash('rare');
+}
+
+/* ---------- v9 国潮动效：水墨晕开 / 落墨点 ---------- */
+/* 换页：一滴墨在屏心晕开。极淡、极快，只做一次，不循环 —— 换页本来就是高频动作，
+   分量必须压到「感觉得到但说不出来」。reduced-motion 下由 CSS 直接收敛。 */
+function fxInk(){
+  if(v4Reduce()) return;
+  const d = document.createElement('div');
+  d.className = 'fxink';
+  document.body.appendChild(d);
+  setTimeout(()=>{ if(d.parentNode) d.parentNode.removeChild(d); }, 860);
+}
+/* 按下选项：一小滴墨落在纸上。与涟漪、灵气三层叠加，各管一件事：
+   涟漪说「按下去了」，灵气说「有东西被牵动」，墨点说「这是国潮」。 */
+function fxInkDot(el, ev){
+  if(!el || !el.appendChild || v4Reduce()) return;
+  const r = el.getBoundingClientRect();
+  const x = (ev && ev.clientX) ? ev.clientX - r.left : r.width / 2;
+  const y = (ev && ev.clientY) ? ev.clientY - r.top : r.height / 2;
+  const sp = document.createElement('span');
+  sp.className = 'inkdot';
+  sp.style.left = Math.round(x) + 'px';
+  sp.style.top = Math.round(y) + 'px';
+  el.appendChild(sp);
+  setTimeout(()=>{ if(sp.parentNode) sp.parentNode.removeChild(sp); }, 680);
+}
+
+/* ---------- 结局揭晓：金箔迸发 ----------
+   这一处是唯一用外部库的地方（内联的 canvas-confetti，ISC）。理由很实在：粒子物理
+   ——重力、阻力、横向摇曳、纸片自转——自己写要两三百行，而且调试成本全在这一格上。
+   库已经把它做完了，4 KB gzip 买一个「结局那一刻金箔扬起来」，划算。
+   克制原则：只有值得的结局才放。满屏金箔就不值钱了 —— 金箔的分量恰恰来自它不常出现。
+   因此平凡一生 / 业火焚身 / 孤苦终老 / 早逝天才 / 青灯古佛 / 马革裹尸 一律不放。 */
+const GC_BURST_TOP = ['打破命簿','白日飞升','肉身菩萨'];
+const GC_BURST_MID = ['名垂青史','德被苍生','隐居悟道','一代名臣','富可敌国','封侯拜将',
+                      '一代名医','权倾朝野','富甲一方','大限圆满','一代高僧','得道真人','江湖散人'];
+/* 配色即 v9 国潮色盘，但只取暖调：金箔就该是金的。
+   青金 #35688f 试过，在绢本浅底上太跳、偏西式彩纸；换成中间调金 #e8c66a，整体更"箔"。 */
+const GC_GILT = ['#c9a227','#f2d589','#e8c66a','#bd3a2b','#d96a5a','#f4efe4'];
+function gcBurst(name){
+  if(typeof confetti !== 'function' || v4Reduce()) return;
+  const top = GC_BURST_TOP.indexOf(name) >= 0;
+  if(!top && GC_BURST_MID.indexOf(name) < 0) return;
+  const n = top ? 150 : 80;
+  // zIndex 78：压在结局层之上、toast(80) 之下；画布本身 pointer-events:none，不会挡按钮
+  const base = { colors: GC_GILT, scalar: 0.85, ticks: 230, zIndex: 78,
+                 gravity: 0.85, decay: 0.93, disableForReducedMotion: true };
+  // 从下方两角斜射，像戏台两侧扬起来的金箔
+  confetti(Object.assign({ particleCount: n, spread: 72, angle: 58,  origin: { x: 0.10, y: 0.94 } }, base));
+  setTimeout(()=>confetti(Object.assign({ particleCount: n, spread: 72, angle: 122, origin: { x: 0.90, y: 0.94 } }, base)), 150);
+  // 顶级结局再补一发天女散花
+  if(top) setTimeout(()=>confetti(Object.assign({ particleCount: 70, spread: 360, startVelocity: 32,
+                   origin: { x: 0.5, y: 0.40 } }, base)), 330);
 }
 
 /* ---------- 人生页实时属性条：每一次增减都被看见 ---------- */
@@ -7408,6 +8044,44 @@ function sceneSVG(cat, sub, key){
          + '<ellipse cx="222" cy="72" rx="16" ry="6" fill="#fdf8ec" stroke="'+ink+'" stroke-width="1.6"/>'
          + '<path d="M216,66 C211,58 220,53 217,44" fill="none" stroke="'+ink+'" stroke-width="1.3" opacity=".38"><animateTransform attributeName="transform" type="translate" values="0 3;0 -6" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".38;0" dur="2.8s" repeatCount="indefinite"/></path>'
          + '<path d="M228,66 C232,58 226,54 229,46" fill="none" stroke="'+ink+'" stroke-width="1.1" opacity=".26"><animateTransform attributeName="transform" type="translate" values="0 4;0 -5" dur="3.4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".26;0" dur="3.4s" repeatCount="indefinite"/></path>';
+      break;
+    case '职业':
+      /* v9 立身：四条路各有一幅。方外画的是「往外走」，职业画的是「手上的家伙」——
+         出仕是笏板官印，经商是算盘铜钱，从戎是军旗长枪，行医是药箱葫芦。 */
+      if(sub === 'official'){
+        fg = '<rect x="150" y="86" width="76" height="10" rx="3" fill="#efe6d2" stroke="'+ink+'" stroke-width="1.8"/>'
+           + '<rect x="158" y="58" width="60" height="28" rx="3" fill="#f7efdd" stroke="'+ink+'" stroke-width="2"/>'
+           + '<line x1="166" y1="68" x2="210" y2="68" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+           + '<line x1="166" y1="76" x2="198" y2="76" stroke="'+ink+'" stroke-width="1.2" opacity=".45"/>'
+           + '<rect x="142" y="34" width="30" height="30" rx="4" fill="'+red+'" opacity=".16" stroke="'+red+'" stroke-width="2.2"/>'
+           + '<path d="M149,42 h16 M149,50 h16 M149,58 h9" stroke="'+red+'" stroke-width="1.6" opacity=".7"/>'
+           + '<rect x="214" y="28" width="8" height="36" rx="2" fill="'+ink+'" opacity=".7"/>';
+      } else if(sub === 'merchant'){
+        fg = '<rect x="140" y="56" width="80" height="46" rx="4" fill="#f7efdd" stroke="'+ink+'" stroke-width="2"/>'
+           + '<line x1="140" y1="72" x2="220" y2="72" stroke="'+ink+'" stroke-width="1.4" opacity=".5"/>'
+           + '<line x1="140" y1="88" x2="220" y2="88" stroke="'+ink+'" stroke-width="1.4" opacity=".5"/>'
+           + '<g fill="'+gold+'" opacity=".75"><circle cx="156" cy="64" r="4"/><circle cx="176" cy="64" r="4"/><circle cx="196" cy="64" r="4"/>'
+           + '<circle cx="166" cy="80" r="4"/><circle cx="186" cy="80" r="4"/><circle cx="206" cy="80" r="4"/>'
+           + '<circle cx="156" cy="96" r="4"/><circle cx="180" cy="96" r="4"/></g>'
+           + '<circle cx="256" cy="44" r="17" fill="none" stroke="'+gold+'" stroke-width="2.4"/>'
+           + '<rect x="249" y="37" width="14" height="14" fill="none" stroke="'+gold+'" stroke-width="2"/>';
+      } else if(sub === 'army'){
+        fg = '<line x1="134" y1="104" x2="134" y2="26" stroke="'+ink+'" stroke-width="2.6"/>'
+           + '<path d="M134,30 L198,42 L134,58 Z" fill="'+red+'" opacity=".5" stroke="'+ink+'" stroke-width="1.6"/>'
+           + '<line x1="236" y1="104" x2="212" y2="40" stroke="#8a8073" stroke-width="2.2"/>'
+           + '<path d="M212,40 L208,28 L216,32 Z" fill="'+ink+'"/>'
+           + '<path d="M154,96 C154,78 166,68 180,68 C194,68 206,78 206,96" fill="#e2d5b8" stroke="'+ink+'" stroke-width="2"/>'
+           + '<line x1="180" y1="68" x2="180" y2="50" stroke="'+red+'" stroke-width="2.2"/>'
+           + '<circle cx="180" cy="46" r="4.2" fill="'+red+'" opacity=".8"/>';
+      } else {
+        fg = '<rect x="140" y="64" width="72" height="36" rx="4" fill="#f7efdd" stroke="'+ink+'" stroke-width="2"/>'
+           + '<path d="M156,64 v-8 h40 v8" fill="none" stroke="'+ink+'" stroke-width="2"/>'
+           + '<line x1="176" y1="64" x2="176" y2="100" stroke="'+ink+'" stroke-width="1.2" opacity=".32"/>'
+           + '<path d="M148,76 h10 M148,88 h10" stroke="'+green+'" stroke-width="2.4" opacity=".65"/>'
+           + '<path d="M234,44 C221,44 214,53 214,62 C214,72 223,79 234,79 C245,79 254,72 254,62 C254,53 247,44 234,44 Z" fill="#f2e7cf" stroke="'+ink+'" stroke-width="2"/>'
+           + '<line x1="228" y1="44" x2="240" y2="44" stroke="'+ink+'" stroke-width="2.6"/>'
+           + '<line x1="234" y1="79" x2="234" y2="93" stroke="'+green+'" stroke-width="2" opacity=".7"/>';
+      }
       break;
     case '方外':
       if(sub === 'buddha'){

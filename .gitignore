@@ -16,6 +16,7 @@ _*.txt
 _*.json
 _*.log
 _*.html
+_shots/
 
 # 日志与临时文件
 *.log
