@@ -913,10 +913,24 @@ cp _v12_backup.html index.html && node _v13_inject.js   # 改动注入源件后�
 NODOM=1 node _v10sim_run.js 300 # 玩法零污染回归（300 世）；需另起一个静态服务器在 8123
 ```
 
-> **推不上去时先看这里。** 本机 `credential.helper` 是 Git Credential Manager；在**没有终端**的环境里
-> 它会去尝试弹窗，凭据那一步就直接挂死 —— 表现为 `git push` 几分钟零输出（而 `git ls-remote` 秒过，
-> 容易误判成网络问题）。解法是绕开它：`GCM_INTERACTIVE=never` + `GIT_ASKPASS` 喂凭据，实测 **3.6 秒**推完。
-> 同理，`git credential fill` 放进后台任务里也会卡，只要没带 `GCM_INTERACTIVE=never` 就会。
+> **推不上去时先看这里。** 本机 `credential.helper` 是 Git Credential Manager，但**真正卡住的是
+> PortableGit 的 `git-credential-helper-selector.exe`** —— 它替 GCM 做「该用哪个 helper」的选择，
+> 在**没有终端**的环境里会挂住不返回。于是 `git credential fill` 与 `git push` 都表现为几分钟零输出，
+> 而 `git ls-remote` 是公开读、不走 helper 链，秒过 —— 极易误判成「网络不通」。
+>
+> 绕开办法：**直接调 GCM 二进制取凭据，再用 `GIT_ASKPASS` 喂给 git**：
+>
+> ```bash
+> GCM=/c/Users/dyy/.workbuddy/binaries/PortableGit/versions/1.2.0/mingw64/bin/git-credential-manager.exe
+> TOKEN=$(printf 'protocol=https\nhost=github.com\n\n' | GCM_INTERACTIVE=never "$GCM" get | sed -n 's/^password=//p')
+> printf '#!/bin/sh\ncase "$1" in *sername*) printf %%s "yueyangDong";; *) printf %%s "$GH_TOKEN";; esac\n' > /tmp/_ap.sh
+> chmod +x /tmp/_ap.sh
+> GH_TOKEN="$TOKEN" GIT_ASKPASS=/tmp/_ap.sh GIT_TERMINAL_PROMPT=0 \
+>   git -c credential.helper= push origin main
+> ```
+>
+> 实测几秒推完。**注意别按 GCM 去查** —— GCM 自身是好的（`git-credential-manager.exe get` 秒回），
+> 白费功夫；`GCM_INTERACTIVE=never` 对 `git credential fill` 也不够，因为它根本没走到 GCM。
 
 ---
 
