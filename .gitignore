@@ -12,7 +12,11 @@ desktop.ini
 # 无头模拟与校验脚手架（本地调试用，不入库）
 # 复用工具：_diag.js（单文件对照台/归因开关）、_multi.js（多种子均值）、_lib.js（加载器）、_sim.js（玩法模拟）
 # v10 新增：_v10sim.js（三条线玩法回归）、_v10.js（浏览器探针+三端截图）、_artmap.js（配图映射抽检）
+# v12 新增：_v12.js（投胎帖/时光隧道/矢量水墨探针）、_v12_inject.js（注入器）、
+#          _v12_tunnel.js · _v12_scene.js · _v12_birth.js · _v12.css（注入源件）、
+#          _v10sim_run.js（回归运行器：补 playwright 别名与本机 Chrome）
 _*.js
+_*.css
 _*.py
 _*.txt
 _*.json
