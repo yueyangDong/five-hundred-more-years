@@ -133,6 +133,13 @@ body::after{
 .origin .six{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px 11px;font-family:var(--kai);
   font-size:11.5px;color:var(--ink3);letter-spacing:.06em}
 .origin .six i{font-style:normal;color:var(--ink2)}
+.origin-solo{max-width:430px;margin:34px auto 0;padding:26px 28px 24px;cursor:default}
+.origin-solo:hover{transform:none;box-shadow:none;border-color:rgba(92,76,51,.22)}
+.origin-solo h4{font-size:18px;letter-spacing:.24em}
+.origin-solo .d{min-height:0}
+.origin-solo .tag{position:absolute;right:-8px;top:-12px;font-family:var(--kai);font-size:10.5px;
+  letter-spacing:.32em;color:var(--cinnabar);border:1px solid rgba(160,60,48,.55);
+  padding:4px 8px 4px 11px;background:rgba(252,248,238,.92);transform:rotate(5deg)}
 
 /* ── 一局 ── */
 .life-top{display:flex;align-items:baseline;gap:22px;padding-bottom:12px;
@@ -494,6 +501,8 @@ const ORIGINS = [
     d:'银钱通神。但你家那笔钱，别人一直记着。' },
   { id:'shu', an:'书香门第', mo:'教师家庭', six:{室:20,财:30,子:0,禄:30,寿:66,誉:70},
     d:'父亲的功名未竟。你不考，是不孝；你考不上，也是不孝。' },
+  { id:'qiao', an:'家有南洋客', mo:'海外亲戚', six:{室:15,财:60,子:0,禄:15,寿:68,誉:40},
+    d:'退路。你总比别人多一条能走的路，所以你也总比别人更早想走。' },
   { id:'dan', an:'单亲', mo:'单亲', six:{室:35,财:18,子:0,禄:12,寿:62,誉:42},
     d:'早熟。你所有升迁的机会，都会撞上家里那一场病。' },
   { id:'gu', an:'父母双亡', mo:'留守长大', six:{室:0,财:5,子:0,禄:10,寿:58,誉:30},
@@ -507,7 +516,9 @@ const ORIGINS = [
   { id:'jun', an:'军户', mo:'退伍军人家庭', six:{室:15,财:20,子:0,禄:20,寿:58,誉:50},
     d:'一纸调防文书，能把你从家门口调到三千里外。' },
   { id:'zui', an:'罪臣之后', mo:'父辈出事', six:{室:10,财:25,子:0,禄:0,寿:66,誉:15},
-    d:'原罪。一切审查类的事，你都差一口气。' }
+    d:'原罪。一切审查类的事，你都差一口气。' },
+  { id:'chong', an:'继母当家', mo:'重组家庭', six:{室:15,财:30,子:0,禄:15,寿:67,誉:35},
+    d:'夹缝。家里的东西都要争，你比谁都会看人脸色。' }
 ];
 
 /* ══════════════ 事件 ══════════════ */
@@ -1059,19 +1070,26 @@ function rollLife(){
 }
 
 function renderOrigins(){
-  const pool = ORIGINS.slice().sort(() => Math.random() - .5).slice(0, 3);
+  // 投胎由不得人挑：掷到谁家，就是谁家
+  const o = pick(ORIGINS.slice());
+  pending.origin = o;
+  const six = SIXK.map(k => `<span>${k} <i>${o.six[k]}</i></span>`).join('');
   const box = $('#originBox');
-  box.innerHTML = '<div class="hd-row" style="margin-top:8px"><h1 style="font-size:16px">生 在 谁 家</h1><span class="sub">出身是后天，八字是先天</span></div><div class="origins" id="orgGrid"></div>';
-  const g = $('#orgGrid');
-  pool.forEach(o => {
-    const d = document.createElement('div');
-    d.className = 'origin';
-    const six = SIXK.map(k => `<span>${k} <i>${o.six[k]}</i></span>`).join('');
-    d.innerHTML = `<h4>${pending.era === 'an' ? o.an : o.mo}</h4>
-      <div class="d">${o.d}</div><div class="six">${six}</div>`;
-    d.onclick = () => startLife(o);
-    g.appendChild(d);
-  });
+  box.innerHTML = `
+    <div class="hd-row" style="margin-top:8px">
+      <h1 style="font-size:16px">生 在 谁 家</h1>
+      <span class="sub">这一世，由不得你挑</span>
+    </div>
+    <div class="origin origin-solo" id="orgCard">
+      <span class="tag">投 胎</span>
+      <h4>${pending.era === 'an' ? o.an : o.mo}</h4>
+      <div class="d">${o.d}</div>
+      <div class="six">${six}</div>
+    </div>
+    <div class="center" style="margin-top:40px">
+      <span class="btn" id="btnBorn">入 世 · 十 六 岁</span>
+    </div>`;
+  $('#btnBorn').onclick = () => startLife(o);
 }
 
 function startLife(origin){
