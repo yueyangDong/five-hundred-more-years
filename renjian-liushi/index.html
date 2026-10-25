@@ -1750,6 +1750,7 @@ function newSoul(pillars){
     birth: null,
     hand: [],
     book: false,
+    rooted: false, rootAt: null,   // 五世之中看过一次自己，根就留下了
     tianji: null,
     eras: [],
     edits: [],
@@ -1836,6 +1837,11 @@ function renderHub(){
   if (S && S.index > 5){
     act.innerHTML = '<span class="btn zin" id="toBook">开 命 书</span>';
     $('#toBook').onclick = () => { renderBook(); go('book'); };
+  } else if (S && S.rooted){
+    act.innerHTML = '<span class="btn" id="toRoot">看 根 · 命 书</span>'
+      + ((S.edits && S.edits.length) ? `<span class="jk" style="font-family:var(--kai);font-size:11.5px;`
+        + `letter-spacing:.24em;color:var(--cinnabar);margin-left:18px">此世已知：${S.edits[S.edits.length-1].text}</span>` : '');
+    $('#toRoot').onclick = () => { renderBook(); go('book'); };
   } else if (S && S.edits && S.edits.length && S.index > 1){
     act.innerHTML = `<span class="jk" style="font-family:var(--kai);font-size:11.5px;letter-spacing:.24em;color:var(--cinnabar)">此世已知：${S.edits[S.edits.length-1].text}</span>`;
   } else {
@@ -2360,6 +2366,8 @@ function stepReveal(L){
   if (!atTop.length) return;
   const [full, viaCap] = atTop[0];
   L.revealed = true; L.revealWhy = full; L.revealAge = L.age; L.revealViaCap = viaCap;
+  // 五世里只要有一世看清过一次自己，这个"根"就留下来了
+  if (!S.rooted){ S.rooted = true; S.rootAt = { i: S.index, age: L.age, k: full }; }
   renderSixBar();
   if (!S.auto) revealFlash(full);
 }
@@ -2378,6 +2386,7 @@ function revealFlash(k){
     <span class="seal">透</span>
     <div class="t">六 事 俱 明</div>
     <div class="s">${why}</div>
+    <div class="s" style="margin-top:8px;opacity:.7;font-size:12px">你记住了这一刻。往后再有来世，你还认得自己。</div>
     <div class="nums">${SIXK.map(x =>
       `<span>${x}<b>${Math.round(L.six[x])}</b></span>`).join('')}</div>
   </div>`;
@@ -2427,12 +2436,20 @@ function stepHeir(L){
     // 立业：只看他二十岁那年。立没立起来，一次定终身
     if (h.has && !h.judged && L.age >= h.born + 20){
       const teach = Math.max(L.raised || 0, (L.cai && L.cai['智'] >= 78) ? 1 : 0);
-      // 立业看的是"这个家托不托得住他"：位子、家底、屋里的人气，都算
+      // 立业看的是"这个家托不托得住他"。
+      // 没有位子的人家，看的是名声——街坊认你这块招牌，儿子才立得起来
+      const noLu = capOf(L, '禄') === 0;
       const sc = L.six['禄'] * .5 + L.six['财'] * .3 + L.six['室'] * .2 + teach * 20;
       h.judged = true;
-      h.job = sc >= 55;
+      // 无禄的人家不看位子，只看名声：街坊认你这块招牌，儿子才立得起来
+      h.job = noLu ? (L.six['誉'] >= 50) : (sc >= 50);
       heirNote(L, h.job ? '他做了官。我送他到门口，忽然不知道该说什么。'
                         : '他没能做上官。这件事我们父子都没提过。');
+    }
+    // 没有位子的人家，这笔账不是一锤子买卖：此后誉到了，照样算他立了业
+    if (!h.job && capOf(L, '禄') === 0 && L.age >= h.born + 16 && L.six['誉'] >= 50){
+      h.job = true;
+      heirNote(L, '他在巷口支了个自己的摊子。街坊说，这小子随他爹。');
     }
     if (!h.grand && L.age >= h.born + 22){
       h.grand = true;
@@ -3070,6 +3087,8 @@ function renderBook(){
     ${S.birth ? `<div class="birth-line">生于 ${S.birth.y} 年 ${S.birth.m} 月 ${S.birth.d} 日 · ${
       ZHI[Math.floor(((S.birth.h + 1) % 24) / 2)]}时${S.birth.noon ? '（时柱暂拟）' : ''}</div>`
       : '<div class="birth-line">此命未排生辰 · 随机所授</div>'}
+    ${(S.rooted && S.rootAt) ? `<div class="birth-line" style="margin-top:10px;color:var(--cinnabar)">第 ${
+      '一二三四五六'[S.rootAt.i - 1]} 局 · ${S.rootAt.age} 岁，${S.rootAt.k}到了头。那一眼之后，这副八字就是你的"根"了。</div>` : ''}
     <div class="pil">
       <div class="zhu lead">四柱</div>
       <div class="zhu">${y}</div><div class="zhu">${m}</div>
@@ -3100,7 +3119,11 @@ function renderBook(){
 
   const peak = Object.keys(S.peak || {}).length > 0;
   const act = $('#bookAct');
-  if (peak){
+  if (S.index <= 5){
+    // 还没走完五世：这一眼是"看根"，不是终局
+    act.innerHTML = '<span class="btn ghost" id="backHub">回 头 · 尚 有 来 世</span>';
+    $('#backHub').onclick = () => { renderHub(); go('hub'); };
+  } else if (peak){
     act.innerHTML = '<span class="btn zin" id="toTianji">窥 天 机</span>';
     $('#toTianji').onclick = () => { renderTianji(); go('tianji'); };
   } else {
