@@ -282,6 +282,15 @@ body::after{
   opacity:0;transition:opacity 1s ease .9s;letter-spacing:0;text-align:center}
 .seal.on{opacity:.92}
 
+/* ── 声音开关 ── */
+.sfx{position:fixed;right:20px;bottom:16px;z-index:24;cursor:pointer;
+  font-family:var(--kai);font-size:11.5px;letter-spacing:.22em;line-height:1;
+  color:var(--ink2);opacity:.78;padding:6px 7px 6px 9px;
+  transition:opacity .35s var(--slow),color .35s var(--slow);user-select:none}
+.sfx:hover{opacity:1;color:var(--cinnabar)}
+.sfx.off{opacity:.3}
+.sfx.off:hover{opacity:.62}
+
 /* ── 天机 ── */
 .ge{max-width:680px;margin:0 auto;text-align:center}
 .ge .name{font-size:44px;letter-spacing:.36em;margin:12px 0 24px}
@@ -318,6 +327,9 @@ html.static *{animation:none !important;transition:none !important}
 </style>
 </head>
 <body>
+
+<!-- 声音开关：一个字的钮，右下角，不抢戏 -->
+<span class="sfx" id="sfxBtn" title="声音">音</span>
 
 <!-- 卷首 -->
 <section class="screen on" id="sc-cover">
@@ -927,6 +939,100 @@ const EV = [
 /* ══════════════ 状态 ══════════════ */
 let S = null;
 
+/* ══════════════ 声音：三记，不多给 ══════════════
+   不引音频文件——全部现场合成，单文件还是单文件。
+   只有三处出声：掷局落定、六事透了、人卒了。
+   命书翻开是静默的（§2.12），那三秒留白比任何音效都重。
+   浏览器不许无手势自动出声，所以第一次按下去才算"开机"。 */
+let AC = null;
+let muted = false;
+try { muted = localStorage.getItem('renjian_mute') === '1'; } catch(e){}
+
+function canSound(){
+  return !muted && !(S && S.auto)
+    && !document.documentElement.classList.contains('static');
+}
+
+function ac(){
+  if (!canSound()) return null;
+  try {
+    if (!AC){
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return null;
+      AC = new Ctx();
+    }
+    if (AC.state === 'suspended') AC.resume();
+    return AC;
+  } catch (e){ return null; }   // 无声也不该让人玩不了
+}
+
+/* 一个音：起音极快、指数衰到无。要的是"一击"，不是"一段" */
+function tone(c, o){
+  const t = c.currentTime + (o.delay || 0);
+  const osc = c.createOscillator(), g = c.createGain();
+  osc.type = o.type || 'sine';
+  osc.frequency.setValueAtTime(o.f0, t);
+  if (o.f1 && o.f1 !== o.f0) osc.frequency.exponentialRampToValueAtTime(o.f1, t + o.dur);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(o.gain, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+  osc.connect(g); g.connect(c.destination);
+  osc.start(t); osc.stop(t + o.dur + 0.03);
+}
+
+/* 一小把噪声：木头、纸、布，都是它 */
+function hiss(c, o){
+  const t = c.currentTime + (o.delay || 0);
+  const n = Math.max(1, Math.floor(c.sampleRate * o.dur));
+  const buf = c.createBuffer(1, n, c.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 2);
+  const src = c.createBufferSource(); src.buffer = buf;
+  const bp = c.createBiquadFilter(); bp.type = 'bandpass';
+  bp.frequency.value = o.freq; bp.Q.value = o.q || 1;
+  const g = c.createGain(); g.gain.value = o.gain;
+  src.connect(bp); bp.connect(g); g.connect(c.destination);
+  src.start(t);
+}
+
+function sfxRoll(){          // 梆子：短、干、不留尾。骰子落地就这一下
+  const c = ac(); if (!c) return;
+  hiss(c, { dur:.045, gain:.09, freq:2400, q:1.6 });
+  tone(c, { f0:560, f1:300, dur:.11, gain:.05, type:'triangle' });
+}
+
+function sfxReveal(){        // 磬：敲一下就撒手，让它自己散
+  const c = ac(); if (!c) return;
+  tone(c, { f0:196,   dur:1.8, gain:.055, type:'sine' });
+  tone(c, { f0:392,   dur:1.3, gain:.028, type:'sine' });
+  tone(c, { f0:587.3, dur:.95, gain:.014, type:'sine' });
+  hiss(c, { dur:.02, gain:.04, freq:3400, q:2.4 });
+}
+
+function sfxDeath(){         // 闷鼓：往下掉，收得干净
+  const c = ac(); if (!c) return;
+  tone(c, { f0:132, f1:48, dur:.9, gain:.10, type:'sine' });
+  hiss(c, { dur:.18, gain:.045, freq:380, q:.7 });
+}
+
+function initSfx(){
+  const b = $('#sfxBtn');
+  if (!b) return;
+  b.textContent = muted ? '静' : '音';
+  b.classList.toggle('off', muted);
+  b.onclick = e => {
+    e.stopPropagation();
+    muted = !muted;
+    try { localStorage.setItem('renjian_mute', muted ? '1' : '0'); } catch(err){}
+    b.textContent = muted ? '静' : '音';
+    b.classList.toggle('off', muted);
+    if (!muted) sfxRoll();     // 开声时回你一记，让你知道它开了
+  };
+  // 第一次按下去，把声卡叫醒；此后再点不必重建
+  document.addEventListener('pointerdown', () => ac(), { once:true });
+}
+
+
 function newSoul(){
   const bz = analyseBazi(makeBazi());
   return {
@@ -1087,6 +1193,7 @@ function rollLife(){
       const gz = ganZhiOfYear(y0 - 16).join('');
       yr.textContent = yearLabel(y0, era);
       gn.textContent = era === 'an' ? `起局 · ${gz} 年 · 十六岁` : `起局 · 十六岁`;
+      sfxRoll();                       // 骰子落地，就这一下
       // 改史已知
       if (S && S.edits && S.edits.length && S.index > 1){
         nt.textContent = '（此世已知：' + S.edits[S.edits.length - 1].text + '）';
@@ -1431,6 +1538,7 @@ function stepReveal(L){
 
 function revealFlash(k){
   const L = S.life;
+  sfxReveal();
   const why = (L.monk && k === '誉')
     ? '剃了头，账就不用算了。'
     : k + '到了头。别的，也就藏不住了。';
@@ -1585,6 +1693,7 @@ function weakestCai(){
 /* ══════════════ 局末 ══════════════ */
 function endLife(reason){
   const L = S.life;
+  sfxDeath();                          // 一声闷鼓，往下掉
   let keys = (L.lone ? SIXK.filter(k => k !== '室') : SIXK.slice()).filter(k => k !== '寿');
   // 出了家：室与子本就不在其道，不按"缺"算
   if (L.monk) keys = keys.filter(k => k !== '子');
@@ -1909,6 +2018,7 @@ function boot(){
   else { renderCover(); go('cover'); }
 }
 boot();
+initSfx();
 </script>
 </body>
 </html>
