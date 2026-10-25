@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>人间六事 · 五世</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --paper:#f4eee2;
+  --ink:#14110d; --ink1:#2b251d; --ink2:#584d3f; --ink3:#8b7c66; --ink4:#c2b39a;
+  --cinnabar:#a5322a; --azurite:#2f5a71; --ochre:#96652f; --jade:#4a6b52; --gold:#a9842f;
+  --song:"Songti SC","SimSun","Noto Serif SC",serif;
+  --kai:"Kaiti SC","KaiTi","STKaiti",serif;
+  --slow:cubic-bezier(.22,.61,.36,1);
+}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(120% 90% at 16% 2%,#fcf8ee 0%,rgba(252,248,238,0) 58%),
+    radial-gradient(90% 76% at 90% 98%,#e4dac4 0%,rgba(228,218,196,0) 60%),
+    linear-gradient(170deg,#f8f3e8 0%,#f0e8d8 44%,#e5dbc7 100%);
+  color:var(--ink); font-family:var(--song);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:3;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.55'/></svg>");
+  opacity:.055; mix-blend-mode:multiply;
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:4;
+  box-shadow:inset 0 0 200px rgba(58,42,18,.20), inset 0 0 44px rgba(58,42,18,.10);
+}
+.screen{display:none}
+.screen.on{display:block; animation:pageIn .62s var(--slow) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.wrap{max-width:1080px;margin:0 auto;padding:56px 40px 88px;position:relative;z-index:2}
+.kai{font-family:var(--kai)}
+
+/* ── 卷首 ── */
+#sc-cover{height:100vh;min-height:660px;display:none}
+#sc-cover.on{display:flex;align-items:center;justify-content:center}
+.cover-in{position:relative;z-index:2;display:flex;gap:70px;align-items:center}
+.cover-t{writing-mode:vertical-rl;text-orientation:upright;
+  font-size:74px;letter-spacing:.30em;line-height:1.06;color:var(--ink);
+  text-shadow:0 1px 0 rgba(255,255,255,.5);}
+.cover-t{position:relative}
+.cover-t small{position:absolute;left:50%;bottom:-56px;transform:translateX(-50%);
+  writing-mode:horizontal-tb;white-space:nowrap;
+  font-size:12px;letter-spacing:.5em;color:var(--ink3)}
+.cover-l{max-width:330px}
+.cover-l p{font-family:var(--kai);font-size:14.5px;line-height:2.5;color:var(--ink2);letter-spacing:.12em}
+.cover-l p.hd{color:var(--ink);font-size:16px;letter-spacing:.2em;margin-bottom:16px}
+.cover-l .rule{width:44px;height:1px;background:rgba(92,76,51,.4);margin:22px 0}
+.cover-strip{position:absolute;left:0;right:0;bottom:0;height:230px;pointer-events:none;
+  background:url("assets/journey.webp") center 40%/cover no-repeat;
+  opacity:.34;mix-blend-mode:multiply;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 34%,#000 72%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,#000 34%,#000 72%,transparent 100%);}
+.btn{display:inline-block;cursor:pointer;user-select:none;font-family:var(--kai);
+  font-size:13.5px;letter-spacing:.34em;padding:11px 26px 11px 30px;
+  color:var(--ink1);border:1px solid rgba(92,76,51,.34);background:rgba(255,253,247,.42);
+  transition:.42s var(--slow);position:relative}
+.btn:hover{background:rgba(255,253,247,.85);border-color:rgba(92,76,51,.6);
+  box-shadow:0 12px 28px -18px rgba(64,48,24,.7)}
+.btn.ghost{border-color:transparent;color:var(--ink3)}
+.btn.ghost:hover{color:var(--ink1);background:rgba(255,253,247,.5)}
+.btn.zin{border-color:rgba(165,50,42,.45);color:var(--cinnabar)}
+.btn.zin:hover{background:rgba(165,50,42,.07);box-shadow:none}
+.btn[data-off]{opacity:.34;pointer-events:none}
+
+/* ── 通用标题 ── */
+.hd-row{display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid rgba(92,76,51,.2);
+  padding-bottom:13px;margin-bottom:34px}
+.hd-row h1{font-size:22px;font-weight:400;letter-spacing:.26em}
+.hd-row .sub{font-family:var(--kai);font-size:11.5px;letter-spacing:.3em;color:var(--ink3);
+  padding-bottom:3px}
+.hd-row .sp{flex:1}
+.hd-row .act{font-family:var(--kai);font-size:11.5px;letter-spacing:.26em;color:var(--ink3);
+  cursor:pointer;padding-bottom:3px;transition:.3s}
+.hd-row .act:hover{color:var(--cinnabar)}
+
+/* ── 五局盘 ── */
+.hub-note{font-family:var(--kai);font-size:12.5px;line-height:2.4;color:var(--ink2);
+  letter-spacing:.1em;margin-bottom:34px;max-width:640px}
+.hub-note b{color:var(--ink);font-weight:400;border-bottom:1px solid rgba(165,50,42,.35)}
+.lives{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.life-cell{position:relative;height:250px;border:1px solid rgba(92,76,51,.22);
+  background:linear-gradient(176deg,rgba(255,253,247,.62),rgba(244,236,219,.34));
+  padding:22px 18px;cursor:pointer;transition:.5s var(--slow);overflow:hidden}
+.life-cell:hover{transform:translateY(-3px);border-color:rgba(92,76,51,.48);
+  box-shadow:0 22px 44px -30px rgba(64,48,24,.66)}
+.life-cell .no{font-family:var(--kai);font-size:11px;letter-spacing:.3em;color:var(--ink3)}
+.life-cell .era{writing-mode:vertical-rl;text-orientation:upright;position:absolute;right:18px;
+  top:22px;font-size:26px;letter-spacing:.22em;color:var(--ink2)}
+.life-cell .era.an{color:var(--ink)}
+.life-cell .era.mo{color:var(--azurite)}
+.life-cell .yr{position:absolute;left:18px;bottom:52px;font-family:var(--kai);font-size:11px;
+  letter-spacing:.16em;color:var(--ink3)}
+.life-cell .bd{position:absolute;left:18px;bottom:22px;font-family:var(--kai);font-size:11.5px;
+  letter-spacing:.2em;color:var(--ink2)}
+.life-cell.done{background:linear-gradient(176deg,rgba(248,242,229,.9),rgba(232,222,203,.6))}
+.life-cell.done::after{content:"";position:absolute;inset:7px;border:1px solid rgba(92,76,51,.1)}
+.life-cell.lock{cursor:default;opacity:.5}
+.life-cell.lock:hover{transform:none;box-shadow:none;border-color:rgba(92,76,51,.22)}
+.life-cell .seal{position:absolute;right:16px;bottom:46px;width:30px;height:30px;border:1.5px solid rgba(165,50,42,.6);
+  color:var(--cinnabar);font-family:var(--kai);font-size:13px;display:flex;align-items:center;
+  justify-content:center;letter-spacing:0;transform:rotate(-4deg);opacity:.9}
+.hand-strip{margin-top:34px;padding:22px 26px;border-left:2px solid rgba(165,50,42,.28);
+  background:linear-gradient(90deg,rgba(255,253,247,.5),rgba(255,253,247,0))}
+.hand-strip .ttl{font-family:var(--kai);font-size:11px;letter-spacing:.34em;color:var(--ink3);margin-bottom:12px}
+.hand-strip p{font-family:var(--kai);font-size:13.5px;line-height:2.3;color:var(--ink1);letter-spacing:.1em}
+
+/* ── 掷局 ── */
+.roll-box{text-align:center;padding:72px 0 40px;position:relative;min-height:330px}
+.roll-era{font-size:96px;letter-spacing:.1em;color:var(--ink);font-family:var(--song);
+  line-height:1;transition:.3s}
+.roll-era.flick{opacity:.5;filter:blur(1.2px)}
+.roll-yr{margin-top:26px;font-family:var(--kai);font-size:15px;letter-spacing:.44em;color:var(--ink2)}
+.roll-gan{margin-top:12px;font-family:var(--kai);font-size:12px;letter-spacing:.3em;color:var(--ink3)}
+.roll-note{margin-top:30px;font-family:var(--kai);font-size:12px;line-height:2.2;color:var(--cinnabar);
+  letter-spacing:.12em}
+.origins{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.origin{border:1px solid rgba(92,76,51,.22);padding:20px 20px 18px;cursor:pointer;
+  background:linear-gradient(176deg,rgba(255,253,247,.55),rgba(244,236,219,.28));
+  transition:.44s var(--slow);position:relative}
+.origin:hover{border-color:rgba(92,76,51,.5);transform:translateY(-3px);
+  box-shadow:0 20px 40px -30px rgba(64,48,24,.7)}
+.origin h4{font-size:15.5px;font-weight:400;letter-spacing:.18em;margin-bottom:10px}
+.origin .d{font-family:var(--kai);font-size:11.5px;line-height:2;color:var(--ink2);letter-spacing:.06em;
+  min-height:46px}
+.origin .six{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px 11px;font-family:var(--kai);
+  font-size:11.5px;color:var(--ink3);letter-spacing:.06em}
+.origin .six i{font-style:normal;color:var(--ink2)}
+
+/* ── 一局 ── */
+.life-top{display:flex;align-items:baseline;gap:22px;padding-bottom:12px;
+  border-bottom:1px solid rgba(92,76,51,.2);margin-bottom:26px;font-family:var(--kai);
+  font-size:11.5px;letter-spacing:.26em;color:var(--ink3)}
+.life-top .em{color:var(--ink);font-size:13px;letter-spacing:.3em}
+.life-top .sp{flex:1}
+.life-top .shou b{color:var(--cinnabar);font-weight:400}
+.stage{display:grid;grid-template-columns:212px 1fr;gap:44px;align-items:start}
+.sixbar{border-top:1px solid rgba(92,76,51,.2)}
+.row6{display:grid;grid-template-columns:30px 1fr 34px;align-items:center;gap:12px;
+  padding:13px 0;border-bottom:1px solid rgba(92,76,51,.13)}
+.row6 .k{font-family:var(--kai);font-size:13px;letter-spacing:.14em;color:var(--ink1)}
+.row6 .track{height:2px;background:rgba(92,76,51,.14);position:relative;overflow:visible}
+.row6 .fill{position:absolute;left:0;top:-1px;height:4px;transition:width .8s var(--slow);
+  background:var(--ink2)}
+.row6 .n{font-family:var(--kai);font-size:11.5px;text-align:right;color:var(--ink3);
+  transition:color .4s}
+.row6.up .n{color:var(--cinnabar)}
+.row6.dn .n{color:var(--azurite)}
+.row6[data-k="室"] .fill{background:var(--jade)}
+.row6[data-k="财"] .fill{background:var(--ochre)}
+.row6[data-k="子"] .fill{background:var(--azurite)}
+.row6[data-k="禄"] .fill{background:var(--cinnabar)}
+.row6[data-k="寿"] .fill{background:var(--ink2)}
+.row6[data-k="誉"] .fill{background:var(--gold)}
+.inknum{margin-top:26px;font-family:var(--kai);font-size:10.5px;letter-spacing:.2em;
+  color:var(--ink3);line-height:2.1}
+
+.card{position:relative;border:1px solid rgba(92,76,51,.24);
+  background:linear-gradient(178deg,rgba(255,253,247,.92),rgba(246,238,222,.72));
+  box-shadow:0 36px 70px -46px rgba(64,48,24,.6);padding:34px 38px 30px}
+.card::after{content:"";position:absolute;inset:7px;border:1px solid rgba(92,76,51,.09);pointer-events:none}
+.card-h{position:relative;height:96px;margin:-34px -38px 24px;background-size:cover;
+  background-position:center 44%;opacity:.38;mix-blend-mode:multiply;filter:contrast(1.05) sepia(.06);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 18%,#000 62%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,#000 18%,#000 62%,transparent 100%)}
+.card .meta{font-family:var(--kai);font-size:10.5px;letter-spacing:.3em;color:var(--ink3);
+  margin-bottom:12px}
+.card h3{font-size:23px;font-weight:400;letter-spacing:.2em;margin-bottom:18px}
+.card .body{font-family:var(--kai);font-size:14px;line-height:2.32;color:var(--ink1);
+  letter-spacing:.06em;max-width:640px}
+.card .echo{margin-top:14px;font-family:var(--kai);font-size:11.5px;color:var(--ink3);
+  letter-spacing:.1em;border-top:1px dashed rgba(92,76,51,.2);padding-top:12px}
+.opts{margin-top:26px;border-top:1px solid rgba(92,76,51,.18)}
+.opt{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:16px 6px;
+  border-bottom:1px solid rgba(92,76,51,.13);cursor:pointer;transition:.38s var(--slow)}
+.opt:hover{background:linear-gradient(90deg,rgba(92,76,51,.05),rgba(92,76,51,0));
+  padding-left:14px;padding-right:2px}
+.opt .t{font-family:var(--kai);font-size:15px;letter-spacing:.16em;color:var(--ink)}
+.opt .t em{font-style:normal;color:var(--ink3);font-size:12px;letter-spacing:.06em;margin-left:14px}
+.opt .c{font-family:var(--kai);font-size:10.5px;letter-spacing:.18em;color:var(--ink4)}
+.opt.dead{opacity:.3;pointer-events:none;text-decoration:line-through}
+.flash{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9;
+  text-align:center;pointer-events:none}
+.deltas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.deltas span{font-family:var(--kai);font-size:15px;letter-spacing:.1em;padding:6px 12px;
+  background:rgba(255,253,247,.82);border:1px solid rgba(92,76,51,.2);
+  animation:dpop 1.5s var(--slow) both}
+@keyframes dpop{0%{opacity:0;transform:translateY(8px) scale(.96)}
+  18%{opacity:1;transform:none}78%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+
+/* ── 局末 ── */
+.verdict{text-align:center;padding:18px 0 8px}
+.verdict .big{font-size:30px;letter-spacing:.3em;margin-bottom:18px}
+.verdict .why{font-family:var(--kai);font-size:13.5px;line-height:2.3;color:var(--ink2);letter-spacing:.1em}
+.hand-card{margin:44px auto 0;max-width:640px;border-top:1px solid rgba(92,76,51,.22);
+  border-bottom:1px solid rgba(92,76,51,.22);padding:30px 0}
+.hand-card .ttl{font-family:var(--kai);font-size:10.5px;letter-spacing:.42em;color:var(--ink3);
+  text-align:center;margin-bottom:22px}
+.hand-card p{font-family:var(--kai);font-size:15px;line-height:2.6;color:var(--ink1);
+  letter-spacing:.12em;text-align:center}
+.edits{max-width:640px;margin:30px auto 0;text-align:center}
+.edits .ttl{font-family:var(--kai);font-size:10.5px;letter-spacing:.42em;color:var(--cinnabar);margin-bottom:12px}
+.edits p{font-family:var(--kai);font-size:12.5px;line-height:2.2;color:var(--ink2);letter-spacing:.1em}
+.center{text-align:center;margin-top:46px}
+
+/* ── 命书 ── */
+.book{position:relative;max-width:760px;margin:0 auto;padding:56px 54px 46px;
+  background:linear-gradient(178deg,rgba(255,253,247,.94),rgba(243,234,215,.8));
+  border:1px solid rgba(92,76,51,.24);box-shadow:0 40px 84px -50px rgba(64,48,24,.66)}
+.book::after{content:"";position:absolute;inset:8px;border:1px solid rgba(92,76,51,.1);pointer-events:none}
+.book::before{content:"";position:absolute;left:50%;top:-1px;transform:translateX(-50%);
+  width:64px;height:3px;background:var(--cinnabar);opacity:.46}
+.book .pil{display:flex;flex-direction:row-reverse;gap:34px;justify-content:center}
+.zhu{writing-mode:vertical-rl;text-orientation:upright;font-size:15px;letter-spacing:.34em;
+  color:var(--ink1);line-height:1}
+.zhu.lead{font-size:11.5px;letter-spacing:.5em;color:var(--ink3)}
+.cai-list{margin-top:40px;border-top:1px solid rgba(92,76,51,.2)}
+.cai{display:grid;grid-template-columns:34px 236px 66px 1fr;gap:14px;align-items:center;
+  padding:14px 2px;border-bottom:1px solid rgba(92,76,51,.12)}
+.cai .k{font-family:var(--kai);font-size:14px;letter-spacing:.16em}
+.cai .track{height:2px;background:rgba(92,76,51,.13);position:relative}
+.cai .fill{position:absolute;left:0;top:-1px;height:4px;background:var(--ink1);
+  width:0;transition:width 1.3s var(--slow)}
+.cai .v{font-family:var(--kai);font-size:12px;text-align:center;color:var(--ink2);letter-spacing:.08em}
+.cai .note{font-family:var(--kai);font-size:11.5px;color:var(--ink3);letter-spacing:.1em}
+.cai.top .fill{background:var(--cinnabar)}
+.cai.top .note{color:var(--cinnabar)}
+.gates{margin-top:34px;display:flex;gap:0;justify-content:center;
+  border-top:1px solid rgba(92,76,51,.18);padding-top:22px}
+.gates div{text-align:center;flex:1;font-family:var(--kai);font-size:12px;letter-spacing:.16em;
+  color:var(--ink2);position:relative}
+.gates div+div::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:1px;
+  background:rgba(92,76,51,.14)}
+.gates b{display:block;font-weight:400;font-size:19px;color:var(--ink);letter-spacing:.1em;margin-bottom:6px}
+.book-foot{margin-top:30px;text-align:center;font-family:var(--kai);font-size:11px;
+  letter-spacing:.24em;color:var(--ink3)}
+.seal{position:absolute;right:64px;bottom:40px;width:52px;height:52px;border:2px solid rgba(165,50,42,.62);
+  color:var(--cinnabar);font-family:var(--kai);font-size:15px;line-height:1.05;
+  display:flex;align-items:center;justify-content:center;transform:rotate(-3.5deg);
+  opacity:0;transition:opacity 1s ease .9s;letter-spacing:0;text-align:center}
+.seal.on{opacity:.92}
+
+/* ── 天机 ── */
+.ge{max-width:680px;margin:0 auto;text-align:center}
+.ge .name{font-size:44px;letter-spacing:.36em;margin:12px 0 24px}
+.ge .say{font-family:var(--kai);font-size:18px;letter-spacing:.18em;color:var(--ink1);
+  line-height:2.1;padding:26px 0;border-top:1px solid rgba(92,76,51,.2);
+  border-bottom:1px solid rgba(92,76,51,.2)}
+.ge .eff{margin-top:26px;font-family:var(--kai);font-size:12.5px;line-height:2.3;
+  color:var(--ink2);letter-spacing:.1em}
+.tag{display:inline-block;font-family:var(--kai);font-size:10px;letter-spacing:.3em;
+  color:var(--ink3);border:1px solid rgba(92,76,51,.24);padding:4px 10px}
+
+html.static *{animation:none !important;transition:none !important}
+.six-final{display:flex;gap:0;justify-content:center;max-width:560px;margin:26px auto 0;
+  border-top:1px solid rgba(92,76,51,.16);border-bottom:1px solid rgba(92,76,51,.16);padding:14px 0}
+.six-final div{flex:1;text-align:center;font-family:var(--kai);position:relative}
+.six-final div+div::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:1px;background:rgba(92,76,51,.12)}
+.six-final span{display:block;font-size:10.5px;letter-spacing:.24em;color:var(--ink3);margin-bottom:6px}
+.six-final b{font-weight:400;font-size:16px;color:var(--ink1)}
+#sc-life .wrap{padding-top:13vh}
+#sc-hand .wrap{padding-top:9vh}
+
+@media (max-width:900px){
+  .wrap{padding:34px 22px 64px}
+  .cover-in{flex-direction:column;gap:34px}
+  .cover-t{font-size:52px}
+  .lives{grid-template-columns:repeat(2,1fr)}
+  .stage{grid-template-columns:1fr;gap:26px}
+  .origins{grid-template-columns:1fr}
+  .card-h{margin:-34px -22px 20px}
+  .card{padding:26px 22px}
+  .book{padding:36px 22px 30px}
+  .seal{right:26px;bottom:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- 卷首 -->
+<section class="screen on" id="sc-cover">
+  <div class="cover-strip"></div>
+  <div class="cover-in">
+    <div class="cover-t">人間六事<small>五世 · 一枚八字</small></div>
+    <div class="cover-l">
+      <p class="hd">室、财、子、禄、寿、誉。</p>
+      <p>六事皆求，终不能全。<br>这不是数值平衡，是设定本身。</p>
+      <div class="rule"></div>
+      <p>五世只给你一个八字。<br>第一世你看不见它，<br>第五世它才开口。</p>
+      <div class="rule"></div>
+      <p style="color:var(--ink3);font-size:12.5px">命不动，人动。</p>
+      <div style="margin-top:34px;display:flex;gap:14px" id="coverBtns"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 五局盘 -->
+<section class="screen" id="sc-hub">
+  <div class="wrap">
+    <div class="hd-row">
+      <h1>五 世</h1>
+      <span class="sub" id="hubSub">一魂五世 · 古或今，不由你挑</span>
+      <span class="sp"></span>
+      <span class="act" id="hubReset">清 卷</span>
+    </div>
+    <div class="hub-note" id="hubNote"></div>
+    <div class="lives" id="lives"></div>
+    <div id="hubHand"></div>
+    <div class="center" id="hubAct"></div>
+  </div>
+</section>
+
+<!-- 掷局 -->
+<section class="screen" id="sc-roll">
+  <div class="wrap">
+    <div class="hd-row">
+      <h1 id="rollTitle">掷 局</h1>
+      <span class="sub">古 1494—1594 ｜ 今 2020—2032</span>
+    </div>
+    <div class="roll-box">
+      <div class="roll-era" id="rollEra">　</div>
+      <div class="roll-yr" id="rollYr"></div>
+      <div class="roll-gan" id="rollGan"></div>
+      <div class="roll-note" id="rollNote"></div>
+    </div>
+    <div id="originBox"></div>
+  </div>
+</section>
+
+<!-- 一局 -->
+<section class="screen" id="sc-life">
+  <div class="wrap">
+    <div class="life-top">
+      <span class="em" id="luNo">第 一 局</span>
+      <span id="luEra"></span>
+      <span class="sp"></span>
+      <span id="luAge"></span>
+      <span class="shou" id="luShou"></span>
+    </div>
+    <div class="stage">
+      <div>
+        <div class="sixbar" id="sixBar"></div>
+        <div class="inknum" id="inkHint"></div>
+      </div>
+      <div id="cardBox"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 局末 -->
+<section class="screen" id="sc-hand">
+  <div class="wrap">
+    <div class="hd-row">
+      <h1 id="handTitle">第 一 局 · 卒</h1>
+      <span class="sub" id="handSub"></span>
+    </div>
+    <div id="handBody"></div>
+  </div>
+</section>
+
+<!-- 命书 -->
+<section class="screen" id="sc-book">
+  <div class="wrap">
+    <div class="hd-row">
+      <h1>命 书</h1>
+      <span class="sub">五世已毕 · 此魂之柱</span>
+    </div>
+    <div id="bookBody"></div>
+  </div>
+</section>
+
+<!-- 天机 -->
+<section class="screen" id="sc-tianji">
+  <div class="wrap">
+    <div class="hd-row">
+      <h1>窥 天 机</h1>
+      <span class="sub">八字格局</span>
+    </div>
+    <div id="tianjiBody"></div>
+  </div>
+</section>
+
+<script>
+/* ══════════════ 基础 ══════════════ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const R = n => Math.floor(Math.random() * n);
+const pick = a => a[R(a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const KEY = 'renjian_liushi_v1';
+
+const GAN = '甲乙丙丁戊己庚辛壬癸';
+const ZHI = '子丑寅卯辰巳午未申酉戌亥';
+const GAN_WX = {甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水'};
+const ZHI_WX = {子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'};
+const WX_CAI = {木:'智',火:'言',土:'忍',金:'体',水:'巧'};
+const SHENG = {木:'火',火:'土',土:'金',金:'水',水:'木'};
+const HE = ['子丑','寅亥','卯戌','辰酉','巳申','午未'];
+const CHONG = ['子午','丑未','寅申','卯酉','辰戌','巳亥'];
+const SIXK = ['室','财','子','禄','寿','誉'];
+const CAIK = ['智','体','言','巧','忍','缘'];
+
+/* ══════════════ 八字 ══════════════ */
+function ganZhiOfYear(y){
+  const a = ((y - 4) % 10 + 10) % 10, b = ((y - 4) % 12 + 12) % 12;
+  return [GAN[a], ZHI[b]];
+}
+// 五虎遁：年干→寅月干
+const TIGER = ['丙','戊','庚','壬','甲'];
+function monthPillar(yearGan, zhiIdx){
+  const yi = GAN.indexOf(TIGER[GAN.indexOf(yearGan) % 5]);
+  const k = ((zhiIdx - 2) + 12) % 12;             // 寅=0
+  return [GAN[(yi + k) % 10], ZHI[zhiIdx]];
+}
+// 五鼠遁：日干→子时干
+const RAT = ['甲','丙','戊','庚','壬'];
+function hourPillar(dayGan, zhiIdx){
+  const zi = GAN.indexOf(RAT[GAN.indexOf(dayGan) % 5]);
+  return [GAN[(zi + zhiIdx) % 10], ZHI[zhiIdx]];
+}
+
+function makeBazi(){
+  const y = 1500 + R(90);
+  const [yg] = ganZhiOfYear(y);
+  const mi = R(12);
+  const m = monthPillar(yg, mi);
+  const di = R(60);
+  const d = [GAN[di % 10], ZHI[di % 12]];
+  const hi = R(12);
+  const h = hourPillar(d[0], hi);
+  return [ganZhiOfYear(y).join(''), m.join(''), d.join(''), h.join('')];
+}
+
+function analyseBazi(pillars){
+  const chars = pillars.join('').split('');
+  const wx = {木:0,火:0,土:0,金:0,水:0};
+  chars.forEach(c => { const w = GAN_WX[c] || ZHI_WX[c]; if (w) wx[w]++; });
+
+  const dg = pillars[2][0], dz = pillars[2][1];
+  const mz = pillars[1][1];
+  const main = WX_CAI[GAN_WX[dg]];
+  const dw = GAN_WX[dg], mw = ZHI_WX[mz];
+  const de = (mw === dw || SHENG[mw] === dw);
+
+  const cap = {};
+  CAIK.forEach(k => { cap[k] = 78; });
+  for (const w in wx){
+    const c = wx[w], k = WX_CAI[w];
+    let v = 78;
+    if (c === 0) v = 58;
+    else if (c === 1) v = 70;
+    else if (c >= 4) v = 88;
+    cap[k] = v;
+  }
+  cap[main] = clamp(cap[main] + (de ? 15 : -15), 5, 95);
+  // 主才封顶 95：旺且得时
+  if (wx[GAN_WX[dg]] >= 4 && de) cap[main] = 95;
+
+  // 缘：合冲
+  const zhis = [pillars[0][1], pillars[1][1], pillars[2][1], pillars[3][1]];
+  let he = 0, ch = 0;
+  for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++){
+    const p = zhis[i] + zhis[j];
+    if (HE.includes(p) || HE.includes(zhis[j] + zhis[i])) he++;
+    if (CHONG.includes(p) || CHONG.includes(zhis[j] + zhis[i])) ch++;
+  }
+  cap['缘'] = clamp(60 + 12 * he - 12 * ch, 5, 90);
+
+  const gates = [
+    25 + (ZHI.indexOf(dz) % 11),
+    40 + (ZHI.indexOf(pillars[0][1]) % 11),
+    55 + (ZHI.indexOf(pillars[3][1]) % 11)
+  ];
+
+  const init = {};
+  CAIK.forEach(k => { init[k] = clamp(25 + wx[Object.keys(WX_CAI).find(w => WX_CAI[w] === k)] * 8, 5, cap[k]); });
+  init['缘'] = clamp(60 + 12 * he - 12 * ch, 5, cap['缘']);
+
+  return { pillars, wuxing: wx, main, de, cap, gates, init, he, ch };
+}
+
+/* ══════════════ 出身 ══════════════ */
+const ORIGINS = [
+  { id:'guan', an:'官宦子弟', mo:'体制内家庭', six:{室:30,财:55,子:0,禄:45,寿:70,誉:55},
+    d:'父亲的政敌。你入仕第一天，就有人在等你的错。' },
+  { id:'fu', an:'富二代', mo:'生意人家', six:{室:25,财:85,子:0,禄:10,寿:62,誉:25},
+    d:'银钱通神。但你家那笔钱，别人一直记着。' },
+  { id:'shu', an:'书香门第', mo:'教师家庭', six:{室:20,财:30,子:0,禄:30,寿:66,誉:70},
+    d:'父亲的功名未竟。你不考，是不孝；你考不上，也是不孝。' },
+  { id:'dan', an:'单亲', mo:'单亲', six:{室:35,财:18,子:0,禄:12,寿:62,誉:42},
+    d:'早熟。你所有升迁的机会，都会撞上家里那一场病。' },
+  { id:'gu', an:'父母双亡', mo:'留守长大', six:{室:0,财:5,子:0,禄:10,寿:58,誉:30},
+    d:'无援，也没人拖累。你要找一个能叫"家"的地方，可能一辈子找不到。' },
+  { id:'jiang', an:'匠户', mo:'技工家庭', six:{室:20,财:35,子:0,禄:5,寿:70,誉:40},
+    d:'手艺。你能把事做成，但籍册上的名字，儿子的名字也在上面。' },
+  { id:'nong', an:'农家', mo:'县城长大', six:{室:20,财:15,子:0,禄:5,寿:60,誉:45},
+    d:'能忍。但每年秋后，总有人在秤上做手脚。' },
+  { id:'shi', an:'市井小贩', mo:'开小店的', six:{室:15,财:25,子:0,禄:0,寿:63,誉:25},
+    d:'消息灵。衙役、地痞、行头，三家轮着来。' },
+  { id:'jun', an:'军户', mo:'退伍军人家庭', six:{室:15,财:20,子:0,禄:20,寿:58,誉:50},
+    d:'一纸调防文书，能把你从家门口调到三千里外。' },
+  { id:'zui', an:'罪臣之后', mo:'父辈出事', six:{室:10,财:25,子:0,禄:0,寿:66,誉:15},
+    d:'原罪。一切审查类的事，你都差一口气。' }
+];
+
+/* ══════════════ 事件 ══════════════ */
+const EV = [
+ { id:'will', head:'field', an:'改稻为桑', mo:'管网改造',
+   bodyAn:'上面要在三年内把稻田改成桑田，丝价好，税能补上。可县里三万人的口粮，是从这些田里长出来的。期限三个月，要你签。',
+   bodyMo:'市里下了指标，三年内把老城区管网全换。预算缺口一千二百万。你签了字，今年冬天动工；不签，明年汛期还是这个水。',
+   opts:[
+    { t:'强推', sub:'先把数交上去', eff:{禄:10,誉:-10,室:-5,寿:-3}, cai:{忍:2},
+      line:'我把字签了，签得很快，快得自己都听见了。' },
+    { t:'缓推', sub:'拖，是最像办事的不办事', eff:{禄:-4,寿:-3,誉:2}, cai:{忍:1},
+      line:'我拖了三个月。什么都没发生，什么也没解决。' },
+    { t:'借商', sub:'把官府的难处卖给有钱人', eff:{财:12,禄:4,誉:-6}, ink:12, cai:{巧:2},
+      line:'那笔钱是从生意人手里过的。过的时候就已经脏了。' },
+    { t:'上告', sub:'你不做官，也要做个人', eff:{誉:10,禄:-14,寿:-6}, cai:{言:2},
+      line:'我把话说到上面去了。说完就知道回不去了。' }
+   ]},
+
+ { id:'money', head:'ruin', an:'河工银', mo:'预算缺口',
+   bodyAn:'河工银拨下来十一万两，账上只剩七万。堤是要修的，缺的那四万，得有个说法。',
+   bodyMo:'专项债下来了，但只能用于主体工程。征地、迁改、临时安置，这些钱没有出处。',
+   opts:[
+    { t:'补上亏空', sub:'自己想办法填', eff:{财:-12,禄:8,誉:-3}, cai:{巧:2},
+      line:'那笔窟窿是我自己填的。填完我就明白了，填得了一次，填不了十年。' },
+    { t:'以工代赈', sub:'让人来干活，不要钱', eff:{誉:8,财:-8,子:2,寿:-4}, cai:{忍:2},
+      line:'堤修成了。三年后没垮，也没人提我的名字。' },
+    { t:'摊派', sub:'按田亩往下压', eff:{财:10,誉:-12,禄:4}, ink:8, cai:{巧:1},
+      line:'我把手伸进了别人的口袋，伸得很熟练。' }
+   ]},
+
+ { id:'who', head:'yamen', an:'座师请托', mo:'领导打招呼',
+   bodyAn:'座师遣人来，说有个门生要补一个缺，问你"能不能周旋"。这个缺已经定了人。',
+   bodyMo:'领导在走廊上拍你肩膀，说有个同志想动一动，问你"方不方便"。这个位置已经定了人。',
+   opts:[
+    { t:'办', sub:'人情是这行的通货', eff:{禄:8,誉:-6,墨:0}, ink:8, cai:{缘:2},
+      line:'我替人办了一件事。办完就知道，这人情迟早要还。' },
+    { t:'拖', sub:'不回话，也不办', eff:{禄:-4,寿:-2}, cai:{忍:1},
+      line:'我没回话。有些事不回话，就是回话。' },
+    { t:'顶回去', sub:'把原定的人保下来', eff:{誉:8,禄:-10}, cai:{言:3},
+      line:'我把话说直了。话说直的人，路走得短。' }
+   ]},
+
+ { id:'home', head:'winter', an:'丁忧', mo:'母亲住院',
+   bodyAn:'家书至，母亲病重。按制当丁忧二十七个月，这一任的考满就废了。',
+   bodyMo:'母亲住院，需要人陪护。项目正在验收，你走一天，签字就要换人。',
+   opts:[
+    { t:'回', sub:'人只有一个母亲', eff:{室:12,禄:-12,寿:2}, cai:{缘:2},
+      line:'我回去了。回去的时候她已经不太认人了。' },
+    { t:'不回', sub:'先把这一任做完', eff:{室:-14,禄:6}, ink:6, cai:{忍:2},
+      line:'我没有回去。那一年的事我全办成了，一件也想不起来了。' },
+    { t:'两头跑', sub:'两头都想顾', eff:{寿:-8,室:4,禄:-2}, cai:{忍:1},
+      line:'我两头跑了一年。两头都没顾好。' }
+   ]},
+
+ { id:'love', head:'wedding', an:'议亲', mo:'她家里要房',
+   bodyAn:'门第差着两档。她父亲说：你要是中了，这门亲事还有得谈；中不了，就别再来了。',
+   bodyMo:'她家里要一套房，写她名字。你算了一下，首付要掏空你父母。',
+   opts:[
+    { t:'争', sub:'把这个人争下来', eff:{室:16,财:-10,誉:-4}, cai:{缘:3},
+      line:'我把她争下来了。代价是我父亲那年没添过一件衣裳。' },
+    { t:'放', sub:'不耽误她', eff:{室:-6,寿:-4}, cai:{缘:1},
+      line:'我放手了。后来每次升迁，我都会想起她一次。' },
+    { t:'不谈了', sub:'一个人也能过', eff:{誉:-2,寿:2}, cai:{忍:2}, lone:true,
+      line:'我说我不谈了。说完心里空了一块，也轻了一块。' }
+   ]},
+
+ { id:'impeach', head:'censor', an:'被参一本', mo:'实名举报',
+   bodyAn:'有人参你"催科太急，致民流徙"。折子已经进了通政司。你有三日自辩。',
+   bodyMo:'一封实名举报信到了纪委，说你工程招标有问题。你有三天时间写说明。',
+   opts:[
+    { t:'反参', sub:'把他的底也翻出来', eff:{誉:6,禄:-8,寿:-6}, cai:{言:3},
+      line:'我反参了他。两个人一起掉下来，我落得比他慢一点。' },
+    { t:'认', sub:'认一半，保住位子', eff:{禄:-10,誉:-8,寿:2}, cai:{忍:2},
+      line:'我认了一半。认下来的那一半，跟了我一辈子。' },
+    { t:'打点', sub:'花钱把事压下去', eff:{财:-14,禄:4,誉:-2}, ink:12, cai:{巧:1},
+      line:'我花钱把事压下去了。压下去的东西，都会在别处长出来。' }
+   ]},
+
+ { id:'exile', head:'dispatch', an:'贬按察司照磨', mo:'调去档案科',
+   bodyAn:'一纸调令，从繁华地放到边远卫所，品级不变，实权全无。去，还是求人留下？',
+   bodyMo:'一纸调令，从业务科室调去档案科。级别不动，签字权没了。',
+   opts:[
+    { t:'去', sub:'去就去', eff:{禄:-8,寿:-4,誉:2}, cai:{忍:3},
+      line:'我去了。去了以后才发现，那地方反而没人管我。' },
+    { t:'求人', sub:'低头，把位子保住', eff:{财:-10,禄:-2,誉:-4}, cai:{缘:2},
+      line:'我低了头。低头这件事，做第一次最难。' },
+    { t:'辞', sub:'不干了', eff:{禄:-20,室:6,寿:4}, cai:{忍:1},
+      line:'我不干了。不干的那天，我睡了一整夜。' }
+   ]},
+
+ { id:'child', head:'study', an:'教子', mo:'学区与晚自习',
+   bodyAn:'儿子开蒙了。先生说他记性好，就是坐不住。你今年只有十二格，教他，就得少办一件事。',
+   bodyMo:'孩子要上小学。学区、补习、接送，每一样都要人。你今年只有十二格。',
+   opts:[
+    { t:'亲自教', sub:'省下钱，花掉命', eff:{子:10,禄:-4,寿:-4}, cai:{智:2},
+      line:'我教了他三年。他记住的不是书，是我坐在旁边那盏灯。' },
+    { t:'请名师', sub:'花钱买时间', eff:{子:8,财:-12}, cai:{巧:1},
+      line:'我请了最好的先生。儿子跟他亲，跟我不亲。' },
+    { t:'不管', sub:'先办自己的事', eff:{子:-8,禄:4}, cai:{忍:1},
+      line:'我不管他。后来他什么也不跟我说。' }
+   ]},
+
+ { id:'sick', head:'home', an:'风寒三月', mo:'体检报告',
+   bodyAn:'一场风寒拖了三个月。郎中说是积劳，让你歇。可这一任的考成就在年底。',
+   bodyMo:'体检报告上有三项标红。医生说要复查，你说最近忙。',
+   opts:[
+    { t:'养', sub:'把命当回事', eff:{寿:8,禄:-6,财:-4},
+      line:'我歇了三个月。那三个月是我一生里最安静的日子。' },
+    { t:'硬撑', sub:'考成不等人', eff:{寿:-10,禄:6}, cai:{忍:1},
+      line:'我硬撑过去了。撑过去的那一年，我老得特别快。' },
+    { t:'问药', sub:'花钱换个安心', eff:{财:-10,寿:4}, cai:{巧:1},
+      line:'我买了一堆药。吃完也没好，也没坏。' }
+   ]},
+
+ { id:'yi', head:'court', an:'流民过境', mo:'楼下求助',
+   bodyAn:'北边来的流民三百口，堵在城门外。开城，要担干系；不开，明天早上门口会有死人。',
+   bodyMo:'楼下有个人跪了一整天，孩子病了，钱不够。物业让你别管。',
+   opts:[
+    { t:'开门', sub:'担这个干系', eff:{誉:8,财:-8,室:-2}, cai:{言:2},
+      line:'我开了城门。上峰骂了我三个月，那三百口人活过了冬天。' },
+    { t:'报官', sub:'按规矩来', eff:{禄:4,誉:-4}, cai:{忍:1},
+      line:'我报了官。规矩没有错，我也没有错，人还是死了。' },
+    { t:'闭门', sub:'多一事不如少一事', eff:{誉:-8,财:2,寿:2}, ink:6,
+      line:'我没有开门。第二天早上门口是干净的。' }
+   ]},
+
+ { id:'hist', head:'war', onlyAn:true, minLu:40, an:'庚戌之变',
+   bodyAn:'虏骑已至通州。朝上议守议和，各执一词。你手里有一份能定调的东西——上疏，还是按住？',
+   bodyMo:'',
+   opts:[
+    { t:'上疏主战', sub:'把话说死，堵住和议', eff:{誉:12,禄:-6,寿:-4}, cai:{言:3},
+      edit:{ grade:'中', text:'俺答未至' },
+      line:'我把折子递上去了。那一夜京城没睡，我也没睡。' },
+    { t:'随众', sub:'跟着大多数人走', eff:{禄:2,誉:-2}, cai:{忍:1},
+      line:'我跟着大多数人走。大多数人走得对，也走得快。' },
+    { t:'通款', sub:'先给自己留一条路', eff:{财:12,誉:-12}, ink:16, cai:{巧:2},
+      edit:{ grade:'大', text:'城下之盟早成' },
+      line:'我给城外递了一句话。那句话后来变成了一笔钱。' }
+   ]}
+];
+
+/* ══════════════ 状态 ══════════════ */
+let S = null;
+
+function newSoul(){
+  const bz = analyseBazi(makeBazi());
+  return {
+    index: 1,
+    bz,
+    hand: [],
+    book: false,
+    tianji: null,
+    eras: [],
+    edits: [],
+    echo: null,
+    lives: [],
+    peak: {}
+  };
+}
+function load(){
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return null;
+    const o = JSON.parse(raw);
+    if (!o || !o.bz) return null;
+    return o;
+  } catch(e){ return null; }
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+function reset(){ localStorage.removeItem(KEY); S = null; boot(); }
+
+/* ══════════════ 屏幕 ══════════════ */
+function go(id){
+  $$('.screen').forEach(s => s.classList.toggle('on', s.id === 'sc-' + id));
+  window.scrollTo(0, 0);
+}
+
+/* ══════════════ 卷首 ══════════════ */
+function renderCover(){
+  const b = $('#coverBtns');
+  if (S && S.index > 1){
+    b.innerHTML = '<span class="btn" id="coverGo">续 卷</span><span class="btn ghost" id="coverNew">另起一卷</span>';
+    $('#coverGo').onclick = () => { renderHub(); go('hub'); };
+    $('#coverNew').onclick = () => { if (confirm('清掉现有的五世，重新起卷？')) reset(); };
+  } else {
+    b.innerHTML = '<span class="btn zin" id="coverGo">起 卷</span>';
+    $('#coverGo').onclick = () => { renderHub(); go('hub'); };
+  }
+}
+
+/* ══════════════ 五局盘 ══════════════ */
+function renderHub(){
+  const n = S ? S.index : 1;
+  $('#hubSub').textContent = n === 1
+    ? '一魂五世 · 古或今，不由你挑'
+    : (n === 6 ? '五世已毕 · 天机既开，尚可再入' : '古或今，不由你挑');
+  $('#hubNote').innerHTML = S && S.index === 1
+    ? '五世共用一个八字。<b>第一世你看不见它</b>，只能从"顺不顺"里反推；<b>第五世结算，命书才开</b>。每一世掷古或今——你想不到自己生在哪一半。'
+    : `第 <b>${n}</b> 局。上一世留下三句手记，可能是错的。`;
+
+  const box = $('#lives');
+  box.innerHTML = '';
+  const total = n > 5 ? 6 : 5;
+  for (let i = 1; i <= total; i++){
+    const rec = S && S.lives ? S.lives[i - 1] : null;
+    const d = document.createElement('div');
+    d.className = 'life-cell' + (rec ? ' done' : '') + (i > n ? ' lock' : '');
+    const eraTxt = rec ? (rec.era === 'an' ? '古' : '今') : (i === n ? '待 掷' : '—');
+    const eraCls = rec ? rec.era : '';
+    d.innerHTML = `
+      <div class="no">第 ${'一二三四五六'[i-1]} 局</div>
+      <div class="era ${eraCls}">${eraTxt}</div>
+      <div class="yr">${rec ? rec.yearLabel : '　'}</div>
+      <div class="bd">${rec ? rec.verdict : (i === n ? '入 此 局' : '　')}</div>
+      ${rec ? '<div class="seal">讫</div>' : ''}`;
+    if (!rec && i === n) d.onclick = () => { rollLife(); go('roll'); };
+    if (rec) d.onclick = () => showHand(i);
+    box.appendChild(d);
+  }
+
+  const hb = $('#hubHand');
+  if (S && S.hand && S.hand.length && S.index > 1 && S.index <= 5){
+    hb.innerHTML = `<div class="hand-strip"><div class="ttl">手 记 · 上一世</div>${
+      S.hand.map(t => `<p>${t}</p>`).join('')}</div>`;
+  } else if (S && S.index > 5){
+    hb.innerHTML = '';
+  } else {
+    hb.innerHTML = '';
+  }
+
+  const act = $('#hubAct');
+  if (S && S.index > 5){
+    act.innerHTML = '<span class="btn zin" id="toBook">开 命 书</span>';
+    $('#toBook').onclick = () => { renderBook(); go('book'); };
+  } else if (S && S.edits && S.edits.length && S.index > 1){
+    act.innerHTML = `<span class="jk" style="font-family:var(--kai);font-size:11.5px;letter-spacing:.24em;color:var(--cinnabar)">此世已知：${S.edits[S.edits.length-1].text}</span>`;
+  } else {
+    act.innerHTML = '';
+  }
+}
+
+/* ══════════════ 掷局 ══════════════ */
+const ERA_AN = { from:1494, to:1594 };
+const ERA_MO = { from:2020, to:2032 };
+
+function eraColor(era){ return era === 'an' ? '' : 'mo'; }
+
+function yearLabel(y, era){
+  if (era === 'mo') return y + ' 年';
+  const tab = [
+    [1488, 1505, '弘治', 1487], [1506, 1521, '正德', 1505],
+    [1522, 1566, '嘉靖', 1521], [1567, 1572, '隆庆', 1566],
+    [1573, 1620, '万历', 1572]
+  ];
+  for (const r of tab){
+    if (y >= r[0] && y <= r[1]){
+      const n = y - r[3];
+      return r[2] + (n === 1 ? '元年' : numToCn(n) + '年');
+    }
+  }
+  return y + ' 年';
+}
+function numToCn(n){
+  const d = ['〇','一','二','三','四','五','六','七','八','九'];
+  if (n < 10) return d[n];
+  if (n < 20) return '十' + (n % 10 ? d[n % 10] : '');
+  return d[Math.floor(n / 10)] + '十' + (n % 10 ? d[n % 10] : '');
+}
+
+let pending = null;
+
+function rollLife(){
+  // 古今平衡：已定四局时补缺口
+  const done = S && S.lives ? S.lives.length : 0;
+  const anCount = S && S.lives ? S.lives.filter(l => l.era === 'an').length : 0;
+  const moCount = done - anCount;
+  let era;
+  if (done === 4){
+    if (anCount === 1) era = 'an';
+    else if (moCount === 1) era = 'mo';
+    else era = Math.random() < .5 ? 'an' : 'mo';
+  } else {
+    era = Math.random() < .5 ? 'an' : 'mo';
+  }
+  const w = era === 'an' ? ERA_AN : ERA_MO;
+  const y0 = w.from + R(w.to - w.from + 1);
+
+  const el = $('#rollEra'), yr = $('#rollYr'), gn = $('#rollGan'), nt = $('#rollNote');
+  $('#originBox').innerHTML = '';
+  nt.innerHTML = '';
+  el.className = 'roll-era flick';
+  yr.textContent = '';
+  gn.textContent = '';
+  const marks = ['古', '今'];
+  let k = 0;
+  const tick = setInterval(() => {
+    el.textContent = marks[k++ % 2];
+    if (k > 9){
+      clearInterval(tick);
+      el.className = 'roll-era';
+      el.textContent = era === 'an' ? '古' : '今';
+      const gz = ganZhiOfYear(y0 - 16).join('');
+      yr.textContent = yearLabel(y0, era);
+      gn.textContent = era === 'an' ? `起局 · ${gz} 年 · 十六岁` : `起局 · 十六岁`;
+      // 改史已知
+      if (S && S.edits && S.edits.length && S.index > 1){
+        nt.textContent = '（此世已知：' + S.edits[S.edits.length - 1].text + '）';
+      }
+      pending = { era, y0 };
+      renderOrigins();
+    }
+  }, 62);
+}
+
+function renderOrigins(){
+  const pool = ORIGINS.slice().sort(() => Math.random() - .5).slice(0, 3);
+  const box = $('#originBox');
+  box.innerHTML = '<div class="hd-row" style="margin-top:8px"><h1 style="font-size:16px">生 在 谁 家</h1><span class="sub">出身是后天，八字是先天</span></div><div class="origins" id="orgGrid"></div>';
+  const g = $('#orgGrid');
+  pool.forEach(o => {
+    const d = document.createElement('div');
+    d.className = 'origin';
+    const six = SIXK.map(k => `<span>${k} <i>${o.six[k]}</i></span>`).join('');
+    d.innerHTML = `<h4>${pending.era === 'an' ? o.an : o.mo}</h4>
+      <div class="d">${o.d}</div><div class="six">${six}</div>`;
+    d.onclick = () => startLife(o);
+    g.appendChild(d);
+  });
+}
+
+function startLife(origin){
+  const era = pending.era, y0 = pending.y0;
+  const bz = S.bz;
+  const cai = {};
+  CAIK.forEach(k => { cai[k] = bz.init[k]; });
+  S.life = {
+    era, y0, age: 16, fold: 0,
+    origin: origin.id, originName: era === 'an' ? origin.an : origin.mo,
+    six: Object.assign({}, origin.six),
+    cai, ink: 0, lone: false,
+    used: [], minAt: {}, lines: [], shownEcho: false,
+    lu: origin.six['禄'],
+    gateDone: [false, false, false]
+  };
+  renderLife();
+  go('life');
+}
+
+/* ══════════════ 一局 ══════════════ */
+function renderLife(){
+  const L = S.life;
+  $('#luNo').textContent = '第 ' + '一二三四五六七八'[S.index - 1] + ' 局';
+  $('#luEra').textContent = (L.era === 'an' ? '古 · ' : '今 · ') + yearLabel(L.y0 + L.age - 16, L.era);
+  $('#luAge').textContent = L.age + ' 岁';
+  $('#luShou').innerHTML = '寿 <b>' + Math.round(L.six['寿']) + '</b>';
+
+  // 六事
+  const bar = $('#sixBar');
+  bar.innerHTML = SIXK.map(k => `
+    <div class="row6" data-k="${k}">
+      <span class="k">${k}</span>
+      <span class="track"><span class="fill" style="width:${clamp(L.six[k],0,100)}%"></span></span>
+      <span class="n">${Math.round(L.six[k])}</span>
+    </div>`).join('');
+
+  $('#inkHint').innerHTML = L.lone
+    ? '无室 · 六事按五项结算<br>每年多两格'
+    : '月令十二格 · 花在哪，就在哪';
+
+  renderCard();
+}
+
+function renderCard(){
+  const L = S.life;
+  let ev = pickEvent();
+  const box = $('#cardBox');
+
+  if (!ev){
+    return endLife('无 事 可 记');
+  }
+
+  const isAn = L.era === 'an';
+  const body = isAn ? ev.bodyAn : ev.bodyMo;
+  const head = isAn ? (ev.head || 'journey') : 'mo_plate';
+
+  let echoHtml = '';
+  if (!L.shownEcho && S.echo && ev.id !== 'hist' && Math.random() < .45){
+    echoHtml = `<div class="echo">（人群里有人说了句"${S.echo.line}"。这个名字你觉得眼熟，想不起来在哪见过。）</div>`;
+    L.shownEcho = true;
+  }
+
+  box.innerHTML = `
+    <div class="card">
+      <div class="card-h" style="background-image:url('${imgOf(head)}')"></div>
+      <div class="meta">第 ${numToCn(L.fold + 1)} 折 · 四年 · ${isAn ? '明' : '今'}</div>
+      <h3>${isAn ? ev.an : (ev.mo || ev.an)}</h3>
+      <div class="body">${body}</div>
+      ${echoHtml}
+      <div class="opts" id="opts"></div>
+    </div>`;
+
+  const opts = $('#opts');
+  ev.opts.forEach(o => {
+    if (o.edit && (!isAn || L.six['禄'] < (ev.minLu || 40))) return;
+    const d = document.createElement('div');
+    d.className = 'opt';
+    const cost = o.eff && o.eff['禄'] ? '' : '';
+    const caiSum = Object.keys(o.cai || {}).reduce((a, k) => a + o.cai[k], 0);
+    d.dataset.cai = caiSum;
+    d.dataset.home = ((o.eff || {})['室'] || 0) + ((o.eff || {})['子'] || 0);
+    d.innerHTML = `<span class="t">${o.t}<em>${o.sub}</em></span><span class="c">${costTag(o)}</span>`;
+    d.onclick = () => choose(ev, o);
+    opts.appendChild(d);
+  });
+  if (S.auto) setTimeout(autoPickOpt, 4);
+}
+
+function autoPickOpt(){
+  const list = $$('#opts .opt');
+  if (!list.length) return;
+  if (!S.smart){ list[R(list.length)].click(); return; }
+  // 刻意专精：挑"最练才"的那一项
+  let best = null, bv = -1e9;
+  list.forEach(el => {
+    const cai = el.dataset.cai ? parseFloat(el.dataset.cai) : 0;
+    const home = el.dataset.home ? parseFloat(el.dataset.home) : 0;
+    const v = S.strat === 'home' ? home : cai;
+    if (v > bv){ bv = v; best = el; }
+  });
+  (best || list[0]).click();
+}
+
+const WEBP = { court:1, home:1, journey:1, study:1, war:1, wedding:1, winter:1 };
+function imgOf(head){
+  if (head === 'mo_plate') return 'assets/modern.jpg';
+  return 'assets/' + head + '.' + (WEBP[head] ? 'webp' : 'jpg');
+}
+
+function costTag(o){
+  const parts = [];
+  for (const k in (o.eff || {})){
+    const v = o.eff[k];
+    if (!v) continue;
+    parts.push(k + (v > 0 ? '+' : '') + v);
+  }
+  return parts.join('　');
+}
+
+function pickEvent(){
+  const L = S.life;
+  const isAn = L.era === 'an';
+  const pool = EV.filter(e => !(e.onlyAn && !isAn));
+  // 历史事件：古代、禄够、第五折起、一世只一次
+  const hist = EV.find(e => e.id === 'hist');
+  if (isAn && hist && !L.used.includes('hist')
+      && L.six['禄'] >= (hist.minLu || 40) && L.fold >= 4){
+    L.used.push('hist');
+    return hist;
+  }
+  const fresh = pool.filter(e => !L.used.includes(e.id));
+  const ev = fresh.length ? pick(fresh) : pick(pool);
+  if (ev) L.used.push(ev.id);
+  return ev;
+}
+
+function choose(ev, o){
+  const L = S.life;
+  const deltas = [];
+  for (const k in (o.eff || {})){
+    const raw = o.eff[k];
+    if (!raw) continue;
+    let v = Math.round(raw * 0.65);
+    if (v === 0) v = raw > 0 ? 1 : -1;
+    L.six[k] = clamp(L.six[k] + v, 0, 100);
+    deltas.push({ k, v });
+  }
+  if (o.ink) L.ink = clamp(L.ink + o.ink, 0, 100);
+  if (((o.eff || {})['子'] || 0) > 0) L.taught = true;
+  if (o.lone){ L.lone = true; }
+
+  // 六才：隐藏成长
+  for (const k in (o.cai || {})){
+    const v = (o.cai[k] || 0) * 4;
+    L.cai[k] = clamp(L.cai[k] + v, 0, S.bz.cap[k]);
+    // 到顶 = 摸到"自己那一格"的上限；缺格（cap<78）永不算
+    if (S.bz.cap[k] >= 78 && L.cai[k] >= S.bz.cap[k]) S.peak[k] = S.bz.cap[k];
+  }
+
+  if (o.line) L.lines.push(o.line);
+
+  // 改史
+  if (o.edit && S.edits.length < 2){
+    const t = o.edit.text;
+    S.edits.push({ life: S.index, year: String(L.y0 + L.age - 16), grade: o.edit.grade, text: t });
+  }
+
+  // 结算动效
+  showDelta(deltas);
+
+  // 推进时间
+  setTimeout(advanceFold, S.auto ? 0 : 900);
+}
+
+function advanceFold(){
+  const L = S.life;
+  if (!L) return;
+  L.fold++;
+  L.age += 4;
+  // 常态流量：官照做、钱照花、人照老、家照冷
+  L.six['禄'] = clamp(L.six['禄'] + 5, 0, 100);
+  L.six['财'] = clamp(L.six['财'] + (L.six['禄'] >= 30 ? 4 : 2), 0, 100);
+  L.six['誉'] = clamp(L.six['誉'] + 1, 0, 100);
+  // 室：有人在，家自己会长；没人管，就慢慢散
+  if (!L.lone) L.six['室'] = clamp(L.six['室'] + (L.six['室'] >= 45 ? 1 : -1), 0, 100);
+  L.six['子'] = clamp(L.six['子'] + (L.six['子'] > 0 ? (L.six['室'] >= 50 ? 1 : -1) : 0), 0, 100);
+  if (L.six['子'] <= 0 && !L.lone && L.age >= 30){
+    L.six['子'] = 25; L.six['室'] = clamp(L.six['室'] + 5, 0, 100);
+  }
+  if (L.six['子'] > 0 && !L.m1 && L.age >= 40){ L.m1 = 1; L.six['子'] = clamp(L.six['子'] + 8, 0, 100); }
+  if (L.six['子'] > 0 && !L.m2 && L.age >= 48){
+    L.m2 = 1; L.six['子'] = clamp(L.six['子'] + 8 + (L.taught ? 6 : 0), 0, 100);
+  }
+  L.six['寿'] = clamp(L.six['寿'] - 4, 0, 100);
+  S.bz.gates.forEach((g, i) => {
+    if (!L.gateDone[i] && L.age >= g){
+      L.gateDone[i] = true;
+      applyGate(i);
+    }
+  });
+  if (L.six['寿'] <= 0 || L.fold >= 12) return endLife();
+  renderLife();
+}
+
+function showDelta(ds){
+  if (!ds.length) return;
+  const div = document.createElement('div');
+  div.className = 'flash';
+  div.innerHTML = '<div class="deltas">' + ds.map(d =>
+    `<span style="color:${d.v > 0 ? 'var(--cinnabar)' : 'var(--azurite)'}">${d.k} ${d.v > 0 ? '+' : ''}${d.v}</span>`
+  ).join('') + '</div>';
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 1600);
+}
+
+function applyGate(i){
+  const L = S.life;
+  const key = [S.bz.main, weakestCai(), '缘'][i];
+  const val = L.cai[key] || 60;
+  const pass = val + R(30) > 62;
+  const div = document.createElement('div');
+  div.className = 'flash';
+  div.innerHTML = `<div class="deltas"><span style="color:var(--ink2)">${
+    ['一','二','三'][i]}关 · ${S.bz.gates[i]} 岁 · ${pass ? '过了' : '没过'}</span></div>`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 1800);
+
+  if (pass){
+    if (i === 0) L.cai[key] = clamp((L.cai[key] || 60) + 4, 0, S.bz.cap[key]);
+    if (i === 1) S.bz.cap[key] = clamp(S.bz.cap[key] + 10, 5, 78);
+    if (i === 2) L.gateGood = true;
+  } else {
+    if (i === 0) L.cai[key] = clamp(Math.min(L.cai[key] || 60, 70), 0, 100);
+    if (i === 1){
+      const ks = SIXK.slice().sort(() => Math.random() - .5).slice(0, 2);
+      ks.forEach(k => { L.six[k] = clamp(L.six[k] - 8, 0, 100); });
+    }
+  }
+}
+
+function weakestCai(){
+  let best = '智', bv = 999;
+  CAIK.forEach(k => { if (S.bz.cap[k] < bv){ bv = S.bz.cap[k]; best = k; } });
+  return best;
+}
+
+/* ══════════════ 局末 ══════════════ */
+function endLife(reason){
+  const L = S.life;
+  const keys = (L.lone ? SIXK.filter(k => k !== '室') : SIXK.slice()).filter(k => k !== '寿');
+  const shouScore = clamp(Math.round((L.age - 40) * 1.8), 0, 100);
+  const stat = {};
+  keys.forEach(k => { stat[k] = L.six[k]; });
+  if (shouScore < 35) stat['寿'] = shouScore;   // 早死才罚
+  let minK = Object.keys(stat)[0];
+  Object.keys(stat).forEach(k => { if (stat[k] < stat[minK]) minK = k; });
+  const minV = Math.round(stat[minK]);
+
+  let verdict, why;
+  if (minV >= 60) { verdict = '六 全'; why = '六样都不算亏。你比谁都清楚代价。'; }
+  else if (minV >= 40) { verdict = '寻 常'; why = '你过得去，只是每一样都差一口气。'; }
+  else if (minV >= 20) { verdict = '缺 一'; why = `你赢了很多，但缺的那一样（${minK}），把其余的都说成空的。`; }
+  else { verdict = '空'; why = `缺的是${minK}。它把别的都吃掉了。`; }
+  why = `卒于 ${L.age} 岁 · 最薄一格是${minK}（${minV}）`;
+
+  // 史评
+  const y = L.six['誉'], lu = L.six['禄'];
+  let biog;
+  if (L.ink >= 60) biog = '《佞幸传》，附于某权臣传后';
+  else if (y >= 70 && lu >= 50) biog = '本传';
+  else if (L.six['室'] <= 5) biog = '附传 —— 无党、无室，附于某人之末';
+  else if (y >= 45) biog = '循吏传';
+  else biog = '无传 ——「时同僚有某者」';
+
+  // 手记：取三句
+  let lines = L.lines.slice(-3);
+  while (lines.length < 3){
+    lines.push(pick([
+      '我这一辈子，好像一直在等一件事。',
+      '我都办成了。夜里想不起来任何一件。',
+      '我算过很多账，就是没算过自己。',
+      '那年冬天特别长。',
+      '有人劝过我，我没听。'
+    ]));
+  }
+
+  const rec = {
+    era: L.era,
+    yearLabel: yearLabel(L.y0, L.era),
+    verdict: verdict + ' · ' + minK + Math.round(L.six[minK]),
+    biog, minK, minV, six: Object.assign({}, L.six), age: L.age,
+    origin: L.originName, lines
+  };
+
+  if (!S.lives) S.lives = [];
+  S.lives[S.index - 1] = rec;
+
+  // 手记跨局（第五条后替换）
+  S.hand = S.hand.concat(lines).slice(-5);
+  // 错的记忆：某才天生缺，却写出"我很会"的句子
+  const lack = CAIK.find(k => S.bz.cap[k] <= 58);
+  if (lack && Math.random() < .55){
+    const wrong = { 智:'我很会念书。这一条我从不怀疑。', 体:'我身子骨一直很好。',
+      言:'我这张嘴，从来没输过。', 巧:'这些账我心里过一遍就清楚。',
+      忍:'我什么都能忍。', 缘:'我人缘一向不错。' }[lack];
+    S.hand[S.hand.length - 1] = wrong;
+  }
+  S.hand = S.hand.slice(-5);
+
+  S.index++;
+  save();
+  showHand(S.index - 1);
+}
+
+function showHand(i){
+  const rec = S.lives[i - 1];
+  if (!rec) return;
+  const isAn = rec.era === 'an';
+  $('#handTitle').textContent = `第 ${'一二三四五六七八'[i-1]} 局 · 卒`;
+  $('#handSub').textContent = `${rec.origin} · ${rec.yearLabel} · 卒于 ${rec.age} 岁`;
+
+  const edits = S.edits.filter(e => e.life === i);
+  $('#handBody').innerHTML = `
+    <div class="verdict">
+      <div class="big">${rec.verdict.split(' · ')[0]}</div>
+      <div class="why">${rec.biog}</div>
+    </div>
+    <div class="six-final">
+      ${SIXK.map(k => `<div><span>${k}</span><b>${Math.round(rec.six[k])}</b></div>`).join('')}
+    </div>
+    <div class="hand-card">
+      <div class="ttl">手 记 · 留给下一世</div>
+      ${rec.lines.map(t => `<p>${t}</p>`).join('')}
+    </div>
+    ${edits.length ? `<div class="edits"><div class="ttl">此 世 所 改</div>${
+      edits.map(e => `<p>${e.text}（${e.grade}）</p>`).join('')}</div>` : ''}
+    <div class="center" id="handAct"></div>`;
+
+  const act = $('#handAct');
+  if (S.index > 5){
+    act.innerHTML = '<span class="btn zin" id="toBook2">开 命 书</span>';
+    $('#toBook2').onclick = () => { renderBook(); go('book'); };
+  } else {
+    act.innerHTML = '<span class="btn" id="nextLife">入 下 一 局</span>';
+    $('#nextLife').onclick = () => { renderHub(); go('hub'); };
+  }
+  go('hand');
+  if (S.auto) setTimeout(autoNext, 8);
+}
+
+function autoStartLife(){
+  const done = (S.lives || []).filter(Boolean).length;
+  const an = (S.lives || []).filter(l => l && l.era === 'an').length;
+  let era;
+  if (done === 4){ era = an === 1 ? 'an' : (an === 3 ? 'mo' : (Math.random() < .5 ? 'an' : 'mo')); }
+  else era = Math.random() < .5 ? 'an' : 'mo';
+  const w = era === 'an' ? ERA_AN : ERA_MO;
+  pending = { era, y0: w.from + R(w.to - w.from + 1) };
+  startLife(pick(ORIGINS));
+}
+
+function autoNext(){
+  if (S.index > 5){
+    renderBook();
+    if (Object.keys(S.peak || {}).length) renderTianji();
+    autoReport();
+  } else autoStartLife();
+}
+
+function autoReport(){
+  const out = document.createElement('div');
+  out.id = 'testOut';
+  const peak = Object.keys(S.peak || {}).join(',') || '无';
+  const rows = (S.lives || []).map((l, i) =>
+    l ? `${i+1}:${l.era}/${l.yearLabel}/${l.age}岁/${l.verdict}/${SIXK.map(k => k + Math.round(l.six[k])).join(',')}` : 'null'
+  ).join(' || ');
+  out.setAttribute('data-test', 'OK');
+  out.style.display = 'none';
+  out.textContent = `lives=${S.lives.length} peak=${peak} tianji=${S.tianji || '-'} ${rows}`;
+  document.body.appendChild(out);
+  document.title = 'AUTO_OK peak=' + peak;
+}
+
+/* ══════════════ 命书 ══════════════ */
+function renderBook(){
+  const bz = S.bz;
+  const [y, m, d, h] = bz.pillars;
+  const notes = k => {
+    const c = bz.cap[k];
+    if (k === '缘') return c >= 84 ? '人缘极厚' : (c <= 60 ? '合少冲多，两头不靠' : '—');
+    if (c >= 95) return '此命唯一一格 · 可至顶';
+    if (c >= 88) return '可至顶（你的顶）';
+    if (c <= 58) return '终身不过六十';
+    if (c <= 70) return '弱，够用不够赢';
+    return '—';
+  };
+  const html = `
+  <div class="book" id="bookCard">
+    <div class="pil">
+      <div class="zhu lead">四柱</div>
+      <div class="zhu">${y}</div><div class="zhu">${m}</div>
+      <div class="zhu">${d}</div><div class="zhu">${h}</div>
+    </div>
+    <div class="cai-list">
+      ${CAIK.map(k => `
+        <div class="cai ${bz.cap[k] >= 95 ? 'top' : ''}">
+          <span class="k">${k}</span>
+          <span class="track"><span class="fill" data-w="${bz.cap[k]}"></span></span>
+          <span class="v">${numToCn(bz.cap[k])}</span>
+          <span class="note">${notes(k)}</span>
+        </div>`).join('')}
+    </div>
+    <div class="gates">
+      ${bz.gates.map((g, i) => `<div><b>${g}</b>${['一关·主才','二关·最弱','三关·缘'][i]}</div>`).join('')}
+    </div>
+    <div class="book-foot">此命 · ${wuxingLine(bz)}</div>
+    <div class="seal" id="bookSeal">命书</div>
+  </div>
+  <div class="center" id="bookAct"></div>`;
+
+  $('#bookBody').innerHTML = html;
+  setTimeout(() => {
+    $$('.cai .fill').forEach(f => { f.style.width = f.dataset.w + '%'; });
+    $('#bookSeal').classList.add('on');
+  }, 80);
+
+  const peak = Object.keys(S.peak || {}).length > 0;
+  const act = $('#bookAct');
+  if (peak){
+    act.innerHTML = '<span class="btn zin" id="toTianji">窥 天 机</span>';
+    $('#toTianji').onclick = () => { renderTianji(); go('tianji'); };
+  } else {
+    act.innerHTML = '<span class="btn ghost" id="again">另 起 一 卷</span>';
+    $('#again').onclick = () => { if (confirm('清掉现有的五世，重新起卷？')) reset(); };
+  }
+  go('book');
+}
+
+function wuxingLine(bz){
+  const w = bz.wuxing;
+  const lack = Object.keys(w).filter(k => w[k] === 0);
+  const full = Object.keys(w).filter(k => w[k] >= 4);
+  if (!lack.length && !full.length) return '五行各具，无缺无旺。';
+  let t = lack.length === 0 ? '五行不缺'
+    : (lack.length === 1 ? `缺${lack[0]}` : `${lack.join('')}俱缺`);
+  if (full.length) t += `，${full.join('')}旺而` + (bz.de ? '得时' : '失时');
+  else t += bz.de ? `，日干得时` : `，日干失时`;
+  return t + '。';
+}
+
+/* ══════════════ 天机 ══════════════ */
+const GE = {
+  '智': { n:'偏印夺食', s:'你懂一切，只是做不成一件。', e:'每年可"先看一次底牌"；办事判定 −10。' },
+  '体': { n:'羊刃驾杀', s:'你只欠一场仗。', e:'边臣线全开；寿年损 −1。' },
+  '言': { n:'伤官配印', s:'你的话，比你的命长。', e:'言类判定 +10；弹章必至，每次都换来名。' },
+  '巧': { n:'食神生财', s:'你手里过的东西，都会变多。', e:'财类"过一手"：财 +，誉 − 减半。' },
+  '忍': { n:'官印相生', s:'你升得慢，但你一直在。', e:'考成永不落"下下"；升迁 −10。' },
+  '缘': { n:'孤辰寡宿', s:'你要的东西，都得自己拿。', e:'直接进无室档且无代价；六项上限各 +5。' }
+};
+
+function renderTianji(){
+  const bz = S.bz;
+  const top = Object.keys(S.peak || {})[0]
+    || CAIK.filter(k => bz.cap[k] === Math.max.apply(null, CAIK.map(x => bz.cap[x])))[0];
+  const g = GE[top] || GE['缘'];
+  S.tianji = g.n;
+  save();
+
+  $('#tianjiBody').innerHTML = `
+    <div class="ge">
+      <span class="tag">五世 · 摸到了自己的顶</span>
+      <div class="name">${g.n}</div>
+      <div class="say">「${g.s}」</div>
+      <div class="eff">第六局：${g.e}<br>
+        六才自今日起常显——盲打变明打。<br>
+        另给两次：<b>择时</b>（挑年份）、<b>补偏</b>（一才 +10，另一才 −10）。</div>
+      <div class="center">
+        <span class="btn zin" id="sixth">入 第 六 局</span>
+        <span class="btn ghost" id="tobook3" style="margin-left:12px">回 命 书</span>
+      </div>
+      <div class="book-foot" style="margin-top:34px">天机只改信息，不改难度。第六局结算仍取 min(六项)，一分不让。</div>
+    </div>`;
+
+  $('#sixth').onclick = () => {
+    S.index = 6;
+    S.lives[5] = null;
+    save();
+    renderHub(); go('hub');
+  };
+  $('#tobook3').onclick = () => { renderBook(); go('book'); };
+  go('tianji');
+}
+
+/* ══════════════ 启动 ══════════════ */
+function boot(){
+  const saved = load();
+  if (saved) S = saved;
+  else S = newSoul();
+
+  if (!S.lives) S.lives = [];
+  if (!S.edits) S.edits = [];
+  if (!S.hand) S.hand = [];
+  if (!S.peak) S.peak = {};
+  if (!S.index) S.index = 1;
+
+  const p = new URLSearchParams(location.search);
+  if (p.get('static')) document.documentElement.classList.add('static');
+  if (p.get('dev')){ // 预置四局，便于评审
+    S.lives = [
+      { era:'an', yearLabel:'嘉靖五年', verdict:'缺一 · 室12', biog:'附传 —— 无党、无室', age:58, origin:'军户', lines:['三十一岁，河道上，我三天看完了一年的账。','四十四岁，那封信我压了两个月，还是烧了。','五十七岁，她没有等我。'] },
+      { era:'mo', yearLabel:'二〇二四年', verdict:'寻常 · 子22', biog:'循吏传', age:63, origin:'教师家庭', lines:['我把字签了，签得很快，快得自己都听见了。'] },
+      { era:'an', yearLabel:'万历二年', verdict:'缺一 · 禄18', biog:'无传 ——「时同僚有某者」', age:49, origin:'匠户', lines:['我拖了三个月。什么都没发生，什么也没解决。'] },
+      { era:'mo', yearLabel:'二〇二八年', verdict:'六全', biog:'本传', age:71, origin:'单亲', lines:['我教了他三年。他记住的不是书，是我坐在旁边那盏灯。'] }
+    ];
+    S.index = 5; S.hand = S.lives[3].lines;
+  }
+  if (p.get('auto')){
+    S.auto = true; S.smart = !!p.get('smart'); S.strat = p.get('strat') || 'cai'; S.index = 1; S.lives = []; S.hand = []; S.edits = []; S.peak = {}; S.tianji = null;
+    autoStartLife();
+    return;
+  }
+  const demo = p.get('demo');
+  if (demo === 'roll'){
+    pending = { era: Math.random() < .5 ? 'an' : 'mo', y0: 1526 };
+    go('roll'); renderOrigins();
+    $('#rollEra').textContent = pending.era === 'an' ? '古' : '今';
+    $('#rollYr').textContent = yearLabel(1526, pending.era);
+    $('#rollGan').textContent = pending.era === 'an' ? '起局 · 十六岁 · 丙戌年' : '起局 · 十六岁';
+    return;
+  }
+  if (demo === 'life'){
+    S.lives = []; S.index = 1;
+    pending = { era: p.get('era') === 'mo' ? 'mo' : 'an', y0: 1526 };
+    startLife(ORIGINS[0]); go('life');
+    return;
+  }
+  if (demo === 'hand'){
+    if (!S.lives || !S.lives.length){
+      S.lives = [{ era:'an', yearLabel:'嘉靖五年', verdict:'缺 一 · 室18', biog:'附传 —— 无党、无室',
+        age:58, origin:'军户', lines:['三十一岁，河道上，我三天看完了一年的账。','四十四岁，那封信我压了两个月，还是烧了。','五十七岁，她没有等我。'], six:{室:18,财:40,子:30,禄:55,寿:0,誉:60} }];
+      S.index = 2; S.hand = S.lives[0].lines;
+      S.edits = [{ life:1, year:'1550', grade:'中', text:'俺答未至' }];
+    }
+    showHand(1);
+    return;
+  }
+  const sc = p.get('screen');
+  if (sc === 'hub'){ renderHub(); go('hub'); }
+  else if (sc === 'book'){ renderBook(); }
+  else if (sc === 'tianji'){ renderTianji(); }
+  else { renderCover(); go('cover'); }
+}
+boot();
+</script>
+</body>
+</html>
