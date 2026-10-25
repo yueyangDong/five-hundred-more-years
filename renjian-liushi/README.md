@@ -3,6 +3,8 @@
 > 室、财、子、禄、寿、誉。六事皆求，终不能全。
 > 五世只给你**一个八字**。第一世你看不见它，第五世它才开口。
 
+**在线玩：** https://yueyangdong.github.io/five-hundred-more-years/renjian-liushi/
+
 一款以明代嘉靖前后百年与当代为背景的人生模拟游戏。**设定框架 + 可玩原型**。
 
 ---
@@ -61,3 +63,17 @@
 
 1. **寿不参与 min**。寿归 0 就是死，不是"缺寿"；若把 0 算进 min，每个结局都是"空"。
 2. **天机不是"必须 95"**。按八字规则能出现 95 的命只占 9%，改成"**摸到自己的顶**（上限 ≥78）"，才不是抽奖；95 那一格只多一行朱批。
+
+## 发布
+
+线上地址是 `yueyangdong/five-hundred-more-years` 仓库的子目录 `renjian-liushi/`（根目录属于《还想再活五百年》，勿覆盖）。更新方式：
+
+```bash
+git clone --depth 1 https://github.com/yueyangdong/five-hundred-more-years /tmp/_pub
+cd /tmp/_pub
+rm -rf renjian-liushi && mkdir renjian-liushi
+cp -r <本地>/人间六事/{index.html,README.md,设定框架.md,assets} renjian-liushi/
+git add renjian-liushi && git commit -m "更新人间六事" && git push origin main
+```
+
+`shots/` 不进线上（11MB 截图只作评审用）。
