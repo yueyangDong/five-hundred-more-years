@@ -141,6 +141,39 @@ body::after{
   letter-spacing:.32em;color:var(--cinnabar);border:1px solid rgba(160,60,48,.55);
   padding:4px 8px 4px 11px;background:rgba(252,248,238,.92);transform:rotate(5deg)}
 
+/* ── 排命：填自己的生辰 ── */
+.birth{max-width:560px;margin:13vh auto 0}
+.birth-lead{font-family:var(--kai);font-size:13px;line-height:2.5;letter-spacing:.14em;
+  color:var(--ink1);text-align:center;margin-bottom:44px}
+.birth-lead em{font-style:normal;color:var(--ink3);font-size:11.5px;letter-spacing:.1em}
+.bd-row{display:flex;align-items:flex-end;justify-content:center;gap:4px}
+.bd-row label{display:flex;align-items:flex-end;gap:5px}
+.bd-row input{width:74px;border:none;border-bottom:1px solid rgba(92,76,51,.42);
+  background:transparent;font-family:var(--kai);font-size:23px;text-align:center;
+  color:var(--ink);padding:4px 2px 8px;outline:none;transition:border-color .3s}
+.bd-row input#by{width:94px}
+.bd-row input:focus{border-bottom-color:var(--cinnabar)}
+.bd-row input::placeholder{color:rgba(92,76,51,.24)}
+.bd-row label span{font-family:var(--kai);font-size:12px;letter-spacing:.12em;
+  color:var(--ink3);padding-bottom:13px}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+.bd-prev{margin-top:32px;text-align:center;font-family:var(--kai);font-size:14px;
+  letter-spacing:.18em;color:var(--ink1);min-height:24px}
+.bd-prev.empty{color:rgba(92,76,51,.3);font-size:12px;letter-spacing:.2em}
+.bd-tip{margin-top:18px;text-align:center;font-family:var(--kai);font-size:11.5px;
+  letter-spacing:.1em;color:var(--ink3);line-height:2}
+.bd-tip a{color:var(--ink2);border-bottom:1px dotted rgba(92,76,51,.4);cursor:pointer;
+  text-decoration:none;transition:color .3s}
+.bd-tip a:hover{color:var(--cinnabar);border-bottom-color:var(--cinnabar)}
+.bd-err{margin-top:16px;text-align:center;font-family:var(--kai);font-size:12px;
+  letter-spacing:.14em;color:var(--cinnabar);min-height:18px}
+.bd-outs{display:flex;justify-content:center;gap:30px;margin-top:38px;align-items:baseline}
+.bd-outs .ghost{font-family:var(--kai);font-size:12px;letter-spacing:.18em;color:var(--ink3);
+  cursor:pointer;transition:color .3s}
+.bd-outs .ghost:hover{color:var(--cinnabar)}
+
 /* ── 一局 ── */
 .life-top{display:flex;align-items:baseline;gap:22px;padding-bottom:12px;
   border-bottom:1px solid rgba(92,76,51,.2);margin-bottom:26px;font-family:var(--kai);
@@ -250,6 +283,8 @@ body::after{
   background:linear-gradient(178deg,rgba(255,253,247,.94),rgba(243,234,215,.8));
   border:1px solid rgba(92,76,51,.24);box-shadow:0 40px 84px -50px rgba(64,48,24,.66)}
 .book::after{content:"";position:absolute;inset:8px;border:1px solid rgba(92,76,51,.1);pointer-events:none}
+.birth-line{text-align:center;font-family:var(--kai);font-size:11.5px;letter-spacing:.26em;
+  color:var(--ink3);margin-bottom:30px}
 .book::before{content:"";position:absolute;left:50%;top:-1px;transform:translateX(-50%);
   width:64px;height:3px;background:var(--cinnabar);opacity:.46}
 .book .pil{display:flex;flex-direction:row-reverse;gap:34px;justify-content:center}
@@ -361,6 +396,37 @@ html.static *{animation:none !important;transition:none !important}
     <div class="lives" id="lives"></div>
     <div id="hubHand"></div>
     <div class="center" id="hubAct"></div>
+  </div>
+</section>
+
+<section class="screen" id="sc-birth">
+  <div class="wrap">
+    <div class="hd-row">
+      <h1>排 命</h1>
+      <span class="sub">这一副八字，锁你五世</span>
+    </div>
+    <div class="birth">
+      <p class="birth-lead">
+        生在哪一天，由父母定；活成什么样，由你定。<br>
+        把出生时刻填进来，这副八字就是你五世的底牌。<br>
+        <em>只存在这台机器的浏览器里，不上传，也不联网。</em>
+      </p>
+      <div class="bd-row">
+        <label><input id="by" type="number" inputmode="numeric" placeholder="1990" maxlength="4"><span>年</span></label>
+        <label><input id="bm" type="number" inputmode="numeric" placeholder="6"><span>月</span></label>
+        <label><input id="bd" type="number" inputmode="numeric" placeholder="15"><span>日</span></label>
+        <label><input id="bh" type="number" inputmode="numeric" placeholder="8"><span>时</span></label>
+      </div>
+      <div class="bd-prev empty" id="bdPreview">填完四样，这里会先排给你看</div>
+      <div class="bd-tip">
+        时辰按 0–23 填。<a id="bdNoon">不知道几点？按午时（12 点）算</a>。
+      </div>
+      <div class="bd-err" id="bdErr"></div>
+      <div class="bd-outs">
+        <span class="btn zin" id="bdGo">定 命</span>
+        <span class="ghost" id="bdRand">不用我的，随便给我一副</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -485,6 +551,68 @@ function makeBazi(){
   return [ganZhiOfYear(y).join(''), m.join(''), d.join(''), h.join('')];
 }
 
+/* ── 真排盘：公历生辰 → 四柱 ──────────────────────────────────
+   年柱以立春分界，月柱以十二「节」分界，日柱按儒略日直推，
+   时柱走五鼠遁。节气用太阳视黄经反解（低精度天文公式），
+   与实际交节时刻可能差十几分钟——出生贴着交节的人，四柱会有出入。 */
+const RAD = Math.PI / 180;
+
+function jdOf(y, m, d){
+  const a = Math.floor((14 - m) / 12);
+  const yy = y + 4800 - a;
+  const mm = m + 12 * a - 3;
+  return d + Math.floor((153 * mm + 2) / 5) + 365 * yy
+    + Math.floor(yy / 4) - Math.floor(yy / 100) + Math.floor(yy / 400) - 32045;
+}
+
+function sunLon(J){
+  const n = J - 2451545.0;
+  const L = 280.460 + 0.9856474 * n;
+  const g = (357.528 + 0.9856003 * n) * RAD;
+  const T = n / 36525;
+  const om = (125.04 - 1934.136 * T) * RAD;
+  const lam = L + 1.915 * Math.sin(g) + 0.020 * Math.sin(2 * g)
+    + 0.00569 - 0.00478 * Math.sin(om);
+  return ((lam % 360) + 360) % 360;
+}
+
+// 十二「节」：0 小寒 1 立春 2 惊蛰 3 清明 4 立夏 5 芒种
+//            6 小暑 7 立秋 8 白露 9 寒露 10 立冬 11 大雪
+const TERM_DEG = [285, 315, 345, 15, 45, 75, 105, 135, 165, 195, 225, 255];
+const TERM_GUESS = [[1,6],[2,4],[3,6],[4,5],[5,6],[6,6],[7,7],[8,8],[9,8],[10,8],[11,7],[12,7]];
+
+function termJD(y, k){
+  const g = TERM_GUESS[k];
+  let J = jdOf(y, g[0], g[1]) - 0.5, target = TERM_DEG[k];
+  for (let i = 0; i < 8; i++){
+    const diff = ((target - sunLon(J) + 540) % 360) - 180;
+    J += diff / 0.9856474;
+    if (Math.abs(diff) < 1e-7) break;
+  }
+  return J;
+}
+
+function pillarsOf(y, m, d, h){
+  const Jut = jdOf(y, m, d) - 0.5 + h / 24 - 8 / 24;      // 北京时 → UT
+  // 年：以立春为界
+  const gy = Jut < termJD(y, 1) ? y - 1 : y;
+  const nz = ganZhiOfYear(gy).join('');
+  // 月：以「节」为界；一月初尚未到小寒，仍属上一年大雪（子月）
+  let k = -1;
+  for (let i = 0; i < 12; i++) if (Jut >= termJD(y, i)) k = i;
+  if (k < 0) k = 11;
+  const ZHI_OF_TERM = [1,2,3,4,5,6,7,8,9,10,11,0];
+  const mz = monthPillar(nz[0], ZHI_OF_TERM[k]).join('');
+  // 日：子时（23 点）换日
+  let Jd = jdOf(y, m, d);
+  if (h >= 23) Jd += 1;
+  const di = ((Jd + 49) % 60 + 60) % 60;
+  const dz = GAN[di % 10] + ZHI[di % 12];
+  // 时：五鼠遁
+  const sz = hourPillar(dz[0], Math.floor(((h + 1) % 24) / 2)).join('');
+  return [nz, mz, dz, sz];
+}
+
 function analyseBazi(pillars){
   const chars = pillars.join('').split('');
   const wx = {木:0,火:0,土:0,金:0,水:0};
@@ -563,6 +691,198 @@ const ORIGINS = [
 
 /* ══════════════ 事件 ══════════════ */
 const EV = [
+ /* ── 早段：十六到三十岁。这几折原本只有三五条可用，补的是这一段 ── */
+ { id:'name', minAge:16, maxAge:22, head:'study', an:'改 名', mo:'改 名',
+   bodyAn:'族里修谱，先生说你这一辈该用"继"字。你爹给你起的那个字，要划掉。',
+   bodyMo:'上户口那年写错了一个字。派出所说能改，得跑三个地方，还得你本人去。',
+   opts:[
+    { t:'按族里的改', sub:'名字是给族里用的', eff:{誉:5,室:3}, cai:{忍:2},
+      line:'我改了。新名字用了三十年，写起来还是别扭。' },
+    { t:'就用爹起的', sub:'这一回不让', eff:{誉:-4,室:-2}, cai:{忍:1},
+      line:'我没改。族谱上那一格空着，空到我这一辈结束。' },
+    { t:'两个都用', sub:'官面一个，家里一个', eff:{禄:2,誉:2,寿:-2}, cai:{巧:2},
+      line:'官面上用一个，家里用一个。后来连自己都得想一下。' }
+   ]},
+
+ { id:'alley', minAge:16, maxAge:30, head:'ruin', an:'巷 口', mo:'路 口',
+   bodyAn:'巷口有人打老婆，打得很难看。围了一圈人，没人动。你路过。',
+   bodyMo:'深夜路口，一个老人倒在地上。手机举起来的有三四个，扶的没有。',
+   opts:[
+    { t:'上前', sub:'事后麻烦归事后', eff:{誉:8,寿:-4,室:2}, cai:{体:2},
+      line:'我上前了。后来被叫去问了三回话。' },
+    { t:'走开', sub:'不关我的事', eff:{誉:-5,寿:1}, cai:{忍:1},
+      line:'我走开了。走出十步，听见后面声音更大了。' },
+    { t:'去叫人', sub:'别自己沾手', eff:{誉:4,寿:-1}, cai:{巧:2},
+      line:'我去叫了人。等我带着人回来，已经散了。' }
+   ]},
+
+ { id:'pawn', minAge:16, maxAge:32, head:'home', an:'当 铺', mo:'周 转',
+   bodyAn:'家里断炊第三天。你娘把陪嫁的镯子拿出来，让你去当。她没看你。',
+   bodyMo:'信用卡还不上。你在几个借款 App 之间算了一晚上利息。',
+   opts:[
+    { t:'当 了', sub:'先过这个月', eff:{财:8,室:-5,誉:-3}, cai:{忍:2},
+      line:'我当了。赎回是四年以后，镯子已经不是原来那只。' },
+    { t:'借 高 利', sub:'翻得比我还快', eff:{财:5,寿:-5,誉:-5}, ink:8, cai:{巧:1},
+      line:'我借了。那笔钱滚得比我快。' },
+    { t:'咬着牙不', sub:'饿着，但不欠', eff:{寿:-6,室:3,誉:5}, cai:{忍:3},
+      line:'我咬着牙没当。那半个月吃的什么，我一直没跟人说过。' }
+   ]},
+
+ { id:'night', minAge:16, maxAge:30, head:'study', an:'夜 读', mo:'熬 夜',
+   bodyAn:'油灯要钱。你算过，一晚上三分。你爹说，灯别省。',
+   bodyMo:'项目上线前一周。工位旁边的咖啡罐子，已经堆到第三个。',
+   opts:[
+    { t:'熬', sub:'年轻就是本钱', eff:{禄:6,寿:-8}, cai:{智:2},
+      line:'我熬了。二十几岁熬的夜，四十岁开始还。' },
+    { t:'睡', sub:'命比事要紧', eff:{寿:5,禄:-4}, cai:{忍:2},
+      line:'我睡了。第二天那件事，别人做完了。' },
+    { t:'换个法子', sub:'省下时间也没睡', eff:{禄:3,寿:-2,誉:2}, cai:{巧:2},
+      line:'我换了个法子。省下来的时间，也没用来睡。' }
+   ]},
+
+ { id:'letter', minAge:18, maxAge:34, head:'journey', an:'家 书', mo:'家 里 来 电',
+   bodyAn:'家书说，你娘咳了两个月，不碍事，别回来。字是你妹妹写的，写得歪。',
+   bodyMo:'你妈打电话来，先说天气，说了三分钟，才说住院了。',
+   opts:[
+    { t:'回 去', sub:'事可以等，人不能', eff:{室:8,禄:-6,寿:-2}, cai:{缘:2},
+      line:'我回去了。回去那天她已经能下地，还是骂我耽误事。' },
+    { t:'寄 钱', sub:'钱到了，人也出院了', eff:{财:-8,室:3,誉:2}, cai:{忍:2},
+      line:'我寄了钱。钱到了，人也出院了。' },
+    { t:'不 回', sub:'这一趟太远', eff:{禄:4,室:-9,誉:-3}, cai:{忍:1},
+      line:'我没回。那年冬天我做了很多事，一件也想不起来。' }
+   ]},
+
+ { id:'blind', minAge:18, maxAge:30, noChild:true, head:'wedding', an:'相 看', mo:'相 亲',
+   bodyAn:'媒人领你去茶馆。女方隔着一张桌子看你，看得很快，看了三眼。',
+   bodyMo:'介绍人拉了个群。对方发来一张照片，你回了一张，然后两边都不说话了。',
+   opts:[
+    { t:'应 下', sub:'见了三面就定', eff:{室:12,财:-4}, cai:{忍:1},
+      line:'我应下了。见面到定亲，一共十七天。' },
+    { t:'再 等 等', sub:'总觉得还有别的', eff:{室:-3,寿:2,誉:-2}, cai:{忍:2},
+      line:'我说再等等。这一等，媒人后来就不来了。' },
+    { t:'把底说了', sub:'穷就穷，不装', eff:{室:5,誉:3,财:-2}, cai:{言:2},
+      line:'我把家里的底说了。她愣了一下，说"你这人实在"。' }
+   ]},
+
+ { id:'firstpay', minAge:18, maxAge:30, minLu:5, head:'yamen', an:'头 一 月 俸', mo:'第 一 个 月 工 资',
+   bodyAn:'头一个月俸米领回来了，一斗二升。你娘说留着，你爹说该给先生送一份。',
+   bodyMo:'第一个月工资到账，四千二。房租两千一，剩下的你盯着手机看了很久。',
+   opts:[
+    { t:'全交家里', sub:'一分不留', eff:{室:8,财:-2,誉:3}, cai:{忍:2},
+      line:'我一分没留。我娘把钱压在箱底，压了三年。' },
+    { t:'先给自己', sub:'鞋底已经透了', eff:{财:5,室:-5}, cai:{巧:1},
+      line:'我先给自己买了双鞋。旧的那双，鞋底已经透了。' },
+    { t:'请人吃饭', sub:'这桌人里有一个记了我十年', eff:{誉:5,财:-4,禄:3}, cai:{缘:2},
+      line:'我请了一桌。那桌人后来有一个，记了我十年。' }
+   ]},
+
+ { id:'copy', minAge:20, maxAge:34, head:'study', an:'代 笔', mo:'代 写',
+   bodyAn:'同窗出五两，请你替他写一篇策论。他的字你学了半年，学得很像。',
+   bodyMo:'有人出两千，让你替他写一份材料。他说"没人看得出来"。',
+   opts:[
+    { t:'接', sub:'五两够吃两个月', eff:{财:7,誉:-4}, ink:5, cai:{巧:2},
+      line:'我接了。写完那篇，我自己的笔也脏了一点。' },
+    { t:'不接', sub:'这活儿不该我干', eff:{财:-2,誉:4}, cai:{忍:2},
+      line:'我没接。他说"装什么"，然后找了别人。' },
+    { t:'接了，写得差', sub:'收钱不办漂亮事', eff:{财:5,誉:-2}, cai:{巧:3},
+      line:'我接了，写得很敷衍。他居然也中了。' }
+   ]},
+
+ { id:'tally', minAge:20, maxAge:40, minLu:15, head:'yamen', an:'库 房', mo:'对 账',
+   bodyAn:'你管库房。月底盘出来，短了七两。管事的说"先记你名下"。',
+   bodyMo:'交接的时候账对不上，差了三千六。前任已经走了，签字的是你。',
+   opts:[
+    { t:'认下，补上', sub:'七两是我娘攒了两年的', eff:{财:-9,禄:4,誉:4}, cai:{忍:3},
+      line:'我补上了。那七两，是我娘攒了两年的。' },
+    { t:'查 到 底', sub:'查到第三个人就查不动了', eff:{禄:-4,誉:8,寿:-3}, cai:{智:2},
+      line:'我查了。查到第三个人，就查不动了。' },
+    { t:'记别人名下', sub:'反正他调走了', eff:{禄:6,誉:-8}, ink:12, cai:{巧:2},
+      line:'我记在了别人名下。他调走那天，我没敢去送。' }
+   ]},
+
+ { id:'gift', minAge:20, maxAge:42, minLu:8, head:'court', an:'投 刺', mo:'送 礼',
+   bodyAn:'你想调去户房。师爷点了一句"天冷了"。你算了算，家里还有两匹缎子。',
+   bodyMo:'想调个岗。老同事说"该走动走动"。你查了查余额，又看了看购物卡的面额。',
+   opts:[
+    { t:'送', sub:'放下就走，别多话', eff:{禄:10,财:-8}, ink:9, cai:{巧:2},
+      line:'我把东西放下就走了。他送到门口，说了句"客气"。' },
+    { t:'不送', sub:'这个位子我不要了', eff:{禄:-5,誉:4}, cai:{忍:2},
+      line:'我没送。第二年那个位子给了别人，第三年还是。' },
+    { t:'送，但留一手', sub:'他收的东西我记着', eff:{禄:6,财:-6}, ink:12, cai:{巧:2},
+      line:'我送了，也留了一样东西。那东西后来救了我，也害了我。' }
+   ]},
+
+ { id:'kin', minAge:18, maxAge:45, head:'home', an:'族 亲', mo:'亲 戚',
+   bodyAn:'三房的堂兄来了，说孩子要进学，差二十两。他坐了两个时辰，茶换了三遍。',
+   bodyMo:'表姐打电话来，说首付差八万。她说"就周转一下"，语气很稳。',
+   opts:[
+    { t:'借', sub:'亲戚就是这时候用的', eff:{财:-12,室:5,誉:4}, cai:{缘:2},
+      line:'我借了。三年后他送来一筐鸡蛋，钱的事谁都没提。' },
+    { t:'不借', sub:'我也有我的难处', eff:{财:2,室:-6,誉:-4}, cai:{忍:2},
+      line:'我说没有。他走的时候，把带来的那包点心又拎走了。' },
+    { t:'借一半', sub:'给个数，彼此都好过', eff:{财:-6,室:2}, cai:{巧:1},
+      line:'我借了一半。他收下的时候，笑了一下，很轻。' }
+   ]},
+
+ { id:'drink', minAge:22, maxAge:50, minLu:12, head:'court', an:'酒 席', mo:'酒 局',
+   bodyAn:'上司做寿，席上要有人替他挡。你酒量一般，全桌都知道。',
+   bodyMo:'领导组的局。你坐在下手，杯子已经满过三次。',
+   opts:[
+    { t:'替他挡', sub:'吐完出来接着笑', eff:{禄:8,寿:-6,誉:2}, cai:{忍:2},
+      line:'我替他挡了。吐在洗手间，出来接着笑。' },
+    { t:'装 醉', sub:'装得像，后来没人信', eff:{禄:-3,寿:2}, cai:{巧:2},
+      line:'我装醉。装得挺像，后来真喝不动了也没人信。' },
+    { t:'说我不喝', sub:'桌上安静了两秒', eff:{禄:-8,誉:5}, cai:{忍:3},
+      line:'我说我不喝。桌上安静了两秒，然后有人说"爽快"。' }
+   ]},
+
+ { id:'clan', minAge:22, maxAge:48, minLu:10, head:'yamen', an:'同 乡', mo:'老 乡',
+   bodyAn:'同乡在吏部当差，来问你愿不愿意"一起走"。他说这话时，眼睛看着别处。',
+   bodyMo:'老乡群里有人牵头，说要"抱团"。拉你进了一个没有名字的群。',
+   opts:[
+    { t:'入', sub:'一个人走不快', eff:{禄:8,誉:-3}, ink:6, cai:{缘:2},
+      line:'我入了。后来他们的事，我也得算一份。' },
+    { t:'不入', sub:'公文从此慢两天', eff:{禄:-4,誉:5}, cai:{忍:2},
+      line:'我没入。那年冬天，我的公文总比别人慢两天。' },
+    { t:'看着', sub:'不入，也不推', eff:{禄:3,寿:-2}, cai:{智:2},
+      line:'我不入，也不推。两年后群散了，我还在。' }
+   ]},
+
+ { id:'quit', minAge:20, maxAge:40, minLu:6, head:'journey', an:'辞 馆', mo:'想 辞 职',
+   bodyAn:'你在县学教书，束脩一年十二两。有个盐商请你去做西席，一年四十两。',
+   bodyMo:'干得没意思。有个机会，钱多一半，但要离开这个城市。',
+   opts:[
+    { t:'走', sub:'头也没回', eff:{财:10,禄:-6,室:-4}, cai:{巧:2},
+      line:'我走了。走那天，学生们送到门口，我头也没回。' },
+    { t:'留', sub:'留下的人后来都成了老人', eff:{禄:5,誉:4,财:-3}, cai:{忍:2},
+      line:'我留下了。留下的人，后来都成了"老人"。' },
+    { t:'两头接', sub:'两头都不算好', eff:{财:8,寿:-6,誉:-3}, cai:{巧:2},
+      line:'我两头都接了。两头都做得不坏，也都不算好。' }
+   ]},
+
+ { id:'oath', minAge:20, maxAge:36, head:'war', an:'结 拜', mo:'一 起 干',
+   bodyAn:'三个人在关帝庙前烧了纸。你排第二。排第一的那个人，眼里有火。',
+   bodyMo:'大学室友拉你合伙。他说得很快，你只听清"稳赚"两个字。',
+   opts:[
+    { t:'结', sub:'这炷香烧完就不好推了', eff:{财:6,誉:5,禄:3,寿:-3}, ink:4, cai:{缘:3},
+      line:'我结了。那炷香烧完，有些事就不好推了。' },
+    { t:'只出钱', sub:'出力的事我不沾', eff:{财:-6,誉:2}, cai:{巧:1},
+      line:'我只出了钱。后来他们散了，钱也没了。' },
+    { t:'不结', sub:'他们后来都发了，也可能没有', eff:{誉:-4,寿:2}, cai:{忍:2},
+      line:'我没结。他们三个后来都发了，也可能没有。' }
+   ]},
+
+ { id:'house', minAge:24, maxAge:48, head:'home', an:'老 宅', mo:'老 房 子',
+   bodyAn:'族里要修祠堂，按房头摊钱。你家这一房，摊得最重。',
+   bodyMo:'老房子要拆。补偿两个方案：要钱，或者要房。签字截止到月底。',
+   opts:[
+    { t:'出钱 / 要房', sub:'根在这里', eff:{财:-10,室:8,誉:5}, cai:{忍:2},
+      line:'我出了钱。后来那地方是什么样，我一直没敢回去看。' },
+    { t:'不出 / 要钱', sub:'换一笔现的', eff:{财:8,室:-6,誉:-6}, cai:{巧:1},
+      line:'我没出。族里那边，从此少了一个位置。' },
+    { t:'拖着', sub:'到最后是别人替我定的', eff:{寿:-2,誉:-2}, cai:{忍:2},
+      line:'我拖着。拖到最后，是别人替我定的。' }
+   ]},
  { id:'will', minLu:30, minAge:22, head:'field', an:'改稻为桑', mo:'管网改造',
    bodyAn:'上面要在三年内把稻田改成桑田，丝价好，税能补上。可县里三万人的口粮，是从这些田里长出来的。期限三个月，要你签。',
    bodyMo:'市里下了指标，三年内把老城区管网全换。预算缺口一千二百万。你签了字，今年冬天动工；不签，明年汛期还是这个水。',
@@ -939,6 +1259,89 @@ const EV = [
 /* ══════════════ 状态 ══════════════ */
 let S = null;
 
+/* ══════════════ 排命 ══════════════ */
+let noonAssumed = false;
+
+function birthRead(){
+  const sv = id => $('#' + id).value.trim();
+  const y = +sv('by'), m = +sv('bm'), d = +sv('bd');
+  const hs = sv('bh');
+  if (!sv('by') || !sv('bm') || !sv('bd') || hs === '')
+    return { ok:false, err:'年、月、日、时，四样都要填。' };
+  const h = +hs;
+  if (!(y >= 1900 && y <= 2020)) return { ok:false, err:'年份填 1900 到 2020 之间。' };
+  if (!(m >= 1 && m <= 12)) return { ok:false, err:'月份是 1 到 12。' };
+  const dim = new Date(y, m, 0).getDate();
+  if (!(d >= 1 && d <= dim)) return { ok:false, err:`${y} 年 ${m} 月只有 ${dim} 天。` };
+  if (!(h >= 0 && h <= 23)) return { ok:false, err:'时辰按 0 到 23 填。' };
+  return { ok:true, y, m, d, h, pillars: pillarsOf(y, m, d, h) };
+}
+
+function birthPreview(){
+  const r = birthRead();
+  const box = $('#bdPreview');
+  if (!r.ok){
+    box.textContent = '填完四样，这里会先排给你看';
+    box.className = 'bd-prev empty';
+    return;
+  }
+  const zhi = ZHI[Math.floor(((r.h + 1) % 24) / 2)];
+  box.textContent = `${r.y} 年 ${r.m} 月 ${r.d} 日 · ${zhi}时　${r.pillars.join('　')}`;
+  box.className = 'bd-prev';
+}
+
+function renderBirth(){
+  noonAssumed = false;
+  ['by', 'bm', 'bd', 'bh'].forEach(id => { $('#' + id).value = ''; });
+  $('#bdErr').textContent = '';
+  const pv = $('#bdPreview');
+  pv.textContent = '填完四样，这里会先排给你看';
+  pv.className = 'bd-prev empty';
+  $('#by').focus();
+}
+
+function applyBirth(pillars, birth){
+  S = newSoul(pillars);
+  S.birth = birth;
+  S.needBirth = false;
+  save();
+  renderHub();
+  go('hub');
+}
+
+function initBirth(){
+  ['by', 'bm', 'bd', 'bh'].forEach(id => {
+    $('#' + id).addEventListener('input', () => {
+      if (id === 'bh') noonAssumed = false;
+      $('#bdErr').textContent = '';
+      birthPreview();
+    });
+    $('#' + id).addEventListener('keydown', e => { if (e.key === 'Enter') birthGo(); });
+  });
+
+  $('#bdNoon').onclick = () => {
+    if (!$('#by').value || !$('#bm').value || !$('#bd').value){
+      $('#bdErr').textContent = '先把年月日填上。';
+      return;
+    }
+    $('#bh').value = 12;
+    noonAssumed = true;
+    birthPreview();
+  };
+
+  $('#bdRand').onclick = () => {
+    applyBirth(null, null);
+  };
+}
+
+function birthGo(){
+  const r = birthRead();
+  if (!r.ok){ $('#bdErr').textContent = r.err; return; }
+  applyBirth(r.pillars, {
+    y: r.y, m: r.m, d: r.d, h: r.h, noon: noonAssumed
+  });
+}
+
 /* ══════════════ 声音：三记，不多给 ══════════════
    不引音频文件——全部现场合成，单文件还是单文件。
    只有三处出声：掷局落定、六事透了、人卒了。
@@ -1033,11 +1436,13 @@ function initSfx(){
 }
 
 
-function newSoul(){
-  const bz = analyseBazi(makeBazi());
+function newSoul(pillars){
+  const bz = analyseBazi(pillars || makeBazi());
   return {
     index: 1,
     bz,
+    needBirth: true,     // 还没排命：起卷时先去填生辰
+    birth: null,
     hand: [],
     book: false,
     tianji: null,
@@ -1075,7 +1480,10 @@ function renderCover(){
     $('#coverNew').onclick = () => { if (confirm('清掉现有的五世，重新起卷？')) reset(); };
   } else {
     b.innerHTML = '<span class="btn zin" id="coverGo">起 卷</span>';
-    $('#coverGo').onclick = () => { renderHub(); go('hub'); };
+    $('#coverGo').onclick = () => {
+      if (S && S.needBirth){ renderBirth(); go('birth'); }
+      else { renderHub(); go('hub'); }
+    };
   }
 }
 
@@ -1861,6 +2269,9 @@ function renderBook(){
   };
   const html = `
   <div class="book" id="bookCard">
+    ${S.birth ? `<div class="birth-line">生于 ${S.birth.y} 年 ${S.birth.m} 月 ${S.birth.d} 日 · ${
+      ZHI[Math.floor(((S.birth.h + 1) % 24) / 2)]}时${S.birth.noon ? '（时柱暂拟）' : ''}</div>`
+      : '<div class="birth-line">此命未排生辰 · 随机所授</div>'}
     <div class="pil">
       <div class="zhu lead">四柱</div>
       <div class="zhu">${y}</div><div class="zhu">${m}</div>
@@ -1970,6 +2381,8 @@ function boot(){
 
   const p = new URLSearchParams(location.search);
   if (p.get('static')) document.documentElement.classList.add('static');
+  // 评审直链与自动回归不走排命那一屏
+  if (p.get('auto') || p.get('demo') || p.get('dev') || p.get('screen')) S.needBirth = false;
   if (p.get('dev')){ // 预置四局，便于评审
     S.lives = [
       { era:'an', yearLabel:'嘉靖五年', verdict:'缺一 · 室12', biog:'附传 —— 无党、无室', heir:'二十八岁得子 · 子未成器 · 有孙', age:58, origin:'军户', lines:['三十一岁，河道上，我三天看完了一年的账。','四十四岁，那封信我压了两个月，还是烧了。','五十七岁，她没有等我。'] },
@@ -1985,6 +2398,10 @@ function boot(){
     return;
   }
   const demo = p.get('demo');
+  if (demo === 'birth'){
+    S.needBirth = true; renderBirth(); go('birth');
+    return;
+  }
   if (demo === 'roll'){
     pending = { era: Math.random() < .5 ? 'an' : 'mo', y0: 1526 };
     go('roll'); renderOrigins();
@@ -2019,6 +2436,7 @@ function boot(){
 }
 boot();
 initSfx();
+initBirth();
 </script>
 </body>
 </html>
