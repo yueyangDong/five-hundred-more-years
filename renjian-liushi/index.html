@@ -166,6 +166,14 @@ body::after{
 .row6[data-k="禄"] .fill{background:var(--cinnabar)}
 .row6[data-k="寿"] .fill{background:var(--ink2)}
 .row6[data-k="誉"] .fill{background:var(--gold)}
+/* 未明：一格也不给你看。只剩虚线，和一个"·" */
+.row6.veiled .k{color:var(--ink3)}
+.row6.veiled .track{height:2px;background:
+  repeating-linear-gradient(90deg,rgba(92,76,51,.17) 0 2px,transparent 2px 9px)}
+.row6.veiled .n{color:rgba(92,76,51,.42);letter-spacing:.24em}
+.row6.veiled .fill{display:none}
+.row6.shown{animation:rowIn .9s var(--slow) both}
+@keyframes rowIn{0%{opacity:0;transform:translateX(-8px)}100%{opacity:1;transform:none}}
 .inknum{margin-top:26px;font-family:var(--kai);font-size:10.5px;letter-spacing:.2em;
   color:var(--ink3);line-height:2.1}
 
@@ -201,6 +209,26 @@ body::after{
   animation:dpop 1.5s var(--slow) both}
 @keyframes dpop{0%{opacity:0;transform:translateY(8px) scale(.96)}
   18%{opacity:1;transform:none}78%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+/* 透：某一格到了头，六事全亮 */
+.flash.reveal{left:0;top:0;width:100%;height:100%;transform:none;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(247,243,235,.8);backdrop-filter:blur(2px)}
+.reveal .rv{padding:26px 34px 24px;background:rgba(255,253,247,.96);
+  border:1px solid rgba(92,76,51,.28);position:relative;
+  min-width:392px;text-align:center;
+  box-shadow:0 14px 44px rgba(70,58,40,.14);
+  animation:dpop 3.3s var(--slow) both}
+.reveal .seal{position:absolute;right:-14px;top:-16px;width:44px;height:44px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--kai);font-size:20px;color:#fff;background:var(--cinnabar);
+  border:none;opacity:1;transform:rotate(7deg);transition:none;
+  box-shadow:0 2px 10px rgba(150,40,30,.28)}
+.reveal .t{font-size:17px;letter-spacing:.34em;margin-bottom:10px}
+.reveal .s{font-family:var(--kai);font-size:11.5px;letter-spacing:.12em;
+  color:var(--ink2);margin-bottom:16px}
+.reveal .nums{display:flex;gap:13px;justify-content:center;flex-wrap:wrap;
+  font-family:var(--kai);font-size:12px;letter-spacing:.1em;color:var(--ink3)}
+.reveal .nums b{font-weight:400;color:var(--ink);margin-left:4px}
 
 /* ── 局末 ── */
 .verdict{text-align:center;padding:18px 0 8px}
@@ -1109,6 +1137,7 @@ function startLife(origin){
     law: 0,             // 律：暗线。不显示条，只在风声紧的时候透一句
     monk: null,         // '佛' / '道'：方外之人
     reputeFull: false, reputeWhy: null,
+    revealed: false, revealWhy: null, revealAge: 0,   // 六事全隐：某一格到 100 才全亮
     raised: 0,          // 教出来的成色：0 没管 / 1 请人教 / 2 亲自教
     gateDone: [false, false, false]
   };
@@ -1117,31 +1146,52 @@ function startLife(origin){
 }
 
 /* ══════════════ 一局 ══════════════ */
+/* 六事面板：没透之前一格都不给看。只有寿是身子，不是账。 */
+function veilLine(L){
+  if (L.monk) return '方外 · 六事按四项结算（室与子不在其道）';
+  if (!L.revealed) return '六 事 未 明 · 只知道自己顺不顺';
+  return L.lone ? '无室 · 六事按五项结算<br>每年多两格' : '月令十二格 · 花在哪，就在哪';
+}
+
+function renderSixBar(){
+  const L = S.life, veil = !L.revealed;
+  $('#luShou').innerHTML = veil
+    ? '寿 <b style="color:var(--ink3);font-size:11px;letter-spacing:.18em">未明</b>'
+    : '寿 <b>' + Math.round(L.six['寿']) + '</b>';
+  $('#sixBar').innerHTML = SIXK.map(k => veil
+    ? `<div class="row6 veiled" data-k="${k}">
+         <span class="k">${k}</span>
+         <span class="track"></span>
+         <span class="n">·</span>
+       </div>`
+    : `<div class="row6 shown" data-k="${k}">
+         <span class="k">${k}</span>
+         <span class="track"><span class="fill" style="width:${clamp(L.six[k],0,100)}%"></span></span>
+         <span class="n">${Math.round(L.six[k])}</span>
+       </div>`).join('');
+}
+
 function renderLife(){
   const L = S.life;
   $('#luNo').textContent = '第 ' + '一二三四五六七八'[S.index - 1] + ' 局';
   $('#luEra').textContent = (L.era === 'an' ? '古 · ' : '今 · ') + yearLabel(L.y0 + L.age - 16, L.era);
   $('#luAge').textContent = L.age + ' 岁';
-  $('#luShou').innerHTML = '寿 <b>' + Math.round(L.six['寿']) + '</b>';
 
-  // 六事
-  const bar = $('#sixBar');
-  bar.innerHTML = SIXK.map(k => `
-    <div class="row6" data-k="${k}">
-      <span class="k">${k}</span>
-      <span class="track"><span class="fill" style="width:${clamp(L.six[k],0,100)}%"></span></span>
-      <span class="n">${Math.round(L.six[k])}</span>
-    </div>`).join('');
+  renderSixBar();
 
   const hintLines = [heirHint(L)];
   if (L.monk) hintLines.push('誉 · 方外之名（' + L.monk + '门）');
   else if (L.reputeFull) hintLines.push('誉 · 一极即满 —— ' + L.reputeWhy);
+  if (!L.revealed){                              // 寿不给你数，只给身子的话
+    const s = L.six['寿'];
+    if (s <= 12) hintLines.push('寿 · 灯要灭了，你知道的');
+    else if (s <= 22) hintLines.push('寿 · 这两年，气一天短一天');
+    else if (s <= 35) hintLines.push('寿 · 身上开始有旧伤');
+  }
   const lh = lawHint(L);
   if (lh) hintLines.push(lh);
 
-  $('#inkHint').innerHTML = (L.monk
-    ? '方外 · 六事按四项结算（室与子不在其道）'
-    : (L.lone ? '无室 · 六事按五项结算<br>每年多两格' : '月令十二格 · 花在哪，就在哪'))
+  $('#inkHint').innerHTML = (veilLine(L))
     + '<div style="margin-top:12px;padding-top:9px;border-top:1px dashed rgba(92,76,51,.18);'
     + 'font-family:var(--kai);font-size:11.5px;letter-spacing:.08em;color:var(--ink3);line-height:1.9">'
     + hintLines.join('<br>') + '</div>';
@@ -1259,6 +1309,7 @@ function pickEvent(){
 
 function choose(ev, o){
   const L = S.life;
+  const veilBefore = !L.revealed;
   const deltas = [];
   for (const k in (o.eff || {})){
     const raw = o.eff[k];
@@ -1297,6 +1348,7 @@ function choose(ev, o){
   }
   stepHeir(L);
   stepRepute(L);
+  stepReveal(L);
   const dz = Math.round(L.six['子'] - z0);
   if (dz) deltas.push({ k: '子', v: dz });
 
@@ -1316,8 +1368,9 @@ function choose(ev, o){
     S.edits.push({ life: S.index, year: String(L.y0 + L.age - 16), grade: o.edit.grade, text: t });
   }
 
-  // 结算动效
-  showDelta(deltas);
+  // 结算动效。刚"透"的那一下不叠数字——面板已经全亮了，数字在牌上
+  if (veilBefore && L.revealed) { /* 让位给「六事俱明」 */ }
+  else showDelta(deltas);
 
   // 推进时间
   setTimeout(advanceFold, S.auto ? 0 : 900);
@@ -1360,6 +1413,38 @@ function lawHint(L){
   if (L.law >= 35) return '律 · 风声渐紧';
   if (L.law >= 18) return '律 · 有些账，经不起人翻';
   return '';
+}
+
+/* ── 透：六事全隐，一格到 100 才全亮 ───────────────────────────
+   活着的每一天，你都不知道自己几斤几两。只有一件事能让你看清：
+   某一样，被你做到了头。到了头，别的就藏不住了。 */
+function stepReveal(L){
+  if (L.revealed) return;
+  // 先看室财子禄——誉是被它们带上 100 的，"禄到了头"才是真话
+  const full = ['室', '财', '子', '禄'].find(k => L.six[k] >= 100)
+    || (L.six['誉'] >= 100 ? '誉' : null);
+  if (!full) return;
+  L.revealed = true; L.revealWhy = full; L.revealAge = L.age;
+  renderSixBar();
+  if (!S.auto) revealFlash(full);
+}
+
+function revealFlash(k){
+  const L = S.life;
+  const why = (L.monk && k === '誉')
+    ? '剃了头，账就不用算了。'
+    : k + '到了头。别的，也就藏不住了。';
+  const div = document.createElement('div');
+  div.className = 'flash reveal';
+  div.innerHTML = `<div class="rv">
+    <span class="seal">透</span>
+    <div class="t">六 事 俱 明</div>
+    <div class="s">${why}</div>
+    <div class="nums">${SIXK.map(x =>
+      `<span>${x}<b>${Math.round(L.six[x])}</b></span>`).join('')}</div>
+  </div>`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 3400);
 }
 
 // 手记里留一句"看得见的事"。这类句子不写心情，只写发生了什么
@@ -1442,6 +1527,7 @@ function advanceFold(){
   stepHeir(L);
   stepRepute(L);
   L.six['寿'] = clamp(L.six['寿'] - (L.monk ? 2 : 4), 0, 100);
+  stepReveal(L);
   S.bz.gates.forEach((g, i) => {
     if (!L.gateDone[i] && L.age >= g){
       L.gateDone[i] = true;
@@ -1454,10 +1540,12 @@ function advanceFold(){
 
 function showDelta(ds){
   if (!ds.length) return;
+  const veil = S.life && !S.life.revealed;   // 没透之前只给方向，不给数
   const div = document.createElement('div');
   div.className = 'flash';
-  div.innerHTML = '<div class="deltas">' + ds.map(d =>
-    `<span style="color:${d.v > 0 ? 'var(--cinnabar)' : 'var(--azurite)'}">${d.k} ${d.v > 0 ? '+' : ''}${d.v}</span>`
+  div.innerHTML = '<div class="deltas">' + ds.map(d => veil
+    ? `<span style="color:${d.v > 0 ? 'var(--cinnabar)' : 'var(--azurite)'}">${d.k} ${d.v > 0 ? '↑' : '↓'}</span>`
+    : `<span style="color:${d.v > 0 ? 'var(--cinnabar)' : 'var(--azurite)'}">${d.k} ${d.v > 0 ? '+' : ''}${d.v}</span>`
   ).join('') + '</div>';
   document.body.appendChild(div);
   setTimeout(() => div.remove(), 1600);
@@ -1546,6 +1634,7 @@ function endLife(reason){
     biog, minK, minV, six: Object.assign({}, L.six), age: L.age,
     origin: L.originName, lines, heir: heirLine(L),
     repute: L.reputeFull ? L.reputeWhy : null, monk: L.monk,
+    revealed: !!L.revealed, revealAt: L.revealAge || 0, revealWhy: L.revealWhy,
     heirAt: { has: L.heir.has, job: L.heir.job, grand: L.heir.grand, great: L.heir.great, born: L.heir.born }
   };
 
@@ -1590,6 +1679,10 @@ function showHand(i){
     ${(rec.monk || rec.repute) ? `<div style="text-align:center;margin-top:8px;font-family:var(--kai);
        font-size:12.5px;letter-spacing:.1em;color:var(--cinnabar)">誉 · ${
          rec.monk ? '方外之名（' + rec.monk + '门）' : '一极即满 —— ' + rec.repute}</div>` : ''}
+    <div style="text-align:center;margin-top:8px;font-family:var(--kai);
+       font-size:11.5px;letter-spacing:.12em;color:var(--ink3)">${rec.revealed
+         ? `${rec.revealAt} 岁那年，六事俱明 —— ${rec.revealWhy}到了头`
+         : '此世未透 · 六样一样也没看清，就过去了'}</div>
     <div class="hand-card">
       <div class="ttl">手 记 · 留给下一世</div>
       ${rec.lines.map(t => `<p>${t}</p>`).join('')}
@@ -1634,7 +1727,8 @@ function autoReport(){
   out.id = 'testOut';
   const peak = Object.keys(S.peak || {}).join(',') || '无';
   const rows = (S.lives || []).map((l, i) =>
-    l ? `${i+1}:${l.era}/${l.yearLabel}/${l.age}岁/${l.verdict}/${SIXK.map(k => k + Math.round(l.six[k])).join(',')}` : 'null'
+    l ? `${i+1}:${l.era}/${l.yearLabel}/${l.age}岁/${l.verdict}/${SIXK.map(k => k + Math.round(l.six[k])).join(',')}/${
+      l.revealed ? '透' + l.revealAt + l.revealWhy : '未透'}` : 'null'
   ).join(' || ');
   out.setAttribute('data-test', 'OK');
   out.style.display = 'none';
@@ -1792,7 +1886,8 @@ function boot(){
   }
   if (demo === 'life'){
     S.lives = []; S.index = 1;
-    pending = { era: p.get('era') === 'mo' ? 'mo' : 'an', y0: 1526 };
+    const isMo = p.get('era') === 'mo';
+    pending = { era: isMo ? 'mo' : 'an', y0: isMo ? 2026 : 1526 };
     startLife(ORIGINS[0]); go('life');
     return;
   }
