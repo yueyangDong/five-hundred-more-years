@@ -689,6 +689,160 @@ const ORIGINS = [
     d:'夹缝。家里的东西都要争，你比谁都会看人脸色。' }
 ];
 
+/* ══════════════ 职业：三条轴（§4） ══════════════
+   职业是"干什么活"，轨是"被归到哪一类"。两者独立（见 TRACK）。
+   禄 = 组织授予的位置。市井无禄，所以财与誉的上限各 +10 相偿——
+   代价是任何一件官面上的事，你都没有"位"可挡。
+   f = 每折（四年）的六项常态流量，取代从前全局一律的 +5 / +4 / −4。 */
+const JOBS = [
+  /* ── 仕：有"位"的人 ── */
+  { id:'wen', axis:'仕', an:'文官', mo:'公务员', luCap:100,
+    f:{禄:6, 财:1, 誉:1, 寿:-5, 室:-1},
+    d:'位子就是你的全部。位子一没，你什么都不是。' },
+  { id:'wu', axis:'仕', an:'军职', mo:'军官', luCap:60,
+    f:{禄:4, 财:2, 誉:1, 寿:-7, 室:-2},
+    d:'命是国家的。一纸调防文书，家就散了。' },
+  { id:'jiao', axis:'仕', an:'教职', mo:'教师', luCap:50,
+    f:{禄:1, 财:0, 誉:1, 寿:-3, 室:1},
+    d:'清而穷。你的学生将来可能做主官。' },
+  { id:'yiguan', axis:'仕', an:'医官', mo:'医生', luCap:50,
+    f:{禄:1, 财:3, 誉:1, 寿:-4, 室:1},
+    d:'治得了别人，治不了自己。' },
+  /* ── 商：禄 = 职级 ── */
+  { id:'shang', axis:'商', an:'商人', mo:'公司职员', luCap:100,
+    f:{禄:3, 财:7, 誉:0, 寿:-5, 室:-1},
+    d:'每上一层，离家的月令就多一格。跳槽可以，跳一次誉 −3。' },
+  /* ── 市：无禄或低禄 ── */
+  { id:'ge', axis:'市', an:'个体户', mo:'个体户', luCap:0,
+    f:{禄:0, 财:5, 誉:0, 寿:-4, 室:1},
+    d:'没有位可挡事，也没有位可丢。一张告示就能让你关门。' },
+  /* 市井十二行：门槛 / 年入（财）/ 寿损 / 升 / 与官场的接口 */
+  { id:'jiaofu', axis:'市', an:'脚夫', mo:'搬运工', luCap:0,
+    f:{禄:0,财:3,誉:0,寿:-4,室:1}, up:'把头 → 脚行行头',
+    link:'官物过境，抽头；也能替人夹带' },
+  { id:'chuan', axis:'市', an:'船工', mo:'货车司机', luCap:0,
+    f:{禄:0,财:4,誉:0,寿:-4,室:1}, up:'船主 → 船行',
+    link:'漕运、关卡：一张"船票"能通天' },
+  { id:'geng', axis:'市', an:'更夫', mo:'夜班保安', luCap:0,
+    f:{禄:0,财:2,誉:0,寿:-5,室:1}, up:'更夫头',
+    link:'巡夜即耳目，是衙门最便宜的线人' },
+  { id:'tu', axis:'市', an:'屠户', mo:'肉铺老板', luCap:0,
+    f:{禄:0,财:6,誉:0,寿:-3,室:1}, up:'肉铺 → 行头',
+    link:'官宴采买；年节"送肉"是规矩' },
+  { id:'doufu', axis:'市', an:'豆腐坊', mo:'早餐铺', luCap:0,
+    f:{禄:0,财:4,誉:0,寿:-4,室:1}, up:'两间铺',
+    link:'无。但它是唯一"每天见到所有人"的行当' },
+  { id:'yaopu', axis:'市', an:'药铺伙计', mo:'药店店员', luCap:0,
+    f:{禄:0,财:5,誉:0,寿:-3,室:1}, up:'坐堂 → 自己开号',
+    link:'医官、狱医；知道谁病了，就知道谁要倒了' },
+  { id:'shushu', axis:'市', an:'私塾先生', mo:'补习班老师', luCap:0,
+    f:{禄:0,财:4,誉:1,寿:-3,室:1}, up:'塾师 → 山长',
+    link:'门生。你的学生将来可能做主官' },
+  { id:'mei', axis:'市', an:'媒婆', mo:'婚介', luCap:0,
+    f:{禄:0,财:5,誉:0,寿:-3,室:1}, up:'官媒',
+    link:'全城的姻亲网在你手里，这是硬通货' },
+  { id:'wenpo', axis:'市', an:'稳婆', mo:'月嫂', luCap:0,
+    f:{禄:0,财:4,誉:0,寿:-4,室:1}, up:'—',
+    link:'知道谁家添丁、谁家打胎。最危险的一门知道' },
+  { id:'zhizha', axis:'市', an:'扎纸匠', mo:'殡葬用品', luCap:0,
+    f:{禄:0,财:3,誉:0,寿:-3,室:1}, up:'纸扎铺',
+    link:'丧仪：谁家死了人、谁家出不起丧钱' },
+  { id:'chaofeng', axis:'市', an:'当铺朝奉', mo:'典当行店员', luCap:0,
+    f:{禄:0,财:7,誉:0,寿:-3,室:1}, up:'二柜 → 掌柜',
+    link:'谁在当东西，谁就快倒了。全城最早的经济情报' },
+  { id:'shuli', axis:'市', an:'衙前书吏', mo:'窗口办事员', luCap:0,
+    f:{禄:0,财:6,誉:0,寿:-4,室:1}, up:'书办 → 典史',
+    link:'半只脚踏在官场里：不是官，可所有公文都过他的手' }
+];
+const JOB = id => JOBS.find(j => j.id === id) || JOBS[0];
+
+/* 出身定初始行当：生在谁家，你第一件事就是接谁的活。
+   ORIGIN_LU 是"位子能到多高"的出身天花板——官宦 80，罪臣之后 30。 */
+const ORIGIN_JOB = {
+  guan:'wen', fu:'shang', shu:'wen', qiao:'shang', dan:'doufu',
+  gu:'jiaofu', jiang:'ge', nong:'jiaofu', shi:'ge', jun:'wu',
+  zui:'wen', chong:'geng'
+};
+const ORIGIN_LU = {
+  guan:80, fu:100, shu:70, qiao:75, dan:50, gu:45,
+  jiang:45, nong:45, shi:40, jun:60, zui:30, chong:50
+};
+/* 行当的起点偏向：军户的孩子从小在营里长大，教书的人一辈子待在原地。
+   这不是"命定"，只是第一步就已经站在某条路上。 */
+const JOB_BIAS = {
+  wen:{清流:1}, wu:{边臣:3}, jiao:{循吏:2}, shushu:{循吏:2},
+  shang:{权臣:1}, shuli:{权臣:1}, chaofeng:{权臣:1}, mei:{权臣:1}, geng:{孤臣:1}
+};
+/* 有几个行当，本身就是一条轨：军职的人不是"选了"边臣，是他一辈子都在边地。
+   这种行当每折自动把分往那一轨推，不必靠事件。 */
+const JOB_FOLD_TRK = { wu:'边臣', jiao:'循吏', shushu:'循吏' };
+
+/* ══════════════ 轨：六条，五显一隐（§5） ══════════════
+   轨不是"转职"，是被归位：选得多了，系统才认出你是谁。
+   每条轨都缺一项——玩家真正在选的不是"想当什么官"，是"愿意缺哪一项"。 */
+const TRACK = [
+  { id:'清流', an:'清流', lack:'禄', cap:{禄:55}, fold:{},
+    d:'上疏、弹人、辞官。骂得越狠，升得越慢，名越大。',
+    rule:'誉 过 80 之后，升迁只余三成' },
+  { id:'能吏', an:'能吏', lack:'誉', cap:{誉:60}, fold:{},
+    d:'算账、督工、平账。事办成了，人得罪光了。',
+    rule:'每办成一件大事，清誉 −5（"他的钱哪来的"）' },
+  { id:'权臣', an:'权臣', lack:'寿与室', cap:{室:50}, fold:{寿:-2},
+    d:'收人、许官、换手。你替所有人办事，直到没有人替你。',
+    rule:'一朝倒台，禄财誉三项同时归零' },
+  { id:'边臣', an:'边臣', lack:'寿与室', cap:{室:50}, fold:{寿:-3},
+    d:'调兵、议和、守城。胜则名将，败则罪臣。',
+    rule:'每三折一次战／和，败则寿 −15' },
+  { id:'循吏', an:'循吏', lack:'禄', cap:{禄:45}, fold:{誉:1},
+    d:'修渠、办学、不断案。一县给你立祠，朝廷不知道你的名字。',
+    rule:'在地方上，誉可以破 85' },
+  { id:'孤臣', an:'孤臣', lack:'室', cap:{室:0}, fold:{禄:2,财:2}, hidden:true,
+    d:'独奏、独行、得罪所有人。你没有软肋，所以谁都不敢用你。',
+    rule:'五项上限 +5；每年多两格' }
+];
+const TRK = id => TRACK.find(t => t.id === id) || null;
+/* 每条轨"撞见机会"的频率不一样：替人办事的事到处都是，独奏独行的机会很少。
+   所以比的是归一化之后的分数——把机会的多寡折算掉，剩下的才是你的取向。 */
+const TRACK_RATE = { 清流:1.0, 能吏:0.8, 权臣:1.5, 边臣:1.15, 循吏:0.95, 孤臣:1.0 };
+/* 但有件事是硬的：史书只给"有位置的人"归类。
+   市井的人不入传——不是评价低，是压根没有人替你写。
+   商人可以入能吏、权臣、清流（他把事办成了，别人骂他，他站过队）；
+   边臣、循吏这两本是给守土与牧民的人留的，他沾不上。 */
+const AXIS_TRK = {
+  '仕': ['清流','能吏','权臣','边臣','循吏','孤臣'],
+  '商': ['清流','能吏','权臣','孤臣'],
+  '市': ['孤臣']
+};
+
+// 位子的顶：出身先压一道，行当再压一道，情关再压一道
+function capOf(L, k){
+  if (!L.capSix) return 100;
+  let c = L.capSix[k] === undefined ? 100 : L.capSix[k];
+  const lk = L.lockSix && L.lockSix[k];
+  if (lk !== undefined && lk < c) c = lk;
+  return c;
+}
+function recalcCaps(L){
+  const j = JOB(L.job);
+  const c = {室:100, 财:100, 子:100, 禄:100, 寿:100, 誉:100};
+  const oCap = ORIGIN_LU[L.origin];
+  c['禄'] = Math.min(j.luCap, oCap === undefined ? 60 : oCap);
+  // 无禄路线的补偿：禄 = 0 的人，财与誉的上限各 +10
+  if (c['禄'] === 0){ c['财'] = 110; c['誉'] = 110; }
+  const t = L.track ? TRK(L.track) : null;
+  if (t){
+    for (const k in (t.cap || {})) c[k] = Math.min(c[k], t.cap[k]);
+    if (t.id === '孤臣'){ ['财','子','寿','誉'].forEach(k => { c[k] += 5; }); c['室'] = 0; }
+  }
+  L.capSix = c;
+  if (t && t.id === '孤臣') L.lone = true;   // 孤臣没有室，不是选的，是这一轨的定义
+  SIXK.forEach(k => { if (L.six[k] > c[k]) L.six[k] = c[k]; });
+}
+// 有上限的加减：从前一律 clamp(0,100)，现在要认"这个位子能到多高"
+function bump(L, k, v){
+  L.six[k] = clamp(L.six[k] + v, 0, capOf(L, k));
+}
+
 /* ══════════════ 事件 ══════════════ */
 const EV = [
  /* ── 早段：十六到三十岁。这几折原本只有三五条可用，补的是这一段 ── */
@@ -1253,6 +1407,103 @@ const EV = [
       line:'我上了山。山上的日子长，长得像没有尽头。' },
     { t:'不出', sub:'站了站，还是下来了', eff:{寿:-2,室:2},
       line:'我在山门外站了很久，还是下来了。' }
+   ]},
+
+ /* ───── 职业与轨：你在事上选边，系统才认出你是谁 ───── */
+ { id:'trade', minAge:18, maxAge:30, head:'journey', an:'改 行', mo:'换 行',
+   bodyAn:'你这一行的路，走到这里就看得出尽头了。有人劝你去码头那边，说那边来钱快；也有人说，不如自己支个摊子。',
+   bodyMo:'干了两年，你算了一下：再干十年，还是这个数。招聘软件上那些岗位，你都够不上；够得上的，又不想去。',
+   opts:[
+    { t:'守着本行', sub:'手熟了，别折腾', eff:{禄:3,寿:-2}, tr:{循吏:2},
+      line:'我没走。这一行我熟了，熟了就是本钱。' },
+    { t:'换个行当', sub:'哪儿给钱去哪儿', eff:{财:6,誉:-2}, tr:{权臣:1}, jobAxis:'商',
+      line:'我换了。新地方没人认识我，这倒是件好事。' },
+    { t:'自己开张', sub:'宁做鸡头', eff:{财:9,寿:-5,禄:-4}, job:'ge', tr:{孤臣:1},
+      line:'我自己支了个摊。头一年赔的，是我娘的棺材本。' }
+   ]},
+
+ { id:'sanguan', axis:'仕', minAge:19, maxAge:25, head:'study', an:'散 馆', mo:'定 岗',
+   bodyAn:'庶吉士三年期满，要散了。留馆是清贵，一辈子在翰林院里修书讲学；外放是实务，一个知县，什么都得自己扛。也有人说，再等一科。',
+   bodyMo:'轮岗结束，三个去处摆在桌上：总部写材料的岗，下去带项目，或者再等一年看看。',
+   opts:[
+    { t:'留 馆', sub:'清贵，也清苦', eff:{誉:6,禄:-4,财:-3}, tr:{清流:3},
+      line:'我留馆了。同年的名字一个个上了地方志，我的名字在书尾。' },
+    { t:'外 放', sub:'一个县，什么都自己扛', eff:{禄:9,寿:-4,室:-3}, tr:{能吏:3},
+      line:'我外放了。到任第七天，库房的账就对不上。' },
+    { t:'再 等 一 科', sub:'不甘心', eff:{寿:-3,誉:3,禄:-2}, tr:{循吏:2},
+      line:'我又等了一科。这一科，我爹没等到。' }
+   ]},
+
+ { id:'sign', minLu:15, minAge:22, maxAge:30, head:'yamen', an:'第 一 次 签 字', mo:'第 一 次 签 字',
+   bodyAn:'公文递到你这儿，要你署一个名。数目对不上，差的不多，也不小。上头催得紧，旁边的人都在等你的笔。',
+   bodyMo:'一份验收单要你签。数字有问题，不大，但也不小。领导在群里问了三次"什么时候能好"。',
+   opts:[
+    { t:'签', sub:'事总得有人担', eff:{禄:9,寿:-3}, ink:7, tr:{能吏:3},
+      line:'我签了。那支笔比我想的重。' },
+    { t:'拖', sub:'不落笔，也不算拒', eff:{誉:-4,禄:-3,寿:2}, tr:{循吏:2},
+      line:'我拖了。拖到最后，别人签了，事情也就过去了。' },
+    { t:'往 上 递', sub:'把这本账摊开', eff:{誉:9,禄:-7}, law:5, tr:{清流:4},
+      line:'我往上递了。递上去的第三天，我被叫去谈了四个钟头。' }
+   ]},
+
+ { id:'dafu', minLu:45, minAge:32, maxAge:44, head:'dispatch', an:'一 方 大 员', mo:'一 个 大 摊 子',
+   bodyAn:'你的名字进了那份名单。往北是封疆，兵马钱粮都归你；往南是入京，离那把椅子只差几级。也有人劝你，就在这一省待下去。',
+   bodyMo:'区域总、集团总部、或者留在这个城市。三条路，都有人走过，都有人死在上面。',
+   opts:[
+    { t:'去 封 疆', sub:'兵马钱粮都归你', eff:{禄:7,寿:-7,室:-5,誉:4}, tr:{边臣:4},
+      line:'我去了。那里冬天的风，能把人的话吹回嘴里。' },
+    { t:'入 京', sub:'离那把椅子只差几级', eff:{禄:12,寿:-4,誉:-5}, ink:6, tr:{权臣:4},
+      line:'我入京了。京城的好处是，什么事都能找到人。' },
+    { t:'留 在 这 一 省', sub:'这里的人认得我', eff:{誉:8,禄:-5}, tr:{循吏:4},
+      line:'我没走。修的那条渠，现在还在用。' }
+   ]},
+
+ { id:'duandang', minLu:30, minAge:26, head:'censor', an:'断 党', mo:'退 群',
+   bodyAn:'你身边的人，一个个都在这张网里。有人替你挡过事，也有人在你的名字上添过一笔。现在，你被要求选一次：认，还是不认。',
+   bodyMo:'那个群你还在。里面有人替你说话，也有人把你的名字往上报过。现在有人问你：你到底站哪边。',
+   opts:[
+    { t:'断', sub:'弃尽人情，此后无人替你说话', eff:{誉:7,禄:-9,室:-7}, cutParty:true, tr:{孤臣:5},
+      line:'我把那些帖子都烧了。烧完那天，我一个人吃了顿饭。' },
+    { t:'不 断', sub:'网还在，就还有路', eff:{禄:6,誉:-4}, tr:{权臣:3},
+      line:'我没断。这张网托着我，也勒着我。' },
+    { t:'先 辞 官', sub:'不认，也不斗', eff:{禄:-18,誉:10,寿:3}, cutParty:true, tr:{孤臣:3},
+      line:'我辞了。走出衙门那天，门房没抬头。' }
+   ]},
+
+ { id:'pupil', minAge:30, head:'study', an:'提 携 后 进', mo:'带 个 新 人',
+   bodyAn:'有个年轻人拿着文章来拜。字写得不好，可有一句问到根上。带他，要费你的时间、你的钱、你的人情。',
+   bodyMo:'部门来了个新人，问你愿不愿意带。带好了，是他的；带不好，是你的。',
+   opts:[
+    { t:'认 真 带', sub:'费时间，也费钱', eff:{誉:6,财:-5,寿:-3}, pupil:2, tr:{循吏:2},
+      line:'我认真带了。他后来做的事，比我大。' },
+    { t:'挂 个 名', sub:'不费事，也不担责', eff:{禄:4,誉:-2}, pupil:1,
+      line:'我挂了个名。他逢年过节还来，我记不住他的字。' },
+    { t:'不 收', sub:'省下这点力气', eff:{禄:3,誉:-5,寿:2},
+      line:'我没收。我那时候忙，忙的都是些现在想不起来的事。' }
+   ]},
+
+ /* ───── 情关：一生只有一两回，可它管着你后来的很多年 ───── */
+ { id:'meet', minAge:18, maxAge:26, noChild:true, noMonk:true, noLove:true, head:'wedding',
+   an:'说 亲', mo:'认 识 一 个 人',
+   bodyAn:'媒人领她来家里坐了一回。她坐在门口那张凳子上，手一直放在膝上，没怎么抬头。临走时她看了你一眼，很快。',
+   bodyMo:'朋友拉了个饭局。她坐在你斜对面，中途你们同时伸手去拿盘子里最后一块东西，都缩了回去。',
+   opts:[
+    { t:'追', sub:'把话递过去', eff:{寿:-2,财:-3}, love:'chase',
+      line:'我开始跑了。那几年我跑的路，比前二十年加起来都多。' },
+    { t:'应 下', sub:'两家都满意', eff:{室:4}, love:'accept',
+      line:'我应下了。一切都办得很顺，顺得像没有我这个人。' },
+    { t:'不 议 亲', sub:'这一辈子一个人过', eff:{誉:3,寿:3}, love:'none',
+      line:'我说不议亲。我娘哭了一夜，第二天照常做饭。' }
+   ]},
+
+ { id:'qie', minAge:28, minShi:30, head:'home', an:'纳 妾', mo:'另 一 个 人',
+   bodyAn:'家里一直没有儿子，族里的话越来越难听。有人说，纳一房就是了——添丁，也算对得起祖先。',
+   bodyMo:'家里催得紧。有人说，换个人生就是了。你听着，没有反驳。',
+   opts:[
+    { t:'纳', sub:'花钱买子，最脏的一笔', eff:{财:-12}, concubine:true, ink:4,
+      line:'我纳了。她进门那天一直低着头，我也没抬头。' },
+    { t:'不 纳', sub:'没有就没有', eff:{室:4,誉:3},
+      line:'我没纳。这话我说得很轻，可我说了。' }
    ]}
 ];
 
@@ -1647,6 +1898,16 @@ function startLife(origin){
     cai, ink: 0, lone: false,
     used: [], minAt: {}, lines: [], shownEcho: false,
     lu: origin.six['禄'],
+    // 职业与轨。职业决定每折做什么事，轨决定史书把你归进哪一本传
+    job: ORIGIN_JOB[origin.id] || 'jiaofu',
+    trk: { 清流:0, 能吏:0, 权臣:0, 边臣:0, 循吏:0, 孤臣:0 },
+    track: null, trackAt: 0, trackChange: 0, betrayed: false,
+    cutParty: false,          // 主动断党：孤臣的另一条开启条件
+    ruined: false,            // 倒台：权臣的结局，位子是真的没了
+    deeds: 0, pupils: 0,      // 大事 / 门生。门生到死后才结算
+    // 情关：情／义／时三轴。情不出数，只给字数
+    love: null, lockSix: {}, knots: [], concubine: false,
+    capSix: null,
     // 子：不看水位，看台阶。五级各占一份，缺哪级就是缺哪级
     heir: { has: false, born: 0, judged: false, job: false, grand: false, great: false, lost: false },
     law: 0,             // 律：暗线。不显示条，只在风声紧的时候透一句
@@ -1656,6 +1917,9 @@ function startLife(origin){
     raised: 0,          // 教出来的成色：0 没管 / 1 请人教 / 2 亲自教
     gateDone: [false, false, false]
   };
+  const bias = JOB_BIAS[S.life.job] || {};
+  for (const k in bias) S.life.trk[k] = (S.life.trk[k] || 0) + bias[k];
+  recalcCaps(S.life);
   renderLife();
   go('life');
 }
@@ -1694,7 +1958,20 @@ function renderLife(){
 
   renderSixBar();
 
-  const hintLines = [heirHint(L)];
+  const j = JOB(L.job), capLu = capOf(L, '禄');
+  const hintLines = [
+    '职 · ' + (L.era === 'an' ? j.an : j.mo)
+      + '（' + j.axis + (capLu === 0 ? ' · 无禄，财誉 +10' : ' · 禄顶 ' + capLu) + '）',
+    '轨 · ' + (L.track ? L.track + '（缺' + TRK(L.track).lack + '）'
+      : (j.axis === '市' ? '不入传 —— 史书不写你这样的人'
+                         : '未定 —— 你在事上还没选过边')),
+    heirHint(L)
+  ];
+  // 情关这一格不出数：你只知道窗口还剩几折
+  const V = L.love;
+  if (V && !V.done) hintLines.push('情 · ' + V.xing + '家 · 窗口还剩 ' + Math.max(0, V.shi) + ' 折');
+  else if (V && V.result) hintLines.push('情 · ' + V.result + ' —— ' + LKIND[V.kind].an);
+  if (L.knots && L.knots.length) hintLines.push('情 · ' + L.knots.join('、') + ' · 记着');
   if (L.monk) hintLines.push('誉 · 方外之名（' + L.monk + '门）');
   else if (L.reputeFull) hintLines.push('誉 · 一极即满 —— ' + L.reputeWhy);
   if (!L.revealed){                              // 寿不给你数，只给身子的话
@@ -1800,9 +2077,24 @@ function pickEvent(){
     && (!e.minAge || L.age >= e.minAge)
     && (!e.maxAge || L.age <= e.maxAge)
     && (!e.minLu || L.six['禄'] >= e.minLu)
+    && (!e.axis || JOB(L.job).axis === e.axis)      // 散馆只在"仕"这一轴才有
+    && (!e.hasTrack || !!L.track)                   // 断党要先有党
+    && (!e.noTrack || e.noTrack !== L.track)
+    && (!e.noLove || !L.love)                        // 已经有一关了，不再开第二关
+    && (!e.minShi || L.six['室'] >= e.minShi)
     && (!e.beforeJob || !(L.heir && L.heir.judged))   // 人都二十了，再谈"教"就晚了
     && (!e.noMonk || !L.monk)
     && !e.force);                       // 强制事件不进日常池
+  // 情关的窗口到了。这一折不谈别的，只谈这一件
+  if (L.love && L.love.due && !L.love.done) return makeKnot(L);
+  // 一生总要遇上一次。二十岁上下，它会自己找上来——不是你去挑的
+  const meet = EV.find(e => e.id === 'meet');
+  if (meet && !L.love && !L.monk && !L.used.includes('meet')
+      && L.six['室'] < 55 && L.age >= 20 && L.age <= 30
+      && (L.age >= 28 || Math.random() < .5)){
+    L.used.push('meet');
+    return meet;
+  }
   // 历史事件：古代、禄够、第五折起、一世只一次
   const hist = EV.find(e => e.id === 'hist');
   if (isAn && hist && !L.used.includes('hist')
@@ -1832,7 +2124,7 @@ function choose(ev, o){
     if (k === '子') continue;          // 子不走加减，走台阶（见 stepHeir）
     let v = Math.round(raw * 0.65);
     if (v === 0) v = raw > 0 ? 1 : -1;
-    L.six[k] = clamp(L.six[k] + v, 0, 100);
+    L.six[k] = clamp(L.six[k] + v, 0, capOf(L, k));
     deltas.push({ k, v });
   }
   if (o.ink){
@@ -1877,6 +2169,43 @@ function choose(ev, o){
 
   if (o.line) L.lines.push(o.line);
 
+  // 行当：择业、改行、自己开张
+  if (o.job && JOB(o.job).id === o.job){ L.job = o.job; recalcCaps(L); }
+  if (o.jobAxis){
+    const pool = JOBS.filter(j => j.axis === o.jobAxis && j.id !== L.job);
+    if (pool.length){ L.job = pick(pool).id; recalcCaps(L); }
+  }
+  if (o.pupil) L.pupils = (L.pupils || 0) + o.pupil;
+  // 大事：让位子或名声跳了一大格的，就是"一件不可抹去的事"。史评认这一条
+  if (o.deed) L.deeds = (L.deeds || 0) + 1;
+  else if (((o.eff || {})['禄'] || 0) >= 6 || ((o.eff || {})['誉'] || 0) >= 6)
+    L.deeds = (L.deeds || 0) + 1;
+  if (o.cutParty){ L.cutParty = true; }
+  if (o.faction) L.faction = true;
+
+  // 站边：这一次选得偏向哪一轨
+  const td = trackDeltas(o, ev);
+  for (const k in td) L.trk[k] = (L.trk[k] || 0) + td[k];
+  // 能吏的代价：办成一件大事，清誉就低一分（"他的钱哪来的"）
+  if (o.deed && L.track === '能吏') bump(L, '誉', -5);
+  stepTrack(L);
+  recalcCaps(L);
+
+  // 情关：开、断、还是干脆不议亲
+  if (o.knot) resolveKnot(L, o.knot);
+  if (o.love === 'none') L.lone = true;
+  else if (o.love){
+    startLove(L);
+    if (o.love === 'chase'){
+      L.love.qing = clamp(L.love.qing + 12, 0, 100);
+      L.love.mine = clamp(L.love.mine + 12, 0, 100);
+    } else {
+      L.love.qing = clamp(L.love.qing + 4, 0, 100);
+      bump(L, '室', 4);
+    }
+  }
+  if (o.concubine) L.concubine = true;
+
   // 改史
   if (o.edit && S.edits.length < 2){
     const t = o.edit.text;
@@ -1920,7 +2249,10 @@ function stepRepute(L){
     const pk = reputePeak(L);
     if (pk){ L.reputeFull = true; L.reputeWhy = pk + '至其极'; }
   }
-  if (L.reputeFull) L.six['誉'] = Math.max(L.six['誉'], 100);
+  if (L.reputeFull){
+    // 能吏的名是真的，可"好名声"这一格被他自己缺掉了——封顶就是封顶
+    L.six['誉'] = Math.max(L.six['誉'], Math.min(100, capOf(L, '誉')));
+  }
 }
 // 律这条暗线不出条。它只在快到头的时候，透一句话给你
 function lawHint(L){
@@ -1930,16 +2262,24 @@ function lawHint(L){
   return '';
 }
 
-/* ── 透：六事全隐，一格到 100 才全亮 ───────────────────────────
+/* ── 透：六事全隐，一格到了头才全亮 ─────────────────────────────
    活着的每一天，你都不知道自己几斤几两。只有一件事能让你看清：
-   某一样，被你做到了头。到了头，别的就藏不住了。 */
+   某一样，被你做到了头。到了头，别的就藏不住了。
+   "头"不是 100——是你的位子能到的那个头。官宦人家的禄顶 80，
+   到 80 那天，照样是到了头。 */
 function stepReveal(L){
   if (L.revealed) return;
+  const atTop = [];
   // 先看室财子禄——誉是被它们带上 100 的，"禄到了头"才是真话
-  const full = ['室', '财', '子', '禄'].find(k => L.six[k] >= 100)
-    || (L.six['誉'] >= 100 ? '誉' : null);
-  if (!full) return;
-  L.revealed = true; L.revealWhy = full; L.revealAge = L.age;
+  for (const k of ['室', '财', '子', '禄']){
+    const c = capOf(L, k);
+    if (L.six[k] >= 100) atTop.push([k, false]);
+    else if (c >= 60 && c < 100 && L.six[k] >= c) atTop.push([k, true]);
+  }
+  if (!atTop.length && L.six['誉'] >= 100) atTop.push(['誉', false]);
+  if (!atTop.length) return;
+  const [full, viaCap] = atTop[0];
+  L.revealed = true; L.revealWhy = full; L.revealAge = L.age; L.revealViaCap = viaCap;
   renderSixBar();
   if (!S.auto) revealFlash(full);
 }
@@ -1949,7 +2289,9 @@ function revealFlash(k){
   sfxReveal();
   const why = (L.monk && k === '誉')
     ? '剃了头，账就不用算了。'
-    : k + '到了头。别的，也就藏不住了。';
+    : (L.revealViaCap
+        ? k + '到了你的头。再往上那一格，本来就不属于你。'
+        : k + '到了头。别的，也就藏不住了。');
   const div = document.createElement('div');
   div.className = 'flash reveal';
   div.innerHTML = `<div class="rv">
@@ -1993,7 +2335,8 @@ function stepHeir(L){
   if (!h) return;
   // 得子：成家早晚，决定得子早晚。室薄的人，连儿子都来得晚
   if (!h.has && !h.lost && !L.lone && L.age >= 20){
-    const need = L.age >= 36 ? 5 : (L.age >= 32 ? 8 : (L.age >= 28 ? 18 : (L.age >= 24 ? 28 : 38)));
+    const need = (L.age >= 36 ? 5 : (L.age >= 32 ? 8 : (L.age >= 28 ? 18 : (L.age >= 24 ? 28 : 38))))
+      - (L.concubine ? 12 : 0);   // 纳妾不改"室"，只是添丁的概率大一点
     if (L.six['室'] >= need){
       h.has = true; h.born = L.age;
       L.six['室'] = clamp(L.six['室'] + 5, 0, 100);
@@ -2024,25 +2367,314 @@ function stepHeir(L){
   L.six['子'] = heirScore(L);
 }
 
+/* ── 职业：每折的常态流量 ──────────────────────────────────────
+   从前所有人的一折都是"禄 +5、财 +4、寿 −4"。现在不是了：
+   文官升得快、家里空；军职命是国家的；商人的财是攒出来的；
+   市井的人没有位，只有一双手和每天少一点的力气。 */
+function stepJob(L){
+  const j = JOB(L.job), f = j.f || {};
+  if (L.monk){                       // 出了家，俸禄这条线就断了；清修换的是命
+    bump(L, '财', 1);
+    bump(L, '寿', -2);               // 清修不是不老，只是老得慢
+    return;
+  }
+  // 倒台之后，位子是真的没了。不是降级，是这条路走到头
+  if (L.ruined){ bump(L, '财', 1); bump(L, '寿', -4); return; }
+  let up = f['禄'] || 0;
+  // 清流：越有名越升不上去。誉过 80，升迁只余三成
+  if (L.track === '清流' && L.six['誉'] > 80) up = Math.round(up * .3);
+  // 官宦人家的门荫：禄低的时候垫一把。位子是给的，不是挣的
+  if (L.track !== '孤臣' && L.six['禄'] < 25 && (ORIGIN_LU[L.origin] || 0) >= 70) up += 1;
+  bump(L, '禄', up);
+  bump(L, '财', (f['财'] || 0) + (L.six['禄'] >= 30 ? 1 : 0));
+  bump(L, '誉', f['誉'] || 0);
+  if (!L.lone) bump(L, '室', f['室'] || 0);
+  bump(L, '寿', f['寿'] || 0);
+  // 门生：教书的人每年都带出几个人。活着时不见得有用，死了才有
+  if (j.id === 'jiao' || j.id === 'shushu') L.pupils = (L.pupils || 0) + 1;
+  // 行当本身就是轨的那几个：每折自己往前走一格
+  const ft = JOB_FOLD_TRK[j.id];
+  if (ft) L.trk[ft] = (L.trk[ft] || 0) + 1;
+}
+
+/* ── 轨：每折的常态代价 ────────────────────────────────────────
+   缺的那一项不是口号，是每四年扣一次的东西。 */
+function stepTrackFx(L){
+  const t = L.track ? TRK(L.track) : null;
+  if (!t) return;
+  const tf = t.fold || {};
+  if (tf['寿']) bump(L, '寿', tf['寿']);      // 权臣 −2、边臣 −3
+  if (tf['禄']) bump(L, '禄', tf['禄']);      // 孤臣：每年多两格
+  if (tf['财']) bump(L, '财', tf['财']);
+  // 边臣：每三折一次战／和。败了不是降职，是少活
+  if (t.id === '边臣' && L.fold % 3 === 0 && L.fold > 0){
+    const win = Math.random() < .5 + ((L.cai['体'] || 60) - 60) / 300;
+    if (win){
+      bump(L, '誉', 6); L.deeds = (L.deeds || 0) + 1;
+      heirNote(L, L.age + ' 岁，这一仗打赢了。城头上风大，我站了很久。');
+    } else {
+      bump(L, '寿', -15); bump(L, '誉', -4);
+      heirNote(L, L.age + ' 岁，败了。名单送到我手上，我自己签的字。');
+    }
+  }
+  // 权臣：倒台。禄、财、誉三样同时归零——这一条从来不是"可能会"
+  if (t.id === '权臣' && L.law >= 45 && L.six['禄'] >= 70 && Math.random() < .45){
+    L.six['禄'] = 0; L.six['财'] = Math.round(L.six['财'] * .2); L.six['誉'] = 0;
+    L.faction = true; L.law = 100; L.ruined = true;
+    heirNote(L, L.age + ' 岁，抄家。我从后门被带走，家里人一个都没见上。');
+  }
+}
+
+/* ── 站边：轨分不是自报的，是从"你怎么做"里看出来的 ─────────────
+   得罪人换名 → 清流；把事办成 → 能吏；落墨换位子 → 权臣；
+   拿命去换 → 边臣；在原地待住 → 循吏；谁也不靠 → 孤臣。 */
+function trackDeltas(o, ev){
+  if (o.tr) return o.tr;
+  const e = o.eff || {}, t = {};
+  const yu = e['誉'] || 0, lu = e['禄'] || 0, cai = e['财'] || 0,
+        shi = e['室'] || 0, shou = e['寿'] || 0;
+  if (yu >= 5) t['清流'] = 3;                           // 得罪人换名，是最响的一次站边
+  else if (yu >= 3 && lu <= 0) t['清流'] = 1;
+  if (o.ink >= 8) t['权臣'] = (t['权臣'] || 0) + 3;      // 落了墨的，都是替人办事
+  else if (o.ink >= 5) t['权臣'] = (t['权臣'] || 0) + 1;
+  if (lu >= 3) t['能吏'] = 1;                           // 事办成了——禄太常见，只给一分
+  if (lu >= 3 && cai >= 3) t['能吏'] = 2;               // 又升又进钱：这才是能吏
+  if (cai >= 4 && yu <= 0) t['权臣'] = (t['权臣'] || 0) + 1;
+  if (shou <= -4) t['边臣'] = (t['边臣'] || 0) + 2;     // 拿命换的
+  if (shi >= 4 && lu <= 0) t['循吏'] = 2;               // 在原地熬住
+  if (yu >= 3 && lu <= 2) t['循吏'] = (t['循吏'] || 0) + 1;
+  if (o.pupil) t['循吏'] = (t['循吏'] || 0) + 2;        // 提携后进
+  if (o.lone || shi <= -4) t['孤臣'] = (t['孤臣'] || 0) + 2;
+  return t;
+}
+
+// 孤臣的开启条件：室 = 0（无室档），或主动断党。二者都不可逆
+function loneOpen(L){ return L.six['室'] <= 0 || L.lone || L.cutParty; }
+
+function normTrk(L, k){ return (L.trk[k] || 0) / (TRACK_RATE[k] || 1); }
+
+function stepTrack(L){
+  // 这条轴能不能被归进这一轨；孤臣还要另外开条件
+  const ok = AXIS_TRK[JOB(L.job).axis] || ['孤臣'];
+  const pool = TRACK.filter(t => ok.includes(t.id)
+    && (t.id !== '孤臣' || loneOpen(L)));
+  let best = null, bv = 0;
+  pool.forEach(t => { const v = normTrk(L, t.id); if (v > bv){ bv = v; best = t.id; } });
+  if (!best) return;
+  const NEED = 5;
+  if (!L.track){
+    if (bv >= NEED){
+      L.track = best; L.trackAt = L.age;
+      recalcCaps(L); trackFlash('定 轨', best, TRK(best).lack);
+    }
+    return;
+  }
+  if (best !== L.track && bv >= NEED && normTrk(L, best) - normTrk(L, L.track) >= 2.5){
+    const old = L.track;
+    L.track = best; L.trackAt = L.age; L.trackChange = (L.trackChange || 0) + 1;
+    // 改轨有价：誉 −8，旧同党视你为叛，此后所有"托人"判定 −15
+    bump(L, '誉', -8); L.betrayed = true;
+    recalcCaps(L); trackFlash('改 轨', old + ' → ' + best, TRK(best).lack);
+  }
+}
+
+function trackFlash(a, b, lack){
+  const L = S.life;
+  const veil = !L.revealed;
+  const div = document.createElement('div');
+  div.className = 'flash';
+  div.innerHTML = `<div class="deltas"><span style="color:var(--ink2);letter-spacing:.14em">${
+    a} · ${b}${lack ? '（缺' + lack + '）' : ''}</span></div>`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 2200);
+  heirNote(L, a.replace(/ /g, '') + '：' + b);
+}
+
+/* ══════════════ 情关（§7） ══════════════
+   三轴：情（她对你，每年 −2，不维护就淡）／义（你欠她）／时（窗口，过期作废）。
+   情不显示数字——你只能从回信的字数、从她看你的次数里猜。
+   这一条是全作最狠的机制：不是"你选错了"，是"你没来得及"。 */
+const XING = ['沈','顾','陆','周','冯','柳','温','苏','叶','程','许','裴'];
+const LOOK = [
+  '她说话的时候总看着别处，说完才看你一眼。',
+  '她笑起来先皱一下鼻子，像在忍着什么。',
+  '她走路很快，像总有件事在等她。',
+  '她记性极好，你说过一遍的事她都记得。',
+  '她不太说话，可一开口就问到点上。'
+];
+const LKIND = {
+  A:{ an:'你爱她，她不爱', lack:'寿', why:'「念」伤身' },
+  B:{ an:'她爱你，你不爱', lack:'誉', why:'「负」损名' },
+  C:{ an:'两情相悦，她变了心', lack:'誉', why:'「疑」使人刻薄' },
+  D:{ an:'两情相悦，抵不过现实', lack:'禄', why:'「债」替你选一次' }
+};
+
+function startLove(L){
+  const r = Math.random();
+  const kind = r < .30 ? 'A' : r < .52 ? 'B' : r < .80 ? 'C' : 'D';
+  const hi = () => 70 + R(21), lo = () => 22 + R(20);
+  L.love = {
+    kind, xing: pick(XING), look: pick(LOOK),
+    qing: kind === 'A' ? lo() : hi(),
+    mine: kind === 'B' ? lo() : hi(),
+    yi: 0, shi: 1, done: false, due: false,
+    result: null, mods: null
+  };
+  heirNote(L, L.age + ' 岁，我见到了' + L.love.xing + '家的姑娘。' + L.love.look);
+}
+
+// 每年 −2，一折四年；窗口到期就作废，永不复开
+function stepLove(L){
+  const V = L.love;
+  if (!V || V.done) return;
+  V.qing = clamp(V.qing - 8, 0, 100);
+  if (V.mods) for (const k in V.mods) bump(L, k, V.mods[k]);
+  if (V.shi > 0){ V.shi--; if (V.shi <= 0) V.due = true; }
+}
+
+/* 情关那一下：四种关，关关都有自己的账 */
+function makeKnot(L){
+  const V = L.love, K = V.kind, an = L.era === 'an';
+  const x = V.xing;
+  const body = {
+    A: an
+      ? `你去${x}家第三回了。她父亲客气，她也客气，客气得像在送一个不该来的人。媒人私下说：她家里已经相看了一户，是城东的。`
+      : `${x}回你消息越来越慢。不是不回，是回得很短。你翻着那几行字，看得出她并没有讨厌你——只是没有那样想你。`,
+    B: an
+      ? `${x}等了你两年。她母亲已经问过三次了。她见你的时候什么都不说，只是把茶推到你手边，推得很慢。`
+      : `${x}不问你要什么，只是每次你说"再等等"，她都说"好"。你已经数不清自己说过几次了。`,
+    C: an
+      ? `说好了的事，她家忽然要再议。有人替另一户来说合，那户能给她父亲一个缺。她见了你一面，什么都没提，只问你最近瘦了没有。`
+      : `${x}开始回避你的问题。你后来才知道，有人给她介绍了一个更"稳"的人。她说：不是我变心，是我等不起了。`,
+    D: an
+      ? `她父亲把话说透了：门第差着两档，你连一间自己的屋都没有。${x}在里屋，一直没有出来。`
+      : `房子、彩礼、两边老人。这些事你们算了整整一夜，算到最后谁都不说话。她说：我不怕穷，我怕你将来怨我。`
+  }[K];
+  const opts = {
+    A: [
+      { t:'把话说明白', sub:'问一次，不留着', knot:'ask', eff:{寿:-2},
+        line:'我问了。她答得很轻，我听见了。' },
+      { t:'再等等', sub:'也许她会改主意', knot:'wait', eff:{寿:-4},
+        line:'我又等了。等到她家办了事，我才知道自己等的是什么。' },
+      { t:'放手', sub:'不让她为难', knot:'let', eff:{誉:2,寿:-3},
+        line:'我放了手。后来很多年，我一听见那个姓就抬头。' }
+    ],
+    B: [
+      { t:'娶', sub:'她肯将就，你不肯说破', knot:'marry', eff:{室:6},
+        line:'我娶了。她待我极好，好得我心里发虚。' },
+      { t:'不娶', sub:'不能这样耽误她', knot:'refuse', eff:{誉:-3},
+        line:'我说了不娶。她点点头，说"我早知道"。' },
+      { t:'拖', sub:'再说吧', knot:'drag', eff:{寿:-2},
+        line:'我拖了。拖到她自己把这件事了了。' }
+    ],
+    C: [
+      { t:'挽回', sub:'花钱，或者求人调回来', knot:'save', eff:{财:-14,禄:-6},
+        line:'我把能拿出来的都拿出来了。她回来了，可有些东西没回来。' },
+      { t:'放手', sub:'她要的，我给不了', knot:'letgo', eff:{誉:-4,寿:-5},
+        line:'我放了手。此后我看谁都先想一层。' },
+      { t:'装作不知道', sub:'等它自己过去', knot:'blind', eff:{誉:-6},
+        line:'我装作不知道。她也装作不知道。我们装了很久。' }
+    ],
+    D: [
+      { t:'扛', sub:'拿命去补那个缺口', knot:'carry', eff:{寿:-8,财:-10},
+        line:'我扛了。那几年我怎么过来的，我没跟任何人说过。' },
+      { t:'放', sub:'认清自己够不着', knot:'release', eff:{誉:-2},
+        line:'我放了。她家后来帮过我一次，也挡过我一次。' },
+      { t:'私奔', sub:'什么都不要了', knot:'run', eff:{誉:-8,寿:4},
+        line:'我什么都不要了。那天晚上的车，我记了一辈子。' }
+    ]
+  }[K];
+  return {
+    id:'knot', force:true, head:'wedding',
+    an:'情 关', mo:'情 关',
+    bodyAn: body, bodyMo: body,
+    opts
+  };
+}
+
+function knotted(L, tag){ L.knots = L.knots || []; if (!L.knots.includes(tag)) L.knots.push(tag); }
+function lockSix(L, k){ L.lockSix = L.lockSix || {}; L.lockSix[k] = Math.min(L.lockSix[k] === undefined ? 100 : L.lockSix[k], 70); }
+
+function resolveKnot(L, act){
+  const V = L.love; if (!V || V.done) return;
+  const K = V.kind, q = V.qing;
+  V.done = true; V.act = act;
+  let res = '', line = '';
+  if (K === 'A'){
+    const win = q >= 60, half = q >= 40 && q < 60;
+    if (act === 'ask' && win){ res = '成'; bump(L,'室',0); L.six['室'] = 80; if (L.lockSix) L.lockSix['室'] = 85;
+      line = '她应了。婚礼很简，她一直低着头。'; }
+    else if ((act === 'ask' || act === 'wait') && (win || half)){
+      res = '半'; L.six['室'] = Math.max(L.six['室'], 60);
+      V.mods = {室:-12}; lockSix(L, '室');
+      line = '她应了。她待我好，只是不像我待她那样。';
+    } else {
+      res = '败'; knotted(L, '念'); V.mods = {寿:-4}; lockSix(L, '寿');
+      line = '她嫁了别人。此后每年那一天，我都会想起她。';
+    }
+  } else if (K === 'B'){
+    if (act === 'marry'){
+      res = '娶'; L.six['室'] = Math.max(L.six['室'], 60); lockSix(L, '誉');
+      line = '她进了门。很多年后她病，我在任上。';
+    } else if (act === 'refuse'){
+      res = '不娶'; knotted(L, '负'); bump(L,'誉',-6); L.lone = true; lockSix(L, '誉');
+      line = '我说了不娶。此后我没再议过亲。';
+    } else {
+      res = '拖过了'; knotted(L, '负'); L.six['室'] = 0; bump(L,'誉',-10); lockSix(L, '誉');
+      line = '拖到最后，她自己把这件事了了。乡里的话很难听。';
+    }
+  } else if (K === 'C'){
+    if (act === 'save'){
+      res = '挽回'; bump(L,'财',-8); L.six['室'] = Math.max(L.six['室'], 70);
+      lockSix(L, '誉');
+      line = '她回来了。可有些东西，谁也没再提。';
+    } else if (act === 'letgo'){
+      res = '放手'; knotted(L, '疑'); bump(L,'誉',-4); lockSix(L, '誉');
+      line = '我放了手。此后我看谁都先想一层。';
+    } else {
+      res = '被弃'; knotted(L, '疑'); L.six['室'] = 0; bump(L,'誉',-10); lockSix(L, '誉');
+      line = '我装作不知道。她走的时候，我还在装。';
+    }
+  } else {
+    if (act === 'carry'){
+      res = '扛'; V.mods = {寿:-20}; L.six['室'] = Math.max(L.six['室'], 90);
+      L.six['子'] = clamp(L.six['子'] + 10, 0, capOf(L,'子')); lockSix(L, '禄');
+      line = '我扛了。那几年我怎么过来的，我没跟任何人说过。';
+    } else if (act === 'release'){
+      res = '放'; knotted(L, '债'); L.six['室'] = 0; lockSix(L, '禄');
+      line = '我放了。她家后来帮过我一次，也挡过我一次。';
+    } else {
+      res = '私奔'; L.six['禄'] = 0; L.six['财'] = 10; bump(L,'寿',5); bump(L,'誉',-8);
+      lockSix(L, '禄');
+      line = '我什么都不要了。那天晚上的车，我记了一辈子。';
+    }
+  }
+  V.result = res;
+  if (line) heirNote(L, L.age + ' 岁：' + line);
+  recalcCaps(L);
+  // 那一下要你看见，不能只是数字
+  const div = document.createElement('div');
+  div.className = 'flash';
+  div.innerHTML = `<div class="deltas"><span style="color:var(--ink2);letter-spacing:.12em">情关 · ${
+    LKIND[K].an} · ${res}</span></div>`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 2200);
+}
+
 function advanceFold(){
   const L = S.life;
   if (!L) return;
   L.fold++;
   L.age += 4;
-  // 常态流量：官照做、钱照花、人照老、家照冷
-  if (L.monk){
-    // 出了家，俸禄这条线就断了；清修换的是命
-    L.six['财'] = clamp(L.six['财'] + 1, 0, 100);
-  } else {
-    L.six['禄'] = clamp(L.six['禄'] + 5, 0, 100);
-    L.six['财'] = clamp(L.six['财'] + (L.six['禄'] >= 30 ? 4 : 2), 0, 100);
+  stepJob(L);          // 职业的常态流量
+  stepTrackFx(L);      // 轨的常态代价
+  stepLove(L);         // 情关：情每年 −2，窗口每年的在减法
+  if (L.concubine){    // 纳妾不增"室"：那是人丁，不是家室
+    bump(L, '誉', -8);
+    if (!L.lone) bump(L, '室', -12);
   }
-  L.six['誉'] = clamp(L.six['誉'] + 1, 0, 100);
-  // 室：有人在，家自己会长；没人管，就慢慢散
-  if (!L.lone) L.six['室'] = clamp(L.six['室'] + (L.six['室'] >= 45 ? 1 : -1), 0, 100);
   stepHeir(L);
   stepRepute(L);
-  L.six['寿'] = clamp(L.six['寿'] - (L.monk ? 2 : 4), 0, 100);
   stepReveal(L);
   S.bz.gates.forEach((g, i) => {
     if (!L.gateDone[i] && L.age >= g){
@@ -2099,10 +2731,43 @@ function weakestCai(){
 }
 
 /* ══════════════ 局末 ══════════════ */
+/* ── 史评：五笔法（§5.5） ────────────────────────────────────
+   死亡不是结束。死后三年才定稿——这三年里，你的门生、你的敌人、
+   你修过的堤、你烧掉的册子，都还在说话。
+   所以"门生"这一项，活着的时候一点用都没有。 */
+function histoBio(L){
+  const y = L.six['誉'], ink = L.ink;
+  const pupils = L.pupils || 0, big = L.deeds || 0;
+  if (L.monk) return { bio:(L.monk === '佛' ? '《高僧传》' : '《高士传》') + ' —— 不载于吏部之册', note:'方外' };
+
+  let bio;
+  if (L.track === '权臣' && ink >= 60) bio = '《佞幸传》 —— 善伺上意，天下侧目';
+  else if (L.track === '权臣' || L.faction) bio = '附传 —— 某人之党也，附见其传';
+  else if (L.track === '能吏' && ink >= 45) bio = '《酷吏传》 —— 所至有能名，民畏之，亦思之';
+  else if (L.track === '循吏') bio = '《循吏传》';
+  else if (L.track && y >= 70 && big >= 1) bio = '本传';
+  else if (L.track) bio = y >= 45 ? '《循吏传》' : '无传 ——「时同僚有某者」';
+  else bio = JOB(L.job).axis === '市'
+      ? '不载 —— 里巷之人，本无传'
+      : '无传 ——「时同僚有某者」';      // 未入任何轨：一行，没有名字
+
+  // 死后三年，门生替你说话。生前最不在意的那几个人，决定这一行怎么写
+  let note = '';
+  const none = bio.indexOf('无传') === 0 || bio.indexOf('不载') === 0;
+  if (pupils >= 2 && none){ bio = '本传 —— 门生某某为之状'; note = '门生'; }
+  else if (pupils >= 2 && bio === '本传'){ bio = '本传（详） —— 门生某某为之状'; note = '门生'; }
+  else if (pupils >= 2 && bio.indexOf('附传') === 0){ bio = '本传 —— 门生某某为之状'; note = '门生'; }
+  else if (pupils === 0 && bio === '本传'){ bio = '本传（简） —— 无门生为状，事迹多阙'; }
+  else if (pupils === 0 && y < 30) bio = '无传 ——「时同僚有某者」';
+  return { bio, note };
+}
+
 function endLife(reason){
   const L = S.life;
   sfxDeath();                          // 一声闷鼓，往下掉
   let keys = (L.lone ? SIXK.filter(k => k !== '室') : SIXK.slice()).filter(k => k !== '寿');
+  // 无禄的路线（市井、个体户）不按禄算——他没有这一格，不是缺了这一格
+  if (capOf(L, '禄') === 0) keys = keys.filter(k => k !== '禄');
   // 出了家：室与子本就不在其道，不按"缺"算
   if (L.monk) keys = keys.filter(k => k !== '子');
   // 没活到能立后的年纪，不算"绝后"——那是没来得及，不是缺
@@ -2122,15 +2787,9 @@ function endLife(reason){
   else { verdict = '空'; why = `缺的是${minK}。它把别的都吃掉了。`; }
   why = `卒于 ${L.age} 岁 · 最薄一格是${minK}（${minV}）`;
 
-  // 史评
-  const y = L.six['誉'], lu = L.six['禄'];
-  let biog;
-  if (L.monk) biog = (L.monk === '佛' ? '《高僧传》' : '《高士传》') + ' —— 不载于吏部之册';
-  else if (L.ink >= 60) biog = '《佞幸传》，附于某权臣传后';
-  else if (y >= 70 && lu >= 50) biog = '本传';
-  else if (L.six['室'] <= 5) biog = '附传 —— 无党、无室，附于某人之末';
-  else if (y >= 45) biog = '循吏传';
-  else biog = '无传 ——「时同僚有某者」';
+  // 史评：五笔法。死后三年才定稿（见 histoBio）
+  const hb = histoBio(L);
+  const biog = hb.bio;
 
   // 手记：取三句
   let lines = L.lines.slice(-3);
@@ -2150,6 +2809,12 @@ function endLife(reason){
     verdict: verdict + ' · ' + minK + Math.round(L.six[minK]),
     biog, minK, minV, six: Object.assign({}, L.six), age: L.age,
     origin: L.originName, lines, heir: heirLine(L),
+    job: (L.era === 'an' ? JOB(L.job).an : JOB(L.job).mo),
+    track: L.track, trackAt: L.trackAt || 0, trackChange: L.trackChange || 0,
+    pupils: L.pupils || 0, deeds: L.deeds || 0, bioNote: hb.note,
+    love: L.love ? { kind: L.love.kind, xing: L.love.xing,
+                     result: L.love.result || '没来得及', act: L.love.act || null } : null,
+    knots: (L.knots || []).slice(), concubine: !!L.concubine,
     repute: L.reputeFull ? L.reputeWhy : null, monk: L.monk,
     revealed: !!L.revealed, revealAt: L.revealAge || 0, revealWhy: L.revealWhy,
     heirAt: { has: L.heir.has, job: L.heir.job, grand: L.heir.grand, great: L.heir.great, born: L.heir.born }
@@ -2181,16 +2846,24 @@ function showHand(i){
   const isAn = rec.era === 'an';
   $('#handTitle').textContent = `第 ${'一二三四五六七八'[i-1]} 局 · 卒`;
   $('#handSub').textContent = `${rec.origin} · ${rec.yearLabel} · 卒于 ${rec.age} 岁`;
-
   const edits = S.edits.filter(e => e.life === i);
   $('#handBody').innerHTML = `
     <div class="verdict">
       <div class="big">${rec.verdict.split(' · ')[0]}</div>
       <div class="why">${rec.biog}</div>
+      <div style="margin-top:7px;font-family:var(--kai);font-size:11.5px;letter-spacing:.1em;
+        color:var(--ink3)">${rec.job || '—'} · ${
+        rec.track ? '入' + rec.track + '轨' + (rec.trackAt ? '（' + rec.trackAt + ' 岁定）' : '')
+                  : '未入任何一轨'}${
+        rec.trackChange ? ' · 改轨 ' + rec.trackChange + ' 次' : ''}${
+        rec.pupils ? ' · 门生 ' + rec.pupils + ' 人' : ''}</div>
     </div>
     <div class="six-final">
       ${SIXK.map(k => `<div><span>${k}</span><b>${Math.round(rec.six[k])}</b></div>`).join('')}
     </div>
+    ${rec.love ? `<div style="text-align:center;margin-top:14px;font-family:var(--kai);font-size:12.5px;
+       letter-spacing:.1em;color:var(--ink2)">情 · ${rec.love.xing}家 · ${rec.love.result}${
+         (rec.knots && rec.knots.length) ? ' · ' + rec.knots.join('、') : ''}</div>` : ''}
     ${rec.heir ? `<div style="text-align:center;margin-top:16px;font-family:var(--kai);font-size:12.5px;
        letter-spacing:.1em;color:var(--ink2)">子 · ${rec.heir}</div>` : ''}
     ${(rec.monk || rec.repute) ? `<div style="text-align:center;margin-top:8px;font-family:var(--kai);
