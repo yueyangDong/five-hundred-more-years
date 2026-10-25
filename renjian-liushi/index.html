@@ -697,10 +697,10 @@ const ORIGINS = [
 const JOBS = [
   /* ── 仕：有"位"的人 ── */
   { id:'wen', axis:'仕', an:'文官', mo:'公务员', luCap:100,
-    f:{禄:6, 财:1, 誉:1, 寿:-5, 室:-1},
+    f:{禄:6, 财:1, 誉:1, 寿:-5, 室:0},
     d:'位子就是你的全部。位子一没，你什么都不是。' },
   { id:'wu', axis:'仕', an:'军职', mo:'军官', luCap:60,
-    f:{禄:4, 财:2, 誉:1, 寿:-7, 室:-2},
+    f:{禄:4, 财:2, 誉:1, 寿:-7, 室:-1},
     d:'命是国家的。一纸调防文书，家就散了。' },
   { id:'jiao', axis:'仕', an:'教职', mo:'教师', luCap:50,
     f:{禄:1, 财:0, 誉:1, 寿:-3, 室:1},
@@ -818,6 +818,11 @@ const AXIS_TRK = {
 function capOf(L, k){
   if (!L.capSix) return 100;
   let c = L.capSix[k] === undefined ? 100 : L.capSix[k];
+  // 学能改命：读过的书把"顶"往上抬一点。抬得动，但抬不到极处——
+  // 天才是天生的，学出来的只是"够用"
+  if (k === '禄' || k === '誉'){
+    c = Math.min(90, c + Math.min(12, Math.floor((L.study || 0) / 2)));
+  }
   const lk = L.lockSix && L.lockSix[k];
   if (lk !== undefined && lk < c) c = lk;
   return c;
@@ -1496,6 +1501,55 @@ const EV = [
       line:'我说不议亲。我娘哭了一夜，第二天照常做饭。' }
    ]},
 
+ /* ───── 学：读书能改命，但改不到极处 ───── */
+ { id:'read', minAge:16, maxAge:45, head:'study', an:'读 书', mo:'进 修',
+   bodyAn:'县学的门房认得你的鞋。举业这件事，读死书不算，可不读连门都进不去。灯油一晚三分，你算过很多回。',
+   bodyMo:'有个证、有个学历，简历上就能多一行。夜里两点的课，你也上过；上到第三个月，你开始怀疑自己图什么。',
+   opts:[
+    { t:'苦 读', sub:'把能用的时间都押上', eff:{寿:-5,禄:3}, study:3, cai:{智:1},
+      line:'我读了。那几年手指上有墨，洗不掉。' },
+    { t:'拜 师', sub:'花钱买一条门路', eff:{财:-8,誉:2}, study:2, cai:{言:1},
+      line:'我拜了师。先生教我的第一件事，是怎么递帖子。' },
+    { t:'不 读', sub:'书救不了我这样的人', eff:{寿:2,财:2},
+      line:'我没读。后来我算账比谁都快，字还是写不好。' }
+   ]},
+
+ /* ───── 气运：顺的时候遇人，背的时候撞事 ───── */
+ { id:'guiren', minAge:22, maxAge:52, minYun:70, head:'court', an:'贵 人', mo:'遇 上 一 个 人',
+   bodyAn:'席上有个人多看了你一眼，问了你一句话。这一句话，后来值一个缺。你连他的官称都没记全。',
+   bodyMo:'一个饭局上，有人把你的名字记下了。三个月后，一个机会自己找了过来。',
+   opts:[
+    { t:'接 住', sub:'这时候不推辞', eff:{禄:9,财:4}, yun:5, deed:true,
+      line:'我接住了。那一年我什么也没做错。' },
+    { t:'推 掉', sub:'不是我的路', eff:{誉:5,禄:-4}, yun:-3,
+      line:'我推了。后来听说那个位子坐了个人，坐了十年。' },
+    { t:'问清楚', sub:'先看他图什么', eff:{誉:3,禄:4}, cai:{巧:1},
+      line:'我先问了他图什么。他笑了，说"你这人谨慎"。' }
+   ]},
+
+ { id:'wuwang', minAge:20, maxAge:50, maxYun:30, head:'ruin', an:'无 妄 之 灾', mo:'一 次 意 外',
+   bodyAn:'一桩跟你毫不相干的事，偏偏查到了你门口。有人说是运气，有人说是命。你翻来覆去想：凭什么是我。',
+   bodyMo:'一件跟你没关系的事，最后落到了你头上。你去问，人家说"流程就是这样"。',
+   opts:[
+    { t:'认', sub:'该我倒霉', eff:{财:-6,寿:-3}, yun:-10, law:5,
+      line:'我认了。认了之后，事情反而小了。' },
+    { t:'托 人', sub:'花钱把事推出去', eff:{财:-12,誉:-2}, yun:8,
+      line:'我托了人。事情转了个弯，落到别人头上。' },
+    { t:'硬 顶', sub:'不认这个理', eff:{寿:-5,誉:6}, yun:-4, ink:3,
+      line:'我硬顶了。顶赢了，也顶出了一身病。' }
+   ]},
+
+ { id:'late', minAge:30, maxAge:46, softLone:true, head:'wedding',
+   an:'媒 人 又 来 了', mo:'又 有 人 介 绍',
+   bodyAn:'当年你说不议亲，说得干脆。这些年过去，媒人又来了两回，来的都是些"条件差一层"的。她说这一回这个，人很实在。',
+   bodyMo:'当年那句"不着急"，一放就是十几年。现在介绍来的，多半也是被挑剩下的。你看着对方，忽然想不起自己当年在等什么。',
+   opts:[
+    { t:'将 就', sub:'一个人过太久了', eff:{室:14,誉:-4}, unlone:true,
+      line:'我应了。婚礼办得很小，我们都没请什么人。' },
+    { t:'一 个 人 过', sub:'这条路我认了', eff:{誉:4,寿:2},
+      line:'我摇了摇头。回去的路上买了半斤酒，一个人喝完。' }
+   ]},
+
  { id:'qie', minAge:28, minShi:30, head:'home', an:'纳 妾', mo:'另 一 个 人',
    bodyAn:'家里一直没有儿子，族里的话越来越难听。有人说，纳一房就是了——添丁，也算对得起祖先。',
    bodyMo:'家里催得紧。有人说，换个人生就是了。你听着，没有反驳。',
@@ -1905,6 +1959,10 @@ function startLife(origin){
     cutParty: false,          // 主动断党：孤臣的另一条开启条件
     ruined: false,            // 倒台：权臣的结局，位子是真的没了
     deeds: 0, pupils: 0,      // 大事 / 门生。门生到死后才结算
+    // 气运：看不见，只能从"顺不顺"里猜。三年一转，转的时候人会知道
+    yun: clamp(42 + (bz.he || 0) * 6 - (bz.ch || 0) * 6 + R(18), 8, 92),
+    // 学：读书、拜师、进修攒下来的东西。它能顶高你的顶，但顶不到极处
+    study: 0,
     // 情关：情／义／时三轴。情不出数，只给字数
     love: null, lockSix: {}, knots: [], concubine: false,
     capSix: null,
@@ -1972,6 +2030,14 @@ function renderLife(){
   if (V && !V.done) hintLines.push('情 · ' + V.xing + '家 · 窗口还剩 ' + Math.max(0, V.shi) + ' 折');
   else if (V && V.result) hintLines.push('情 · ' + V.result + ' —— ' + LKIND[V.kind].an);
   if (L.knots && L.knots.length) hintLines.push('情 · ' + L.knots.join('、') + ' · 记着');
+  // 气运不给数，只给一句"风往哪边吹"
+  hintLines.push('运 · ' + (L.yun >= 76 ? '这几年风是顺着吹的，做什么都有人接'
+    : L.yun >= 60 ? '还算顺'
+    : L.yun >= 41 ? '不咸不淡'
+    : L.yun >= 25 ? '这两年做什么都差一口气'
+    : '霉得说不出口'));
+  // 学能改命，但不外露
+  if (L.study >= 6) hintLines.push('学 · 书没有白读（此身的顶，被撑高了一点）');
   if (L.monk) hintLines.push('誉 · 方外之名（' + L.monk + '门）');
   else if (L.reputeFull) hintLines.push('誉 · 一极即满 —— ' + L.reputeWhy);
   if (!L.revealed){                              // 寿不给你数，只给身子的话
@@ -2082,11 +2148,19 @@ function pickEvent(){
     && (!e.noTrack || e.noTrack !== L.track)
     && (!e.noLove || !L.love)                        // 已经有一关了，不再开第二关
     && (!e.minShi || L.six['室'] >= e.minShi)
+    && (!e.minYun || L.yun >= e.minYun)              // 顺的时候才遇得上"贵人"
+    && (!e.maxYun || L.yun <= e.maxYun)              // 背的时候才撞得上"无妄"
+    && (!e.softLone || (L.lone && L.loneSoft))       // "将就"只给当年说不议亲的人"
     && (!e.beforeJob || !(L.heir && L.heir.judged))   // 人都二十了，再谈"教"就晚了
     && (!e.noMonk || !L.monk)
     && !e.force);                       // 强制事件不进日常池
   // 情关的窗口到了。这一折不谈别的，只谈这一件
   if (L.love && L.love.due && !L.love.done) return makeKnot(L);
+  // 当年说过"不议亲"的，三十岁以后媒人会再来一次
+  const late = EV.find(e => e.id === 'late');
+  if (late && L.loneSoft && !L.used.includes('late') && L.age >= 32){
+    L.used.push('late'); return late;
+  }
   // 一生总要遇上一次。二十岁上下，它会自己找上来——不是你去挑的
   const meet = EV.find(e => e.id === 'meet');
   if (meet && !L.love && !L.monk && !L.used.includes('meet')
@@ -2122,7 +2196,7 @@ function choose(ev, o){
     const raw = o.eff[k];
     if (!raw) continue;
     if (k === '子') continue;          // 子不走加减，走台阶（见 stepHeir）
-    let v = Math.round(raw * 0.65);
+    let v = Math.round(raw * 0.8);
     if (v === 0) v = raw > 0 ? 1 : -1;
     L.six[k] = clamp(L.six[k] + v, 0, capOf(L, k));
     deltas.push({ k, v });
@@ -2133,6 +2207,11 @@ function choose(ev, o){
     L.law = clamp(L.law + Math.round(o.ink * .8), 0, 100);
   }
   if (o.law) L.law = clamp(L.law + o.law, 0, 100);
+  if (o.study){
+    L.study = (L.study || 0) + o.study;
+    if (o.study >= 3) heirNote(L, L.age + ' 岁，书读进去了。手指上有墨，洗不掉。');
+  }
+  if (o.yun) L.yun = clamp((L.yun || 50) + o.yun, 5, 95);
   if (o.lone){ L.lone = true; }
   if (ev && ev.id === 'case') L.law = 10;          // 这一案结了，账翻过去
   if (o.monk){
@@ -2193,7 +2272,7 @@ function choose(ev, o){
 
   // 情关：开、断、还是干脆不议亲
   if (o.knot) resolveKnot(L, o.knot);
-  if (o.love === 'none') L.lone = true;
+  if (o.love === 'none'){ L.lone = true; L.loneSoft = true; }
   else if (o.love){
     startLove(L);
     if (o.love === 'chase'){
@@ -2204,6 +2283,7 @@ function choose(ev, o){
       bump(L, '室', 4);
     }
   }
+  if (o.unlone){ L.lone = false; L.loneSoft = false; }
   if (o.concubine) L.concubine = true;
 
   // 改史
@@ -2335,11 +2415,11 @@ function stepHeir(L){
   if (!h) return;
   // 得子：成家早晚，决定得子早晚。室薄的人，连儿子都来得晚
   if (!h.has && !h.lost && !L.lone && L.age >= 20){
-    const need = (L.age >= 36 ? 5 : (L.age >= 32 ? 8 : (L.age >= 28 ? 18 : (L.age >= 24 ? 28 : 38))))
-      - (L.concubine ? 12 : 0);   // 纳妾不改"室"，只是添丁的概率大一点
-    if (L.six['室'] >= need){
+    const need = (L.age >= 36 ? 3 : (L.age >= 32 ? 5 : (L.age >= 28 ? 12 : (L.age >= 24 ? 20 : 28))))
+      - (L.concubine ? 10 : 0);   // 纳妾不改"室"，只是添丁的概率大一点
+    if (L.six['室'] + (L.yun - 50) * 0.3 >= need){
       h.has = true; h.born = L.age;
-      L.six['室'] = clamp(L.six['室'] + 5, 0, 100);
+      L.six['室'] = clamp(L.six['室'] + 8, 0, capOf(L, '室'));
       heirNote(L, L.age + ' 岁，儿子落地。抱他的时候我不敢用力。');
     }
   }
@@ -2347,9 +2427,10 @@ function stepHeir(L){
     // 立业：只看他二十岁那年。立没立起来，一次定终身
     if (h.has && !h.judged && L.age >= h.born + 20){
       const teach = Math.max(L.raised || 0, (L.cai && L.cai['智'] >= 78) ? 1 : 0);
-      const sc = L.six['禄'] * .5 + L.six['财'] * .25 + teach * 30;
+      // 立业看的是"这个家托不托得住他"：位子、家底、屋里的人气，都算
+      const sc = L.six['禄'] * .5 + L.six['财'] * .3 + L.six['室'] * .2 + teach * 20;
       h.judged = true;
-      h.job = sc >= 70;
+      h.job = sc >= 55;
       heirNote(L, h.job ? '他做了官。我送他到门口，忽然不知道该说什么。'
                         : '他没能做上官。这件事我们父子都没提过。');
     }
@@ -2388,7 +2469,10 @@ function stepJob(L){
   bump(L, '禄', up);
   bump(L, '财', (f['财'] || 0) + (L.six['禄'] >= 30 ? 1 : 0));
   bump(L, '誉', f['誉'] || 0);
-  if (!L.lone) bump(L, '室', f['室'] || 0);
+  // 室里有人，家自己会长；没人的屋子才会空下去
+  let shi = f['室'] || 0;
+  if (L.six['室'] >= 40) shi += 1;
+  if (!L.lone) bump(L, '室', shi);
   bump(L, '寿', f['寿'] || 0);
   // 门生：教书的人每年都带出几个人。活着时不见得有用，死了才有
   if (j.id === 'jiao' || j.id === 'shushu') L.pupils = (L.pupils || 0) + 1;
@@ -2408,7 +2492,7 @@ function stepTrackFx(L){
   if (tf['财']) bump(L, '财', tf['财']);
   // 边臣：每三折一次战／和。败了不是降职，是少活
   if (t.id === '边臣' && L.fold % 3 === 0 && L.fold > 0){
-    const win = Math.random() < .5 + ((L.cai['体'] || 60) - 60) / 300;
+    const win = Math.random() < .5 + ((L.cai['体'] || 60) - 60) / 300 + (L.yun - 50) / 400;
     if (win){
       bump(L, '誉', 6); L.deeds = (L.deeds || 0) + 1;
       heirNote(L, L.age + ' 岁，这一仗打赢了。城头上风大，我站了很久。');
@@ -2597,7 +2681,7 @@ function lockSix(L, k){ L.lockSix = L.lockSix || {}; L.lockSix[k] = Math.min(L.l
 
 function resolveKnot(L, act){
   const V = L.love; if (!V || V.done) return;
-  const K = V.kind, q = V.qing;
+  const K = V.kind, q = clamp(V.qing + (L.yun - 50) * 0.25, 0, 100);
   V.done = true; V.act = act;
   let res = '', line = '';
   if (K === 'A'){
@@ -2661,6 +2745,30 @@ function resolveKnot(L, act){
   setTimeout(() => div.remove(), 2200);
 }
 
+/* ── 气运：看不见的那一手 ─────────────────────────────────────
+   同一个八字，有人一辈子顺，有人一辈子差一口气。差别不在做了什么，
+   在"什么时候做"。气运三年一小转（这里三折十二年一大转），
+   转的时候不报数字，只让人知道风是顺着吹还是逆着吹。 */
+function stepFortune(L){
+  if (L.fold > 0 && L.fold % 3 === 0){
+    const old = L.yun;
+    L.yun = clamp(L.yun + R(31) - 15, 5, 95);
+    if (Math.abs(L.yun - old) >= 18){
+      const div = document.createElement('div');
+      div.className = 'flash';
+      div.innerHTML = '<div class="deltas"><span style="color:var(--ink2);letter-spacing:.14em">'
+        + (L.yun > old ? '运 · 转了 —— 风向变了' : '运 · 转了 —— 风停了') + '</span></div>';
+      document.body.appendChild(div);
+      setTimeout(() => div.remove(), 2000);
+    }
+  }
+  // 顺的时候，连名声都涨得比别人快；不顺的时候，做什么都差一口气
+  if (L.yun >= 70) bump(L, '誉', 1);
+  else if (L.yun <= 30) bump(L, '誉', -1);
+}
+
+function luckOf(L){ return (L.yun - 50) / 100; }   // −0.45 … +0.45
+
 function advanceFold(){
   const L = S.life;
   if (!L) return;
@@ -2668,6 +2776,7 @@ function advanceFold(){
   L.age += 4;
   stepJob(L);          // 职业的常态流量
   stepTrackFx(L);      // 轨的常态代价
+  stepFortune(L);      // 气运：三年一转，顺逆都落在名声上
   stepLove(L);         // 情关：情每年 −2，窗口每年的在减法
   if (L.concubine){    // 纳妾不增"室"：那是人丁，不是家室
     bump(L, '誉', -8);
@@ -2703,7 +2812,7 @@ function applyGate(i){
   const L = S.life;
   const key = [S.bz.main, weakestCai(), '缘'][i];
   const val = L.cai[key] || 60;
-  const pass = val + R(30) > 62;
+  const pass = val + R(30) + (L.yun - 50) * 0.5 > 62;   // 气运在这一下里也有一份
   const div = document.createElement('div');
   div.className = 'flash';
   div.innerHTML = `<div class="deltas"><span style="color:var(--ink2)">${
@@ -2779,11 +2888,27 @@ function endLife(reason){
   let minK = Object.keys(stat)[0];
   Object.keys(stat).forEach(k => { if (stat[k] < stat[minK]) minK = k; });
   const minV = Math.round(stat[minK]);
+  let maxK = Object.keys(stat)[0];
+  Object.keys(stat).forEach(k => { if (stat[k] > stat[maxK]) maxK = k; });
+  const maxV = Math.round(stat[maxK]);
 
   let verdict, why;
-  if (minV >= 60) { verdict = '六 全'; why = '六样都不算亏。你比谁都清楚代价。'; }
-  else if (minV >= 40) { verdict = '寻 常'; why = '你过得去，只是每一样都差一口气。'; }
-  else if (minV >= 20) { verdict = '缺 一'; why = `你赢了很多，但缺的那一样（${minK}），把其余的都说成空的。`; }
+  // 覆：不是缺一项，是整盘没了
+  const wiped = L.ruined || L.law >= 85
+    || (L.six['财'] <= 6 && L.six['禄'] <= 6 && L.six['室'] <= 12)
+    || (L.six['室'] <= 2 && L.six['子'] <= 5 && L.six['财'] <= 30 && L.age >= 44);
+  // 一个人：没有室，也没有后。这不是"什么都没得到"，是"从来没往里放东西"
+  const aloner = L.six['室'] <= 5 && L.six['子'] <= 5 && L.age >= 40;
+  // 绝：别的都还在，就是没有后
+  const noHeir = L.six['子'] <= 5 && L.age >= 45;
+  if (wiped){ verdict = '覆'; why = '一场事下来，什么都没剩下。'; }
+  else if (minV >= 54) { verdict = '六 全'; why = '六样都不算亏。你比谁都清楚代价。'; }
+  else if (aloner){ verdict = '孤'; why = '屋里一直只有一双筷子。到最后也没多过。'; }
+  else if (noHeir){ verdict = '绝'; why = '该有的都有了，就是没有人接下去。'; }
+  else if (minV >= 42) { verdict = '寻 常'; why = '你过得去，只是每一样都差一口气。'; }
+  // 起伏：有几格推到很高，最薄那一格却塌着。这不是"平常"，是"差得远"
+  else if (maxV - minV >= 58) { verdict = '起 伏'; why = `你把${maxK}做到了 ${maxV}，可最薄那一格（${minK}）只有 ${minV}。`; }
+  else if (minV >= 12) { verdict = '缺 一'; why = `你赢了很多，但缺的那一样（${minK}），把其余的都说成空的。`; }
   else { verdict = '空'; why = `缺的是${minK}。它把别的都吃掉了。`; }
   why = `卒于 ${L.age} 岁 · 最薄一格是${minK}（${minV}）`;
 
